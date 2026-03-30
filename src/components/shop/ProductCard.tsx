@@ -78,9 +78,9 @@ export function ProductCard({ product, onViewDetails, showDataSource = false }: 
       title: "Added to cart",
       description: `${selectedDenomination}g of ${product.name} added to your cart.`,
       action: (
-        <Button size="sm" variant="outline" className="shrink-0" onClick={() => setIsCartOpen(true)}>
+        <ToastAction altText="View Cart" onClick={() => setIsCartOpen(true)}>
           View Cart
-        </Button>
+        </ToastAction>
       ),
     });
   };
