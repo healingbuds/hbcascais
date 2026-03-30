@@ -286,11 +286,15 @@ const Auth = () => {
 
     setLoading(true);
 
-    // Use consistent production URL for password reset redirects
+    // Use branded password reset via Edge Function (generates link via admin API + sends via Resend)
     const redirectUrl = getProductionPath('/auth');
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: redirectUrl,
+    const { error } = await supabase.functions.invoke('send-password-reset', {
+      body: {
+        email: email.trim(),
+        redirectTo: redirectUrl,
+        region: 'ZA',
+      },
     });
 
     setLoading(false);
@@ -298,7 +302,7 @@ const Auth = () => {
     if (error) {
       toast({
         title: t('error'),
-        description: error.message,
+        description: "Failed to send reset email. Please try again.",
         variant: "destructive",
       });
       return;
