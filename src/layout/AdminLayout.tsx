@@ -69,6 +69,7 @@ interface NavItem {
 
 const managementNavItems: NavItem[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/admin/revenue", label: "Revenue", icon: DollarSign },
   { to: "/admin/clients", label: "Clients", icon: Users },
   { to: "/admin/orders", label: "Orders", icon: ShoppingCart },
   { to: "/admin/prescriptions", label: "Prescriptions", icon: FileText },
