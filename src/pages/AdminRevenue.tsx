@@ -305,6 +305,11 @@ const AdminRevenue = () => {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Sales Pipeline Table */}
+      <div className="mt-6">
+        <SalesPipelineTable />
+      </div>
     </AdminLayout>
   );
 };
