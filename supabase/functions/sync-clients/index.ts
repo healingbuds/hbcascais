@@ -224,16 +224,45 @@ serve(async (req) => {
       IRL: 'IE', GRC: 'GR', SWE: 'SE', NOR: 'NO', DNK: 'DK', FIN: 'FI',
     };
 
+    const countryNameToCode: Record<string, string> = {
+      'portugal': 'PT', 'south africa': 'ZA', 'united kingdom': 'GB',
+      'germany': 'DE', 'france': 'FR', 'spain': 'ES', 'italy': 'IT',
+      'netherlands': 'NL', 'belgium': 'BE', 'austria': 'AT', 'switzerland': 'CH',
+      'poland': 'PL', 'czech republic': 'CZ', 'brazil': 'BR',
+      'united states': 'US', 'canada': 'CA', 'australia': 'AU',
+      'new zealand': 'NZ', 'ireland': 'IE', 'greece': 'GR',
+      'sweden': 'SE', 'norway': 'NO', 'denmark': 'DK', 'finland': 'FI',
+    };
+
+    function resolveCountryCode(shipping: any, phoneCountryCode?: string): string {
+      // 1. Explicit countryCode on shipping
+      if (shipping?.countryCode && shipping.countryCode.length === 2) return shipping.countryCode.toUpperCase();
+      // 2. Alpha-3 code
+      if (shipping?.countryCode && shipping.countryCode.length === 3) {
+        const mapped = alpha3ToAlpha2[shipping.countryCode.toUpperCase()];
+        if (mapped) return mapped;
+      }
+      // 3. Country name lookup
+      if (shipping?.country) {
+        const mapped = countryNameToCode[shipping.country.toLowerCase().trim()];
+        if (mapped) return mapped;
+      }
+      // 4. phoneCountryCode (may be dial code like +27, or ISO code)
+      if (phoneCountryCode) {
+        if (phoneCountryCode.length === 2) return phoneCountryCode.toUpperCase();
+        if (phoneCountryCode.length === 3) {
+          const mapped = alpha3ToAlpha2[phoneCountryCode.toUpperCase()];
+          if (mapped) return mapped;
+        }
+      }
+      return 'PT';
+    }
+
     for (const client of allClients) {
       try {
         const fullName = [client.firstName, client.lastName].filter(Boolean).join(' ');
         const shipping = client.shippings?.[0] || null;
-
-        // Resolve country code: prefer countryCode, fall back to alpha-3 conversion of country name
-        const rawCode = shipping?.countryCode || client.phoneCountryCode || '';
-        const countryCode = rawCode.length === 3
-          ? (alpha3ToAlpha2[rawCode.toUpperCase()] || rawCode.substring(0, 2).toUpperCase())
-          : rawCode || shipping?.country?.substring(0, 2)?.toUpperCase() || 'PT';
+        const countryCode = resolveCountryCode(shipping, client.phoneCountryCode);
 
         // Normalize full shipping address from API
         const shippingAddress = shipping ? {
