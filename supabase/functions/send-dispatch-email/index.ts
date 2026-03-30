@@ -8,33 +8,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-interface OrderItem {
-  strain_name: string;
-  quantity: number;
-  unit_price: number;
-}
-
-interface ShippingAddress {
-  address1: string;
-  address2?: string;
-  city: string;
-  state?: string;
-  postalCode: string;
-  country: string;
-}
-
+interface OrderItem { strain_name: string; quantity: number; unit_price: number; }
+interface ShippingAddress { address1: string; address2?: string; city: string; state?: string; postalCode: string; country: string; }
 interface DispatchEmailRequest {
-  email: string;
-  customerName: string;
-  orderId: string;
-  items: OrderItem[];
-  totalAmount: number;
-  currency: string;
-  shippingAddress: ShippingAddress;
-  trackingNumber?: string;
-  estimatedDelivery?: string;
-  region?: string;
-  clientId?: string;
+  email: string; customerName: string; orderId: string; items: OrderItem[];
+  totalAmount: number; currency: string; shippingAddress: ShippingAddress;
+  trackingNumber?: string; estimatedDelivery?: string; region?: string; clientId?: string;
 }
 
 const DOMAIN_CONFIG: Record<string, { brandName: string; supportEmail: string; sendDomain: string }> = {
@@ -53,96 +32,110 @@ function buildDispatchEmailHtml(req: DispatchEmailRequest, config: { brandName: 
   const logoUrl = `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/email-assets/hb-logo-white.png`;
   const currencySymbol = req.currency === "ZAR" ? "R" : req.currency === "GBP" ? "£" : "€";
 
-  const itemRows = req.items
-    .map(
-      (item) => `
-      <tr>
-        <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; color: #18181b; font-size: 14px;">${item.strain_name}</td>
-        <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; color: #18181b; font-size: 14px; text-align: center;">${item.quantity}</td>
-        <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; color: #18181b; font-size: 14px; text-align: right;">${currencySymbol}${(item.unit_price * item.quantity).toFixed(2)}</td>
-      </tr>`
-    )
-    .join("");
+  const itemRows = req.items.map((item) => `
+    <tr>
+      <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#1a1a1a;font-size:14px;font-weight:500;">${item.strain_name}</td>
+      <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#6b7280;font-size:14px;text-align:center;">${item.quantity}</td>
+      <td style="padding:14px 0;border-bottom:1px solid #f3f4f6;color:#1a1a1a;font-size:14px;text-align:right;font-weight:500;">${currencySymbol}${(item.unit_price * item.quantity).toFixed(2)}</td>
+    </tr>`).join("");
 
   const trackingSection = req.trackingNumber
-    ? `<div style="background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 8px; padding: 16px; margin: 24px 0;">
-        <p style="margin: 0 0 8px 0; color: #1e40af; font-size: 14px; font-weight: 600;">📦 Tracking Information</p>
-        <p style="margin: 0; color: #1e40af; font-size: 15px; font-family: monospace; font-weight: 600;">${req.trackingNumber}</p>
+    ? `<div style="border-left:4px solid #3b82f6;background-color:#eff6ff;border-radius:0 12px 12px 0;padding:16px 20px;margin:0 0 24px;">
+        <p style="margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;font-weight:600;">📦 Tracking Number</p>
+        <p style="margin:0;font-size:18px;font-family:'SF Mono',SFMono-Regular,Menlo,monospace;font-weight:700;color:#1e40af;">${req.trackingNumber}</p>
       </div>`
     : "";
 
   const estimatedDeliverySection = req.estimatedDelivery
-    ? `<p style="color: #18181b; font-size: 14px; line-height: 1.6;">
-        <strong>Estimated Delivery:</strong> ${req.estimatedDelivery}
-      </p>`
+    ? `<div style="background-color:#fafaf9;border-radius:12px;padding:16px 20px;margin:0 0 24px;">
+        <p style="margin:0 0 2px;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af;font-weight:600;">📅 Estimated Delivery</p>
+        <p style="margin:0;font-size:16px;font-weight:600;color:#1a1a1a;">${req.estimatedDelivery}</p>
+      </div>`
     : "";
 
   const addr = req.shippingAddress;
 
   return `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f4f4f5;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-    <div style="background-color: #0d9488; padding: 24px; text-align: center;">
-      <img src="${logoUrl}" alt="${config.brandName}" width="180" style="display: inline-block; max-width: 180px; height: auto;" />
-      <p style="color: #ffffff; margin: 12px 0 0 0; font-size: 14px;">Medical Cannabis Care</p>
-    </div>
-    <div style="padding: 32px;">
-      <p style="color: #18181b; font-size: 16px; line-height: 1.6;">Dear ${firstName},</p>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#fafaf9;font-family:'Helvetica Neue',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fafaf9;padding:48px 16px;">
+    <tr><td align="center">
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.06);">
 
-      <div style="background-color: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 16px; margin: 24px 0; text-align: center;">
-        <p style="margin: 0; color: #16a34a; font-size: 18px; font-weight: 600;">🚚 Your Order Has Been Dispatched!</p>
-      </div>
+        <!-- Header -->
+        <tr><td style="background:linear-gradient(135deg,#0D4F45 0%,#0A3D35 50%,#072E28 100%);padding:40px 48px;text-align:center;">
+          <img src="${logoUrl}" alt="${config.brandName}" height="44" style="height:44px;width:auto;display:inline-block;" />
+          <p style="color:rgba(255,255,255,0.7);margin:12px 0 0;font-size:13px;letter-spacing:0.5px;text-transform:uppercase;">Medical Cannabis Care</p>
+        </td></tr>
 
-      <p style="color: #18181b; font-size: 16px; line-height: 1.6;">
-        Great news! Your order with ${config.brandName} has been shipped and is on its way to you.
-      </p>
+        <!-- Body -->
+        <tr><td style="padding:40px 48px;">
+          <div style="border-left:4px solid #0D9488;background-color:#f0fdf4;border-radius:0 12px 12px 0;padding:16px 20px;margin:0 0 28px;">
+            <p style="margin:0;color:#0D4F45;font-size:18px;font-weight:700;">🚚 Your Order Has Been Shipped!</p>
+          </div>
 
-      ${trackingSection}
-      ${estimatedDeliverySection}
+          <h1 style="margin:0 0 8px;font-size:28px;font-weight:700;color:#1a1a1a;letter-spacing:-0.3px;">Great news, ${firstName}!</h1>
+          <p style="margin:0 0 28px;font-size:16px;line-height:1.7;color:#6b7280;">
+            Your order with ${config.brandName} is on its way. Here are your shipping details:
+          </p>
 
-      <p style="color: #71717a; font-size: 13px; margin: 0 0 4px 0;">Order Reference</p>
-      <p style="color: #18181b; font-size: 18px; font-family: monospace; margin: 0 0 24px 0; font-weight: 600;">${req.orderId}</p>
+          ${trackingSection}
+          ${estimatedDeliverySection}
 
-      <table width="100%" cellspacing="0" cellpadding="0" style="margin: 0 0 24px 0;">
-        <thead>
-          <tr style="border-bottom: 2px solid #e5e7eb;">
-            <th style="text-align: left; padding: 8px 0; color: #71717a; font-size: 12px; text-transform: uppercase;">Product</th>
-            <th style="text-align: center; padding: 8px 0; color: #71717a; font-size: 12px; text-transform: uppercase;">Qty</th>
-            <th style="text-align: right; padding: 8px 0; color: #71717a; font-size: 12px; text-transform: uppercase;">Subtotal</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${itemRows}
-          <tr>
-            <td colspan="2" style="padding: 12px 0; font-weight: 700; color: #18181b; font-size: 16px;">Total</td>
-            <td style="padding: 12px 0; font-weight: 700; color: #0d9488; font-size: 16px; text-align: right;">${currencySymbol}${req.totalAmount.toFixed(2)}</td>
-          </tr>
-        </tbody>
+          <!-- Order Reference -->
+          <div style="background-color:#fafaf9;border-radius:12px;padding:16px 20px;margin:0 0 24px;">
+            <p style="margin:0 0 2px;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af;font-weight:600;">Order Reference</p>
+            <p style="margin:0;font-size:18px;font-family:'SF Mono',SFMono-Regular,Menlo,monospace;font-weight:700;color:#1a1a1a;">${req.orderId}</p>
+          </div>
+
+          <!-- Items Table -->
+          <table width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding:10px 0;color:#9ca3af;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #f3f4f6;font-weight:600;">Product</th>
+                <th style="text-align:center;padding:10px 0;color:#9ca3af;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #f3f4f6;font-weight:600;">Qty</th>
+                <th style="text-align:right;padding:10px 0;color:#9ca3af;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #f3f4f6;font-weight:600;">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemRows}
+              <tr>
+                <td colspan="2" style="padding:16px 0 0;font-weight:700;color:#1a1a1a;font-size:16px;">Total</td>
+                <td style="padding:16px 0 0;font-weight:700;color:#0D9488;font-size:18px;text-align:right;">${currencySymbol}${req.totalAmount.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Shipping Address -->
+          <div style="background-color:#fafaf9;border-radius:12px;padding:16px 20px;margin:0 0 24px;">
+            <p style="margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:#9ca3af;font-weight:600;">📍 Shipping To</p>
+            <p style="margin:0;color:#1a1a1a;font-size:14px;line-height:1.7;">
+              ${addr.address1}${addr.address2 ? "<br>" + addr.address2 : ""}<br>
+              ${addr.city}${addr.state ? ", " + addr.state : ""} ${addr.postalCode}<br>
+              ${addr.country}
+            </p>
+          </div>
+
+          <p style="margin:0;font-size:14px;color:#9ca3af;line-height:1.6;">
+            Questions? Contact us at
+            <a href="mailto:${config.supportEmail}" style="color:#0D9488;text-decoration:none;font-weight:500;">${config.supportEmail}</a>.
+          </p>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:0 48px;">
+          <hr style="border:none;border-top:1px solid #e5e7eb;margin:0;" />
+        </td></tr>
+        <tr><td style="padding:28px 48px 36px;text-align:center;">
+          <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#1a1a1a;">${config.brandName}</p>
+          <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;">Your trusted partner in medical cannabis wellness.</p>
+          <p style="margin:0;font-size:11px;color:#d1d5db;">© ${new Date().getFullYear()} ${config.brandName}. All rights reserved.</p>
+        </td></tr>
+
       </table>
-
-      <div style="background-color: #f9fafb; border-radius: 8px; padding: 16px; margin: 0 0 24px 0;">
-        <p style="margin: 0 0 8px 0; color: #71717a; font-size: 12px; text-transform: uppercase;">Shipping To</p>
-        <p style="margin: 0; color: #18181b; font-size: 14px; line-height: 1.6;">
-          ${addr.address1}${addr.address2 ? "<br>" + addr.address2 : ""}<br>
-          ${addr.city}${addr.state ? ", " + addr.state : ""} ${addr.postalCode}<br>
-          ${addr.country}
-        </p>
-      </div>
-
-      <p style="color: #71717a; font-size: 13px; line-height: 1.6;">
-        If you have any questions about your delivery, please contact us at
-        <a href="mailto:${config.supportEmail}" style="color: #0d9488;">${config.supportEmail}</a>.
-      </p>
-    </div>
-    <div style="background-color: #f4f4f5; padding: 20px; text-align: center;">
-      <p style="margin: 0; color: #71717a; font-size: 12px;">${config.brandName}</p>
-      <p style="margin: 8px 0 0 0; color: #a1a1aa; font-size: 11px;">
-        This is a transactional email regarding your order. © ${new Date().getFullYear()}
-      </p>
-    </div>
-  </div>
+    </td></tr>
+  </table>
 </body>
 </html>`;
 }
@@ -156,8 +149,7 @@ const handler = async (req: Request): Promise<Response> => {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        status: 401, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
@@ -170,67 +162,47 @@ const handler = async (req: Request): Promise<Response> => {
     const token = authHeader.replace("Bearer ", "");
     const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
     if (claimsError || !claimsData?.claims) {
-      console.error("[send-dispatch-email] Auth failed:", claimsError?.message);
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        status: 401, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
     const request: DispatchEmailRequest = await req.json();
-    console.log("[send-dispatch-email] Request:", {
-      orderId: request.orderId,
-      email: request.email,
-      trackingNumber: request.trackingNumber || "none",
-    });
-
     if (!request.email || !request.orderId || !request.items?.length) {
       return new Response(JSON.stringify({ error: "Missing required fields: email, orderId, items" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        status: 400, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
     if (!RESEND_API_KEY) {
-      console.error("[send-dispatch-email] RESEND_API_KEY not configured");
       return new Response(JSON.stringify({ success: false, error: "Email service not configured" }), {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
     const config = getDomainConfig(request.region);
     const html = buildDispatchEmailHtml(request, config);
-
-    const subject = `Your Order Has Been Shipped - ${request.orderId} | ${config.brandName}`;
+    const subject = `Your Order Has Been Shipped — ${request.orderId} | ${config.brandName}`;
 
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         from: `${config.brandName} <noreply@${config.sendDomain}>`,
-        to: [request.email.trim()],
-        subject,
-        html,
+        to: [request.email.trim()], subject, html,
       }),
     });
 
     const data = await response.json();
-
     if (!response.ok) {
       console.error("[send-dispatch-email] Resend error:", data);
       return new Response(JSON.stringify({ success: false, error: data.message }), {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
     console.log("[send-dispatch-email] Email sent successfully:", data);
 
-    // Log to kyc_journey_logs if clientId provided
     if (request.clientId) {
       try {
         const userId = claimsData.claims.sub;
@@ -247,14 +219,12 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     return new Response(JSON.stringify({ success: true, data }), {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
+      status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
     console.error("[send-dispatch-email] Error:", error.message);
     return new Response(JSON.stringify({ success: false, error: error.message }), {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
+      status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   }
 };

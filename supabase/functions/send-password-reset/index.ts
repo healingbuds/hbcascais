@@ -23,56 +23,66 @@ function getDomainConfig(region?: string) {
 }
 
 function buildResetEmailHtml(resetLink: string, config: { brandName: string; supportEmail: string }): string {
+  const logoUrl = `${SUPABASE_URL}/storage/v1/object/public/email-assets/hb-logo-white.png`;
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background-color:#f4f4f5;font-family:'Helvetica Neue',Arial,sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f5;padding:40px 20px;">
+<body style="margin:0;padding:0;background-color:#fafaf9;font-family:'Helvetica Neue',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fafaf9;padding:48px 16px;">
     <tr><td align="center">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-        
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.06);">
+
         <!-- Header -->
-        <tr><td style="background:linear-gradient(135deg,#0D9488,#115E59);padding:32px 40px;text-align:center;">
-          <img src="https://vzacvnjbdrdpvlbwvpoh.supabase.co/storage/v1/object/public/email-assets/hb-logo-teal.png" alt="${config.brandName}" height="48" style="height:48px;width:auto;" />
+        <tr><td style="background:linear-gradient(135deg,#0D4F45 0%,#0A3D35 50%,#072E28 100%);padding:40px 48px;text-align:center;">
+          <img src="${logoUrl}" alt="${config.brandName}" height="44" style="height:44px;width:auto;display:inline-block;" />
+          <p style="color:rgba(255,255,255,0.7);margin:12px 0 0;font-size:13px;letter-spacing:0.5px;text-transform:uppercase;">Medical Cannabis Care</p>
         </td></tr>
 
         <!-- Body -->
-        <tr><td style="padding:40px;">
-          <h1 style="margin:0 0 16px;font-size:24px;font-weight:700;color:#1a1a1a;">Reset Your Password</h1>
-          <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#4a4a4a;">
+        <tr><td style="padding:40px 48px;">
+          <div style="text-align:center;margin:0 0 28px;">
+            <div style="display:inline-block;width:56px;height:56px;border-radius:28px;background-color:#f0fdf4;line-height:56px;font-size:28px;text-align:center;">🔒</div>
+          </div>
+          <h1 style="margin:0 0 12px;font-size:28px;font-weight:700;color:#1a1a1a;text-align:center;letter-spacing:-0.3px;">Reset Your Password</h1>
+          <p style="margin:0 0 32px;font-size:16px;line-height:1.7;color:#6b7280;text-align:center;">
             We received a request to reset the password for your ${config.brandName} account. Click the button below to choose a new password.
           </p>
-          
-          <!-- CTA Button -->
-          <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 24px;">
-            <tr><td style="background-color:#0D9488;border-radius:8px;">
-              <a href="${resetLink}" target="_blank" style="display:inline-block;padding:14px 32px;color:#ffffff;font-size:16px;font-weight:600;text-decoration:none;letter-spacing:0.3px;">
+
+          <!-- CTA -->
+          <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 28px;">
+            <tr><td style="background-color:#0D9488;border-radius:24px;">
+              <a href="${resetLink}" target="_blank" style="display:inline-block;padding:14px 40px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;letter-spacing:0.3px;">
                 Reset Password
               </a>
             </td></tr>
           </table>
 
-          <p style="margin:0 0 16px;font-size:13px;line-height:1.5;color:#888888;">
-            If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.
-          </p>
-          <p style="margin:0 0 8px;font-size:13px;color:#888888;">
-            This link will expire in 1 hour for your security.
-          </p>
+          <div style="background-color:#fafaf9;border-radius:12px;padding:20px 24px;margin:0 0 24px;">
+            <p style="margin:0 0 6px;font-size:13px;color:#9ca3af;">
+              ⏱ This link expires in <strong style="color:#6b7280;">1 hour</strong> for your security.
+            </p>
+            <p style="margin:0;font-size:13px;color:#9ca3af;">
+              🛡 If you didn't request this, you can safely ignore this email.
+            </p>
+          </div>
 
-          <!-- Fallback link -->
-          <hr style="border:none;border-top:1px solid #e5e5e5;margin:24px 0;" />
-          <p style="margin:0;font-size:12px;color:#aaaaaa;word-break:break-all;">
-            If the button doesn't work, copy and paste this link into your browser:<br/>
+          <!-- Fallback -->
+          <p style="margin:0;font-size:12px;color:#d1d5db;word-break:break-all;text-align:center;">
+            Can't click the button? Copy this link:<br/>
             <a href="${resetLink}" style="color:#0D9488;">${resetLink}</a>
           </p>
         </td></tr>
 
         <!-- Footer -->
-        <tr><td style="background-color:#f9fafb;padding:24px 40px;text-align:center;border-top:1px solid #e5e5e5;">
-          <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#1a1a1a;">${config.brandName}</p>
-          <p style="margin:0 0 4px;font-size:12px;color:#888888;">Your account security is important to us.</p>
-          <p style="margin:0;font-size:12px;color:#888888;">
-            Need help? Contact us at <a href="mailto:${config.supportEmail}" style="color:#0D9488;text-decoration:none;">${config.supportEmail}</a>
+        <tr><td style="padding:0 48px;">
+          <hr style="border:none;border-top:1px solid #e5e7eb;margin:0;" />
+        </td></tr>
+        <tr><td style="padding:28px 48px 36px;text-align:center;">
+          <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#1a1a1a;">${config.brandName}</p>
+          <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;">Your account security is important to us.</p>
+          <p style="margin:0;font-size:12px;color:#9ca3af;">
+            Need help? <a href="mailto:${config.supportEmail}" style="color:#0D9488;text-decoration:none;font-weight:500;">${config.supportEmail}</a>
           </p>
         </td></tr>
 
@@ -103,8 +113,6 @@ serve(async (req) => {
     }
 
     const config = getDomainConfig(region);
-
-    // Use admin API to generate the recovery link (suppresses default email)
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
@@ -117,7 +125,6 @@ serve(async (req) => {
 
     if (linkError) {
       console.error("generateLink error:", linkError);
-      // Don't reveal if user exists or not
       return new Response(JSON.stringify({ success: true }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -133,7 +140,6 @@ serve(async (req) => {
       });
     }
 
-    // Send branded email via Resend
     const emailHtml = buildResetEmailHtml(resetLink, config);
 
     const resendRes = await fetch("https://api.resend.com/emails", {
