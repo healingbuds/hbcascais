@@ -398,7 +398,7 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
         customerName: drGreenClient.full_name || '',
         orderId: createdOrderId,
         items: cart.map(i => ({ strain_name: i.strain_name, quantity: i.quantity, unit_price: i.unit_price })),
-        totalAmount: cartTotal,
+        totalAmount: confirmedTotal,
         currency: getCurrencyForCountry(clientCountryCode),
         shippingAddress,
         isLocalOrder: false,
