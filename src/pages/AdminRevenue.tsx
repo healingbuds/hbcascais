@@ -155,6 +155,52 @@ const AdminRevenue = () => {
     fetchAll();
   };
 
+  const handleExportCSV = () => {
+    const lines: string[] = [];
+    lines.push("Revenue KPIs");
+    lines.push("Metric,Value");
+    lines.push(`Total Revenue,${sales?.totalSales ?? 0}`);
+    lines.push(`Monthly Sales,${sales?.monthlySales ?? 0}`);
+    lines.push(`Weekly Sales,${sales?.weeklySales ?? 0}`);
+    lines.push(`Daily Sales,${sales?.dailySales ?? 0}`);
+    lines.push("");
+    lines.push("Operations KPIs");
+    lines.push("Metric,Value");
+    lines.push(`Total Clients,${dashboard?.totalClients ?? 0}`);
+    lines.push(`Total Orders,${dashboard?.totalOrders ?? 0}`);
+    lines.push(`Pending Orders,${dashboard?.pendingOrders ?? 0}`);
+    lines.push(`Verified Clients,${dashboard?.verifiedClients ?? 0}`);
+    lines.push("");
+    if (analytics?.salesData?.length) {
+      lines.push("Sales Trend");
+      lines.push("Date,Amount");
+      analytics.salesData.forEach((r) => lines.push(`${r.date},${r.amount}`));
+      lines.push("");
+    }
+    if (analytics?.ordersData?.length) {
+      lines.push("Order Volume");
+      lines.push("Date,Count");
+      analytics.ordersData.forEach((r) => lines.push(`${r.date},${r.count}`));
+      lines.push("");
+    }
+    if (pipeline) {
+      lines.push("Pipeline Summary");
+      lines.push("Stage,Count");
+      lines.push(`Leads,${pipeline.summary.LEADS}`);
+      lines.push(`Ongoing,${pipeline.summary.ONGOING}`);
+      lines.push(`Closed,${pipeline.summary.CLOSED}`);
+    }
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `revenue-dashboard-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const hasData = !!(sales || dashboard || analytics || pipeline);
+
   const fmt = (v: number | undefined) => formatPrice(v ?? 0, "ZA");
 
   const pipelinePieData = pipeline
