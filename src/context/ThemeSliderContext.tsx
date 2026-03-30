@@ -133,6 +133,17 @@ export function ThemeSliderProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return "auto";
     return (localStorage.getItem(MODE_KEY) as "auto" | "manual") || "auto";
   });
+  const [reduceMotion, setReduceMotionState] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const stored = localStorage.getItem(REDUCE_MOTION_KEY);
+    if (stored !== null) return stored === "true";
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
+
+  const setReduceMotion = useCallback((v: boolean) => {
+    setReduceMotionState(v);
+    localStorage.setItem(REDUCE_MOTION_KEY, String(v));
+  }, []);
 
   const setValue = useCallback((v: number) => {
     const clamped = Math.max(0, Math.min(100, Math.round(v)));
