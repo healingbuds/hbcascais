@@ -118,7 +118,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('shop');
   const { toast } = useToast();
-  const { createPayment, getPayment, createOrder, getClientDetails } = useDrGreenApi();
+  const { createPayment, getPayment, createOrder, getClientDetails, getOrder } = useDrGreenApi();
   const { saveOrder } = useOrderTracking();
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
@@ -245,10 +245,25 @@ const Checkout = () => {
     }
 
     setIsProcessing(true);
-    setPaymentStatus('Creating order...');
+    setPaymentStatus('Verifying account...');
 
     try {
       const clientId = drGreenClient.drgreen_client_id;
+
+      // PRE-FLIGHT: Verify client is still Active + KYC Verified via API
+      const preflight = await getClientDetails(clientId);
+      if (preflight.error) {
+        throw new Error('Could not verify your account status. Please try again.');
+      }
+      if (preflight.data && preflight.data.adminApproval !== 'VERIFIED') {
+        throw new Error('Your account is not yet approved. Please wait for admin verification before placing an order.');
+      }
+      if (preflight.data && !preflight.data.isKYCVerified) {
+        throw new Error('Your KYC verification is not complete. Please complete verification before placing an order.');
+      }
+      console.log('[Checkout] Pre-flight passed: client is VERIFIED + KYC done');
+
+      setPaymentStatus('Creating order...');
 
       // Use the atomic createOrder which handles:
       // 1. PATCH client shipping address
@@ -328,13 +343,28 @@ const Checkout = () => {
         attempts++;
       }
 
+      // POST-ORDER CONFIRMATION: Fetch confirmed order from API (Step 6)
+      setPaymentStatus('Confirming order details...');
+      let confirmedTotal = cartTotal;
+      const orderConfirmation = await getOrder(createdOrderId);
+      if (orderConfirmation.data) {
+        const apiTotal = orderConfirmation.data.totalAmount;
+        if (apiTotal != null && apiTotal !== cartTotal) {
+          console.warn(`[Checkout] Total mismatch — client: ${cartTotal}, API: ${apiTotal}. Using API value.`);
+        }
+        confirmedTotal = apiTotal ?? cartTotal;
+        finalStatus = orderConfirmation.data.status || finalStatus;
+      } else {
+        console.warn('[Checkout] Could not fetch order confirmation, using client-side values:', orderConfirmation.error);
+      }
+
       // Save order locally with complete context snapshot for reliable admin sync
 const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
       await saveOrder({
         drgreen_order_id: createdOrderId,
         status: finalStatus,
         payment_status: finalPaymentStatus,
-        total_amount: cartTotal,
+        total_amount: confirmedTotal,
         items: cart.map(item => ({
           strain_id: item.strain_id,
           strain_name: item.strain_name,
@@ -368,7 +398,7 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
         customerName: drGreenClient.full_name || '',
         orderId: createdOrderId,
         items: cart.map(i => ({ strain_name: i.strain_name, quantity: i.quantity, unit_price: i.unit_price })),
-        totalAmount: cartTotal,
+        totalAmount: confirmedTotal,
         currency: getCurrencyForCountry(clientCountryCode),
         shippingAddress,
         isLocalOrder: false,
