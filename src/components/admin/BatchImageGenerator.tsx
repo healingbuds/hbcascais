@@ -64,16 +64,18 @@ export function BatchImageGenerator() {
     }
   };
 
-  const generateImages = async () => {
+  const generateImages = async (forceRegenerate = false) => {
     setIsGenerating(true);
     setResults([]);
     setSummary(null);
 
     try {
-      toast.info("Starting batch image generation. This may take a few minutes...");
+      toast.info(forceRegenerate
+        ? "Clearing cache and regenerating all images..."
+        : "Starting batch image generation. This may take a few minutes...");
 
       const { data, error } = await supabase.functions.invoke("batch-generate-images", {
-        body: {},
+        body: { forceRegenerate },
       });
 
       if (error) throw error;
