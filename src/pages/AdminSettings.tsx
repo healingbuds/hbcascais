@@ -299,6 +299,37 @@ const AdminSettings = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Reduce Motion */}
+          <Card>
+            <CardHeader className="pb-3">
+              <div>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Accessibility className="w-4 h-4" />
+                  Reduce Motion
+                </CardTitle>
+                <CardDescription>
+                  Disables hero video, particle effects, and scroll animations for visitors who prefer less motion.
+                  Auto-detects the visitor's OS setting when not overridden.
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="reduce-motion" className="text-sm font-medium cursor-pointer">
+                  Enable reduced motion site-wide
+                </Label>
+                <Switch
+                  id="reduce-motion"
+                  checked={reduceMotion}
+                  onCheckedChange={(checked) => {
+                    setReduceMotion(checked);
+                    toast({ title: checked ? "Reduced motion enabled" : "Animations restored", description: checked ? "Video, particles, and scroll animations are disabled." : "All animations are active again." });
+                  }}
+                />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Environment Cards */}

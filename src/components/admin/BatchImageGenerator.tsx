@@ -148,7 +148,7 @@ export function BatchImageGenerator() {
             </p>
           </div>
           <Button
-            onClick={generateImages}
+            onClick={() => generateImages(false)}
             disabled={isGenerating}
           >
             {isGenerating ? (
@@ -157,6 +157,28 @@ export function BatchImageGenerator() {
               <Sparkles className="h-4 w-4 mr-2" />
             )}
             {isGenerating ? "Generating..." : "Generate All"}
+          </Button>
+        </div>
+
+        {/* Step 3: Regenerate All */}
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
+            <h4 className="font-medium">Step 3: Regenerate All (Force)</h4>
+            <p className="text-sm text-muted-foreground">
+              Clear cached images and regenerate with updated prompts & strain photos from the DApp
+            </p>
+          </div>
+          <Button
+            onClick={() => generateImages(true)}
+            disabled={isGenerating}
+            variant="destructive"
+          >
+            {isGenerating ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <RefreshCw className="h-4 w-4 mr-2" />
+            )}
+            {isGenerating ? "Regenerating..." : "Regenerate All"}
           </Button>
         </div>
 
