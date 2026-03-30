@@ -195,6 +195,7 @@ export type Database = {
           customer_name: string | null
           drgreen_order_id: string
           id: string
+          invoice_number: string | null
           items: Json
           payment_status: string
           shipping_address: Json | null
@@ -215,6 +216,7 @@ export type Database = {
           customer_name?: string | null
           drgreen_order_id: string
           id?: string
+          invoice_number?: string | null
           items?: Json
           payment_status?: string
           shipping_address?: Json | null
@@ -235,6 +237,7 @@ export type Database = {
           customer_name?: string | null
           drgreen_order_id?: string
           id?: string
+          invoice_number?: string | null
           items?: Json
           payment_status?: string
           shipping_address?: Json | null

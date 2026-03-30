@@ -238,6 +238,7 @@ serve(async (req) => {
           .from('drgreen_orders')
           .upsert({
             drgreen_order_id: order.id,
+            invoice_number: order.invoiceNumber || null,
             status: order.orderStatus || order.status || 'PENDING',
             payment_status: order.paymentStatus || 'PENDING',
             total_amount: typeof totalAmount === 'number' ? totalAmount : parseFloat(totalAmount) || 0,
