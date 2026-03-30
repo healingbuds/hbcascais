@@ -250,6 +250,7 @@ serve(async (req) => {
             shipping_address: order.shipping || null,
             sync_status: 'synced',
             synced_at: new Date().toISOString(),
+            created_at: order.createdAt || new Date().toISOString(),
             updated_at: new Date().toISOString(),
           }, { onConflict: 'drgreen_order_id' });
 
