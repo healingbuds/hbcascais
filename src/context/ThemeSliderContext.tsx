@@ -39,6 +39,7 @@ export const useTheme = () => {
 const STORAGE_KEY = "healing-buds-theme-slider";
 const MODE_KEY = "healing-buds-theme-mode"; // "auto" | "manual"
 const ADMIN_DEFAULT_KEY = "healing-buds-theme-admin-default"; // "light" | "dark" | "auto"
+const REDUCE_MOTION_KEY = "healing-buds-reduce-motion";
 
 // ── HSL helpers ──
 type HSL = [number, number, number];
