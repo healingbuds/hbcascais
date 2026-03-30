@@ -134,12 +134,51 @@ const SalesPipelineTable = () => {
   const handleStageChange = (s: string) => {
     setStage(s);
     setPage(1);
+    setSortField(null);
   };
 
   const goToPage = (p: number) => {
     setPage(p);
+    setSortField(null);
     fetchSales(p, search, stage);
   };
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  };
+
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-50" />;
+    return sortDir === "asc"
+      ? <ArrowUp className="w-3 h-3 ml-1" />
+      : <ArrowDown className="w-3 h-3 ml-1" />;
+  };
+
+  const sortedRecords = useMemo(() => {
+    if (!sortField) return records;
+    return [...records].sort((a, b) => {
+      let cmp = 0;
+      switch (sortField) {
+        case "client":
+          cmp = `${a.client.firstName} ${a.client.lastName}`.localeCompare(
+            `${b.client.firstName} ${b.client.lastName}`
+          );
+          break;
+        case "stage":
+          cmp = a.stage.localeCompare(b.stage);
+          break;
+        case "date":
+          cmp = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          break;
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+  }, [records, sortField, sortDir]);
 
   return (
     <motion.div
