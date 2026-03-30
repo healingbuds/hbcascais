@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useThemeSlider, setAdminThemeDefault } from "@/context/ThemeSliderContext";
@@ -24,6 +25,7 @@ import {
   Moon,
   Monitor,
   Palette,
+  Accessibility,
 } from "lucide-react";
 
 interface EnvConfig {
