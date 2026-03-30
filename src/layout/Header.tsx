@@ -27,6 +27,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import NavigationMenu from "@/components/NavigationMenu";
 import NavigationOverlay from "@/components/NavigationOverlay";
 import AnimatedMenuButton from "@/components/AnimatedMenuButton";
+import { CartButton } from "@/components/shop/CartButton";
 
 import { KYCStatusBadge } from "@/components/KYCStatusBadge";
 import {

@@ -73,7 +73,15 @@ export function ProductCard({ product, onViewDetails, showDataSource = false }: 
       return;
     }
     addToCart({ strain_id: product.id, strain_name: product.name, quantity: selectedDenomination, unit_price: product.retailPrice });
-    toast({ title: "Added to cart", description: `${selectedDenomination}g of ${product.name} added to your cart.` });
+    toast({
+      title: "Added to cart",
+      description: `${selectedDenomination}g of ${product.name} added to your cart.`,
+      action: (
+        <Button size="sm" variant="outline" className="shrink-0" onClick={() => setIsCartOpen(true)}>
+          View Cart
+        </Button>
+      ),
+    });
   };
 
   const handleMouseEnter = () => {
