@@ -1,6 +1,6 @@
 # Healing Buds — Master Knowledge Base
 
-> **Last Updated:** 2026-03-29  
+> **Last Updated:** 2026-03-30  
 > **Project:** Healing Buds Medical Cannabis Platform  
 > **Stack:** React + Vite + Tailwind + TypeScript + Lovable Cloud (Supabase) → migrating to Next.js
 
