@@ -60,6 +60,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
   const headerRef = useRef<HTMLElement>(null);
   
   const isDark = resolvedTheme === 'dark';
+  const isShopRoute = location.pathname.startsWith('/shop');
   
   
   // Logo switches based on scroll: white when solid teal BG, teal when scrolled/faded

@@ -49,7 +49,7 @@ const dataSourceConfig: Record<DataSource, { icon: typeof Database; label: strin
 };
 
 export function ProductCard({ product, onViewDetails, showDataSource = false }: ProductCardProps) {
-  const { addToCart, isEligible, drGreenClient, countryCode, convertFromEUR } = useShop();
+  const { addToCart, isEligible, drGreenClient, countryCode, convertFromEUR, setIsCartOpen } = useShop();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useTranslation('shop');
