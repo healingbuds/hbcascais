@@ -312,7 +312,9 @@ const Auth = () => {
   };
 
   // Show loading state while determining redirect destination
-  if (user && (roleLoading || clientLoading)) {
+  // Admins only need role check; non-admins need both role + client
+  const isWaitingForRedirect = user && (roleLoading || (!isAdmin && clientLoading));
+  if (isWaitingForRedirect) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a2e2a] via-[#2a3d3a] to-[#1a2e2a]">
         <div className="text-center">
