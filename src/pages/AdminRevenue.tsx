@@ -20,6 +20,7 @@ import {
   UserCheck,
   RefreshCw,
   Loader2,
+  Download,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DateRangeFilter from "@/components/admin/DateRangeFilter";
@@ -154,6 +155,52 @@ const AdminRevenue = () => {
     fetchAll();
   };
 
+  const handleExportCSV = () => {
+    const lines: string[] = [];
+    lines.push("Revenue KPIs");
+    lines.push("Metric,Value");
+    lines.push(`Total Revenue,${sales?.totalSales ?? 0}`);
+    lines.push(`Monthly Sales,${sales?.monthlySales ?? 0}`);
+    lines.push(`Weekly Sales,${sales?.weeklySales ?? 0}`);
+    lines.push(`Daily Sales,${sales?.dailySales ?? 0}`);
+    lines.push("");
+    lines.push("Operations KPIs");
+    lines.push("Metric,Value");
+    lines.push(`Total Clients,${dashboard?.totalClients ?? 0}`);
+    lines.push(`Total Orders,${dashboard?.totalOrders ?? 0}`);
+    lines.push(`Pending Orders,${dashboard?.pendingOrders ?? 0}`);
+    lines.push(`Verified Clients,${dashboard?.verifiedClients ?? 0}`);
+    lines.push("");
+    if (analytics?.salesData?.length) {
+      lines.push("Sales Trend");
+      lines.push("Date,Amount");
+      analytics.salesData.forEach((r) => lines.push(`${r.date},${r.amount}`));
+      lines.push("");
+    }
+    if (analytics?.ordersData?.length) {
+      lines.push("Order Volume");
+      lines.push("Date,Count");
+      analytics.ordersData.forEach((r) => lines.push(`${r.date},${r.count}`));
+      lines.push("");
+    }
+    if (pipeline) {
+      lines.push("Pipeline Summary");
+      lines.push("Stage,Count");
+      lines.push(`Leads,${pipeline.summary.LEADS}`);
+      lines.push(`Ongoing,${pipeline.summary.ONGOING}`);
+      lines.push(`Closed,${pipeline.summary.CLOSED}`);
+    }
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `revenue-dashboard-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const hasData = !!(sales || dashboard || analytics || pipeline);
+
   const fmt = (v: number | undefined) => formatPrice(v ?? 0, "ZA");
 
   const pipelinePieData = pipeline
@@ -173,10 +220,16 @@ const AdminRevenue = () => {
             <h1 className="text-2xl font-bold text-foreground">Revenue & Sales</h1>
             <p className="text-sm text-muted-foreground mt-1">Financial overview and pipeline metrics</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => fetchAll(startDate, endDate)} disabled={loading}>
-            {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportCSV} disabled={loading || !hasData}>
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => fetchAll(startDate, endDate)} disabled={loading}>
+              {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+              Refresh
+            </Button>
+          </div>
         </div>
         <DateRangeFilter
           startDate={startDate}
