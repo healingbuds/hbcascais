@@ -234,6 +234,34 @@ function getCountryCodeFromName(countryName: string | undefined): string {
 }
 
 /**
+ * Fire-and-forget KYC journey log insert (uses service role to bypass RLS)
+ */
+function logKycJourney(
+  userId: string,
+  clientId: string,
+  eventType: string,
+  eventData: Record<string, unknown> = {}
+) {
+  try {
+    const serviceClient = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+    serviceClient.from('kyc_journey_logs').insert({
+      user_id: userId,
+      client_id: clientId,
+      event_type: eventType,
+      event_source: 'drgreen-proxy',
+      event_data: eventData,
+    }).then(({ error }) => {
+      if (error) console.warn('[KYC Journey] Log insert failed:', error.message);
+    });
+  } catch (e) {
+    console.warn('[KYC Journey] Failed to create log:', e);
+  }
+}
+
+/**
  * Verify user authentication and return user data
  */
 async function verifyAuthentication(req: Request): Promise<{ user: any; supabaseClient: any } | null> {
