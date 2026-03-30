@@ -182,7 +182,7 @@ const Checkout = () => {
             supabase
               .from('drgreen_clients')
               .update({
-                shipping_address: addr,
+                shipping_address: addr as unknown as Record<string, unknown>,
                 updated_at: new Date().toISOString(),
               })
               .eq('user_id', user.id)
