@@ -85,7 +85,7 @@ All operations (read + write) use the same credential set per environment. No se
 
 ### 3.3 Authentication & Signing
 
-**Method:** secp256k1 ECDSA for `/dapp/*` endpoints; HMAC-SHA256 for `/strains`
+**Method:** Cryptographic key pair — no login endpoint exists. The DApp authenticates purely via `DRGREEN_API_KEY` + `DRGREEN_PRIVATE_KEY`. These must be server-side secrets, never exposed to the browser.
 
 | Header | Value |
 |--------|-------|
@@ -93,13 +93,26 @@ All operations (read + write) use the same credential set per environment. No se
 | `x-auth-signature` | Base64-encoded signature |
 | `Content-Type` | `application/json` |
 
+**Signing methods by endpoint type:**
+
+| Endpoint Pattern | Signing Method |
+|-----------------|---------------|
+| `/dapp/*` endpoints | secp256k1 ECDSA |
+| `/strains` endpoints | HMAC-SHA256 |
+
 **What to sign:**
 
 | HTTP Method | Sign This |
 |-------------|-----------|
 | GET with query params | The query string (without `?`) |
-| GET without query params | A JSON `signBody` (NOT sent in request) |
-| POST / PATCH / DELETE | The JSON body string |
+| GET without query params | Empty string `''` |
+| POST / PATCH / DELETE | The JSON body string (exact bytes sent in request) |
+
+**Critical:** The signature must be generated from the exact same payload bytes sent in the request body. If the payload changes, the signature must be regenerated.
+
+### 3.3.1 Bootstrap Rule — `/user/me`
+
+`GET /user/me` **must be called first** on every admin session to confirm `primaryNft` is set. Without a primary NFT, client and order creation will fail silently or error. If `primaryNft` is `null`, call `PATCH /dapp/users/primary-nft` with a `tokenId` before any other operations.
 
 ### 3.4 Complete Endpoint List (23 endpoints)
 
