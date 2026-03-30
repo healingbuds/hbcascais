@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DateRangeFilter from "@/components/admin/DateRangeFilter";
+import SalesPipelineTable from "@/components/admin/SalesPipelineTable";
 
 interface SalesSummary {
   totalSales: number;
