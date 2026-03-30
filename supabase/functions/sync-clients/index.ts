@@ -180,6 +180,32 @@ async function drGreenGet(endpoint: string, queryParams: Record<string, string |
   });
 }
 
+// Body-signing GET request for individual client detail endpoint
+// Signs JSON.stringify(body) but sends as GET with no body (per API spec)
+async function drGreenGetBody(endpoint: string, signBody: object): Promise<Response> {
+  const apiKey = Deno.env.get("DRGREEN_API_KEY");
+  const privateKey = Deno.env.get("DRGREEN_PRIVATE_KEY");
+  if (!apiKey || !privateKey) throw new Error("Dr Green API credentials not configured");
+
+  const payload = JSON.stringify(signBody);
+  const signature = await generateSignature(payload, privateKey);
+  const url = `${DRGREEN_API_URL}${endpoint}`;
+  console.log(`[sync-clients] GET (body-sign) ${url}`);
+
+  return fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "x-auth-apikey": apiKey,
+      "x-auth-signature": signature,
+    },
+  });
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
