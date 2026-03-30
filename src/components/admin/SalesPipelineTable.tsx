@@ -221,9 +221,22 @@ const SalesPipelineTable = () => {
                       </TableRow>
                     ) : (
                       records.map((r) => (
-                        <TableRow key={r.id}>
+                        <TableRow
+                          key={r.id}
+                          className="cursor-pointer hover:bg-muted/50 transition-colors"
+                          onClick={() => {
+                            if (r.orderId) {
+                              navigate(`/admin/orders/${r.orderId}`);
+                            } else {
+                              navigate(`/admin/clients?search=${encodeURIComponent(r.client.email)}`);
+                            }
+                          }}
+                        >
                           <TableCell className="font-medium">
-                            {r.client.firstName} {r.client.lastName}
+                            <div className="flex items-center gap-1.5">
+                              {r.client.firstName} {r.client.lastName}
+                              <ExternalLink className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100" />
+                            </div>
                           </TableCell>
                           <TableCell className="hidden sm:table-cell text-muted-foreground">
                             {r.client.email}
