@@ -1,28 +1,27 @@
 
 
-## Add CSV Export to Revenue Dashboard
+## Add Column Sorting to Sales Pipeline Table
 
 ### Overview
-Add a "Export CSV" button to the dashboard header that downloads all currently loaded dashboard data (KPIs, sales trend, order volume, pipeline summary) as a single CSV file.
+Add client-side sorting to the Client, Stage, and Date columns with clickable headers and sort direction indicators.
 
-### Changes
+### Changes — `src/components/admin/SalesPipelineTable.tsx`
 
-**`src/pages/AdminRevenue.tsx`**
+1. **New state**: `sortField` (`"client" | "stage" | "date" | null`) and `sortDir` (`"asc" | "desc"`)
 
-1. **Import** `Download` icon from lucide-react
-2. **Add `handleExportCSV` function** that:
-   - Builds CSV sections from current state (`sales`, `dashboard`, `analytics.salesData`, `analytics.ordersData`, `pipeline`)
-   - Section 1: "Revenue KPIs" — Total/Monthly/Weekly/Daily sales
-   - Section 2: "Operations KPIs" — Clients/Orders/Pending/Verified counts
-   - Section 3: "Sales Trend" — date,amount rows from `analytics.salesData`
-   - Section 4: "Order Volume" — date,count rows from `analytics.ordersData`
-   - Section 5: "Pipeline Summary" — Leads/Ongoing/Closed counts
-   - Creates a Blob, triggers download via temporary anchor element
-   - Filename includes current date: `revenue-dashboard-YYYY-MM-DD.csv`
-3. **Add Export button** next to the existing Refresh button in the header, disabled when `loading` or no data
+2. **Sort logic**: After records are loaded, derive a `sortedRecords` array via `useMemo` that sorts locally:
+   - **Client**: compare `firstName + lastName` alphabetically
+   - **Stage**: compare stage strings alphabetically
+   - **Date**: compare `createdAt` timestamps
 
-### Technical Notes
-- Pure client-side CSV generation — no new dependencies or API calls
-- Uses existing state variables, no additional fetching needed
-- Button disabled while loading to prevent exporting empty data
+3. **Toggle function**: `handleSort(field)` — if same field clicked, flip direction; if new field, set to `"asc"`
+
+4. **Sortable headers**: Replace plain text in Client, Stage, and Date `TableHead` cells with clickable buttons showing an `ArrowUpDown` / `ArrowUp` / `ArrowDown` icon from lucide-react based on active sort state. Add `cursor-pointer select-none` styling.
+
+5. **Render**: Use `sortedRecords` instead of `records` in the table body map.
+
+### Technical notes
+- Client-side sorting on the current page's 10 records (API doesn't support multi-column sort)
+- Sort resets to default when new data is fetched (page change, search, stage filter)
+- No new dependencies needed — lucide-react already available
 
