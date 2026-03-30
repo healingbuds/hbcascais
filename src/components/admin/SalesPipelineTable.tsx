@@ -224,13 +224,23 @@ const SalesPipelineTable = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Client</TableHead>
-                  <TableHead className="hidden sm:table-cell">Email</TableHead>
-                  <TableHead>Stage</TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    Order ID
+                  <TableHead>
+                    <button className="flex items-center cursor-pointer select-none" onClick={() => handleSort("client")}>
+                      Client <SortIcon field="client" />
+                    </button>
                   </TableHead>
-                  <TableHead className="hidden sm:table-cell">Date</TableHead>
+                  <TableHead className="hidden sm:table-cell">Email</TableHead>
+                  <TableHead>
+                    <button className="flex items-center cursor-pointer select-none" onClick={() => handleSort("stage")}>
+                      Stage <SortIcon field="stage" />
+                    </button>
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">Order ID</TableHead>
+                  <TableHead className="hidden sm:table-cell">
+                    <button className="flex items-center cursor-pointer select-none" onClick={() => handleSort("date")}>
+                      Date <SortIcon field="date" />
+                    </button>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
