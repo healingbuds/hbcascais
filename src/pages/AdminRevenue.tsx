@@ -107,14 +107,20 @@ const AdminRevenue = () => {
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [pipeline, setPipeline] = useState<PipelineData | null>(null);
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
-  const fetchAll = useCallback(async () => {
+  const fetchAll = useCallback(async (filterStart?: Date, filterEnd?: Date) => {
     setLoading(true);
     try {
+      const analyticsParams: Record<string, string> = {};
+      if (filterStart) analyticsParams.startDate = format(filterStart, "yyyy-MM-dd");
+      if (filterEnd) analyticsParams.endDate = format(filterEnd, "yyyy-MM-dd");
+
       const [salesRes, dashRes, analyticsRes, pipelineRes] = await Promise.allSettled([
         api.getSalesSummary(),
         api.getDashboardSummary(),
-        api.getDashboardAnalytics(),
+        api.getDashboardAnalytics(Object.keys(analyticsParams).length > 0 ? analyticsParams : undefined),
         api.getSalesSummaryNew(),
       ]);
 
@@ -139,6 +145,13 @@ const AdminRevenue = () => {
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
+
+  const handleApplyFilter = () => fetchAll(startDate, endDate);
+  const handleClearFilter = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+    fetchAll();
+  };
 
   const fmt = (v: number | undefined) => formatPrice(v ?? 0, "ZA");
 
