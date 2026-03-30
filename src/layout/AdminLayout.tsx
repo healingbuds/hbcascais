@@ -44,6 +44,7 @@ import {
   Bug,
   Wallet,
   BookOpen,
+  DollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
