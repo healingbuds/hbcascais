@@ -57,6 +57,7 @@ export interface LocalOrder {
   customer_name?: string | null;
   country_code?: string | null;
   currency?: string | null;
+  invoice_number?: string | null;
 }
 
 export interface OrderFilters {

@@ -229,11 +229,13 @@ export function AdminOrdersTable({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="font-mono text-sm cursor-pointer hover:text-primary">
-                      {order.drgreen_order_id?.slice(0, 12) || order.id.slice(0, 8)}...
+                      {order.invoice_number
+                        ? order.invoice_number.replace(/^DG_\d+/, 'DG-').slice(0, 16)
+                        : order.drgreen_order_id?.slice(0, 12) || order.id.slice(0, 8)}...
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {order.drgreen_order_id || order.id}
+                    {order.invoice_number || order.drgreen_order_id || order.id}
                   </TooltipContent>
                 </Tooltip>
               </TableCell>
