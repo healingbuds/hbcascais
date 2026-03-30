@@ -96,6 +96,8 @@ const ADMIN_ACTIONS = [
   'get-sales-summary', // Sales summary by stage
   'get-client-orders', // Orders for a specific client
   'get-user-nfts', // User's owned NFTs
+  'get-client-order-detail', // Get specific order for a client
+  'update-primary-nft', // Update user's primary NFT
 ];
 
 // Actions that require ownership verification (user must own the resource)
