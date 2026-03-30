@@ -166,15 +166,26 @@ const AdminRevenue = () => {
   return (
     <AdminLayout title="Revenue & Sales" description="Financial overview and sales pipeline">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Revenue & Sales</h1>
-          <p className="text-sm text-muted-foreground mt-1">Financial overview and pipeline metrics</p>
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Revenue & Sales</h1>
+            <p className="text-sm text-muted-foreground mt-1">Financial overview and pipeline metrics</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => fetchAll(startDate, endDate)} disabled={loading}>
+            {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+            Refresh
+          </Button>
         </div>
-        <Button variant="outline" size="sm" onClick={() => fetchAll(startDate, endDate)} disabled={loading}>
-          {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-          Refresh
-        </Button>
+        <DateRangeFilter
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          onApply={handleApplyFilter}
+          onClear={handleClearFilter}
+          loading={loading}
+        />
       </div>
 
       {/* Revenue KPIs */}
