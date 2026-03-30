@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
+import { useThemeSlider } from '@/context/ThemeSliderContext';
 
 interface Particle {
   id: number;
