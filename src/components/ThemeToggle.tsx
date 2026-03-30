@@ -2,13 +2,34 @@ import { Moon, Sun, MousePointer2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCursor } from "@/context/CursorContext";
 import { useThemeSlider } from "@/context/ThemeSliderContext";
-import { Slider } from "@/components/ui/slider";
+import * as SliderPrimitive from "@radix-ui/react-slider";
 
 interface ThemeToggleProps {
   className?: string;
   variant?: "icon" | "button";
   isDark?: boolean;
 }
+
+/** A mini slider styled for the nav bar — higher contrast than the default Slider */
+const AmbianceSlider = ({ value, onValueChange, className }: {
+  value: number;
+  onValueChange: (v: number) => void;
+  className?: string;
+}) => (
+  <SliderPrimitive.Root
+    value={[value]}
+    onValueChange={([v]) => onValueChange(v)}
+    min={0}
+    max={100}
+    step={1}
+    className={cn("relative flex w-full touch-none select-none items-center", className)}
+  >
+    <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-white/20">
+      <SliderPrimitive.Range className="absolute h-full bg-gradient-to-r from-indigo-400/80 to-amber-300/80" />
+    </SliderPrimitive.Track>
+    <SliderPrimitive.Thumb className="block h-4 w-4 rounded-full bg-white shadow-md ring-0 outline-none cursor-grab active:cursor-grabbing active:scale-110 transition-transform" />
+  </SliderPrimitive.Root>
+);
 
 const ThemeToggle = ({ className, variant = "icon" }: ThemeToggleProps) => {
   const { value, setValue } = useThemeSlider();
@@ -24,14 +45,7 @@ const ThemeToggle = ({ className, variant = "icon" }: ThemeToggleProps) => {
           </span>
           <div className="flex items-center gap-3">
             <Moon className="w-4 h-4 text-white/60 flex-shrink-0" />
-            <Slider
-              value={[value]}
-              onValueChange={([v]) => setValue(v)}
-              min={0}
-              max={100}
-              step={1}
-              className="flex-1"
-            />
+            <AmbianceSlider value={value} onValueChange={setValue} className="flex-1" />
             <Sun className="w-4 h-4 text-amber-300/80 flex-shrink-0" />
           </div>
         </div>
@@ -54,16 +68,9 @@ const ThemeToggle = ({ className, variant = "icon" }: ThemeToggleProps) => {
   // Icon variant — compact slider for header
   return (
     <div className="flex items-center gap-1.5">
-      <div className="flex items-center gap-2 bg-white/5 rounded-full px-2.5 py-1.5">
-        <Moon className="w-3.5 h-3.5 text-white/50 flex-shrink-0" />
-        <Slider
-          value={[value]}
-          onValueChange={([v]) => setValue(v)}
-          min={0}
-          max={100}
-          step={1}
-          className="w-[90px]"
-        />
+      <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-full px-3 py-2">
+        <Moon className="w-3.5 h-3.5 text-indigo-300/70 flex-shrink-0" />
+        <AmbianceSlider value={value} onValueChange={setValue} className="w-[100px]" />
         <Sun className="w-3.5 h-3.5 text-amber-300/70 flex-shrink-0" />
       </div>
       <button
