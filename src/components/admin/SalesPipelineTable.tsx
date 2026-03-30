@@ -85,6 +85,8 @@ const SalesPipelineTable = () => {
   const [search, setSearch] = useState("");
   const [stage, setStage] = useState<string>("");
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const [sortField, setSortField] = useState<SortField>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   const fetchSales = useCallback(
     async (p = 1, s = "", st = "") => {
