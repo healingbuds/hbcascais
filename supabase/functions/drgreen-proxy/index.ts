@@ -2245,6 +2245,12 @@ serve(async (req) => {
             status: response.status,
             body: respBody.slice(0, 500),
           });
+          
+          // Log API error to journey
+          logKycJourney(user.id, 'pending', 'registration.api_error', {
+            status: response.status,
+            error: respBody.slice(0, 200),
+          });
         } else {
           console.log("[create-client-legacy] SUCCESS: Client created successfully");
           
