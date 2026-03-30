@@ -212,25 +212,57 @@ export function useOrderTracking() {
             }
           }
         } else {
-          // New order from DApp not in local DB — upsert to avoid duplicate key errors
-          // Use normalizedItems even if empty; the order detail page can fetch full details later
-          const { error: upsertErr } = await supabase
-            .from('drgreen_orders')
-            .upsert({
-              user_id: user.id,
-              drgreen_order_id: liveId,
-              status: liveStatus,
-              payment_status: livePayment,
-              total_amount: live.totalAmount || live.total_amount || 0,
-              items: normalizedItems.length > 0 
-                ? JSON.parse(JSON.stringify(normalizedItems)) 
-                : JSON.parse(JSON.stringify([])),
-              client_id: clientId,
-              synced_at: new Date().toISOString(),
-              sync_status: 'synced',
-            }, { onConflict: 'drgreen_order_id' });
+          // New order from DApp not in local DB
+          // Try insert first; if it fails with conflict (23505), try updating the orphaned row
+          const orderPayload = {
+            user_id: user.id,
+            drgreen_order_id: liveId,
+            status: liveStatus,
+            payment_status: livePayment,
+            total_amount: live.totalAmount || live.total_amount || 0,
+            items: normalizedItems.length > 0 
+              ? JSON.parse(JSON.stringify(normalizedItems)) 
+              : JSON.parse(JSON.stringify([])),
+            client_id: clientId,
+            synced_at: new Date().toISOString(),
+            sync_status: 'synced',
+          };
 
-          if (!upsertErr) {
+          const { error: insertErr } = await supabase
+            .from('drgreen_orders')
+            .insert(orderPayload);
+
+          if (insertErr) {
+            if (insertErr.code === '23505') {
+              // Duplicate key — row exists (possibly with null user_id from edge function sync)
+              // Try to claim it by updating where user_id IS NULL or matches current user
+              const { error: claimErr } = await supabase
+                .from('drgreen_orders')
+                .update({
+                  user_id: user.id,
+                  status: liveStatus,
+                  payment_status: livePayment,
+                  total_amount: live.totalAmount || live.total_amount || 0,
+                  ...(normalizedItems.length > 0 ? { items: JSON.parse(JSON.stringify(normalizedItems)) } : {}),
+                  client_id: clientId,
+                  synced_at: new Date().toISOString(),
+                  sync_status: 'synced',
+                })
+                .eq('drgreen_order_id', liveId);
+
+              if (!claimErr) {
+                changesDetected++;
+              } else {
+                console.warn(`[OrderSync] Could not claim orphaned order ${liveId}:`, claimErr.message);
+              }
+            } else if (insertErr.code === '42501') {
+              // RLS violation — orphaned row exists with null/different user_id
+              // Skip silently; admin sync will fix these
+              console.warn(`[OrderSync] RLS blocked insert for ${liveId} — orphaned row needs admin fix`);
+            } else {
+              console.warn(`[OrderSync] Insert failed for ${liveId}:`, insertErr.message);
+            }
+          } else {
             changesDetected++;
           }
         }
