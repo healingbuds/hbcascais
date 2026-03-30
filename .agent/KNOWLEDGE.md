@@ -85,7 +85,7 @@ All operations (read + write) use the same credential set per environment. No se
 
 ### 3.3 Authentication & Signing
 
-**Method:** secp256k1 ECDSA for `/dapp/*` endpoints; HMAC-SHA256 for `/strains`
+**Method:** Cryptographic key pair — no login endpoint exists. The DApp authenticates purely via `DRGREEN_API_KEY` + `DRGREEN_PRIVATE_KEY`. These must be server-side secrets, never exposed to the browser.
 
 | Header | Value |
 |--------|-------|
@@ -93,70 +93,84 @@ All operations (read + write) use the same credential set per environment. No se
 | `x-auth-signature` | Base64-encoded signature |
 | `Content-Type` | `application/json` |
 
+**Signing methods by endpoint type:**
+
+| Endpoint Pattern | Signing Method |
+|-----------------|---------------|
+| `/dapp/*` endpoints | secp256k1 ECDSA |
+| `/strains` endpoints | HMAC-SHA256 |
+
 **What to sign:**
 
 | HTTP Method | Sign This |
 |-------------|-----------|
 | GET with query params | The query string (without `?`) |
-| GET without query params | A JSON `signBody` (NOT sent in request) |
-| POST / PATCH / DELETE | The JSON body string |
+| GET without query params | Empty string `''` |
+| POST / PATCH / DELETE | The JSON body string (exact bytes sent in request) |
 
-### 3.4 Complete Endpoint List (23 endpoints)
+**Critical:** The signature must be generated from the exact same payload bytes sent in the request body. If the payload changes, the signature must be regenerated.
+
+### 3.3.1 Bootstrap Rule — `/user/me`
+
+`GET /user/me` **must be called first** on every admin session to confirm `primaryNft` is set. Without a primary NFT, client and order creation will fail silently or error. If `primaryNft` is `null`, call `PATCH /dapp/users/primary-nft` with a `tokenId` before any other operations.
+
+### 3.4 Complete Endpoint List (25 endpoints)
+
+#### Profile & NFTs (Admin bootstrap)
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| Get user profile | GET | `/user/me` | **Call first** — returns `primaryNft` |
+| Get user NFTs | GET | `/dapp/users/nfts` | List owned NFTs for selector UI |
+| Update primary NFT | PATCH | `/dapp/users/primary-nft` | Body: `{ tokenId }` |
 
 #### Dashboard & Analytics
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| Dashboard summary | GET | `/dapp/dashboard/summary` |
-| Dashboard analytics | GET | `/dapp/dashboard/analytics` |
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| Dashboard summary | GET | `/dapp/dashboard/summary` | KPIs, earnings, commission, NFT holdings |
+| Dashboard analytics | GET | `/dapp/dashboard/analytics` | Query: `startDate`, `endDate`, `filterBy`, `orderBy` |
 
 #### Clients
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| Create client | POST | `/dapp/clients` |
-| List clients | GET | `/dapp/clients?take=200&page=1&orderBy=desc` |
-| List clients (filtered) | GET | `/dapp/clients/list?status=Active&kyc=Verified` |
-| Get client | GET | `/dapp/clients/{clientId}` |
-| Update client | PATCH | `/dapp/clients/{clientId}` |
-| Delete client | DELETE | `/dapp/clients/{clientId}` |
-| Activate client | PATCH | `/dapp/clients/{clientId}/activate` |
-| Deactivate client | PATCH | `/dapp/clients/{clientId}/deactivate` |
-| Request KYC link | POST | `/dapp/clients/{clientId}/kyc` |
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| Create client | POST | `/dapp/clients` | Requires `primaryNft` to be set |
+| List clients | GET | `/dapp/clients?take=200&page=1&orderBy=desc` | Paginated |
+| List clients (filtered) | GET | `/dapp/clients/list?status=Active&kyc=Verified` | |
+| Get client | GET | `/dapp/clients/{clientId}` | |
+| Update client | PATCH | `/dapp/clients/{clientId}` | |
+| Delete client | DELETE | `/dapp/clients/{clientId}` | |
+| Activate/Deactivate | PATCH | `/dapp/clients/{clientId}/activate` or `/deactivate` | |
+| Request KYC link | POST | `/dapp/clients/{clientId}/kyc` | |
+| Clients summary | GET | `/dapp/clients/summary` | Counts by status (PENDING/VERIFIED/REJECTED) |
 
 #### Sales
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| Sales summary | GET | `/dapp/dashboard/sales` |
-| Sales filtered | GET | `/dapp/sales?stage=...` |
-| Sales summary by stage | GET | `/dapp/sales/summary` |
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| Sales list | GET | `/dapp/sales?stage=LEADS` | Stages: `LEADS`, `ONGOING`, `CLOSED` |
+| Sales summary | GET | `/dapp/sales/summary` | Total revenue, total orders, avg order value |
+| Dashboard sales | GET | `/dapp/dashboard/sales` | Legacy alias |
 
 #### Products (Strains)
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| List strains | GET | `/strains?countryCode={alpha3}&take=100&page=1` |
-| Get strain | GET | `/strains/{strainId}` |
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| List strains | GET | `/strains?countryCode={alpha3}&take=100&page=1` | Uses HMAC signing |
+| Get strain | GET | `/strains/{strainId}` | |
 
 #### Carts
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| Add to cart | POST | `/dapp/carts` |
-| Empty cart | DELETE | `/dapp/carts/{cartId}` |
-| Delete cart item | DELETE | `/dapp/carts/{cartId}?strainId={strainId}` |
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| List cart items | GET | `/dapp/carts` | |
+| Add to cart | POST | `/dapp/carts` | Body: `{ clientCartId, strainId, quantity }` |
+| Delete cart item | DELETE | `/dapp/carts/{cartId}?strainId={strainId}` | |
+| Empty cart | DELETE | `/dapp/carts/{cartId}` | |
 
 #### Orders
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| Create order | POST | `/dapp/orders` |
-| Get order | GET | `/dapp/orders/{orderId}` |
-| Update order | PATCH | `/dapp/orders/{orderId}` |
-| Get client orders | GET | `/dapp/client/{clientId}/orders` |
-| Get client order detail | GET | `/dapp/clients/{clientId}/orders/{orderId}` |
-
-#### NFTs & Profile
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| Get user NFTs | GET | `/dapp/users/nfts` |
-| Update primary NFT | PATCH | `/dapp/users/primary-nft` |
-| Get user profile | GET | `/dapp/users/me` |
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| List all orders | GET | `/dapp/orders` | |
+| Create order | POST | `/dapp/orders` | Body: `{ clientId }` — creates from cart |
+| Get order | GET | `/dapp/orders/{orderId}` | |
+| Get client orders | GET | `/dapp/client/{clientId}/orders` | Returns `totalAmount` but items may be empty |
+| Get client order detail | GET | `/dapp/clients/{clientId}/orders/{orderId}` | |
 
 **Country codes:** Dr. Green uses ISO 3166-1 **alpha-3** (ZAF, PRT, GBR), not alpha-2.
 
@@ -206,6 +220,28 @@ The proxy includes normalization helpers to handle varying API response structur
 - `countryCode` filters product **availability**, not currency
 - The UI converts to local currency (e.g., ZAR) using exchange rates fetched from the `exchange-rates` edge function
 - Never display raw API prices to users without conversion
+
+### 3.10 Dashboard Response Shapes
+
+**`GET /dapp/dashboard/summary`** returns:
+- `totalRevenue`, `totalOrders`, `totalClients`, `totalNfts`
+- `commissionEarnings`, `transactionSummary`
+- All values are raw numbers — apply currency formatting in UI
+
+**`GET /dapp/dashboard/analytics`** returns time-series data:
+- Query: `startDate` (YYYY-MM-DD), `endDate`, `filterBy` (e.g. `Client`), `orderBy` (`asc`/`desc`)
+- Response: array of data points for charts
+
+**`GET /dapp/sales/summary`** returns:
+- `totalRevenue`, `totalOrders`, `averageOrderValue`
+
+**`GET /dapp/sales`** supports stage filtering:
+- Stages: `LEADS`, `ONGOING`, `CLOSED`
+- Query: `stage`, `take`, `page`, `orderBy`, `search`, `searchBy` (e.g. `clientName`)
+
+### 3.11 Per-Customer Revenue
+
+Per-customer sales totals are **computed client-side** by summing `totalAmount` across `GET /dapp/client/{clientId}/orders`. There is no dedicated per-customer revenue endpoint.
 
 ---
 
