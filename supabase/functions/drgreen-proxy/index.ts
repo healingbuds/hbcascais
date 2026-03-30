@@ -234,6 +234,34 @@ function getCountryCodeFromName(countryName: string | undefined): string {
 }
 
 /**
+ * Fire-and-forget KYC journey log insert (uses service role to bypass RLS)
+ */
+function logKycJourney(
+  userId: string,
+  clientId: string,
+  eventType: string,
+  eventData: Record<string, unknown> = {}
+) {
+  try {
+    const serviceClient = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+    serviceClient.from('kyc_journey_logs').insert({
+      user_id: userId,
+      client_id: clientId,
+      event_type: eventType,
+      event_source: 'drgreen-proxy',
+      event_data: eventData,
+    }).then(({ error }) => {
+      if (error) console.warn('[KYC Journey] Log insert failed:', error.message);
+    });
+  } catch (e) {
+    console.warn('[KYC Journey] Failed to create log:', e);
+  }
+}
+
+/**
  * Verify user authentication and return user data
  */
 async function verifyAuthentication(req: Request): Promise<{ user: any; supabaseClient: any } | null> {
@@ -2217,6 +2245,12 @@ serve(async (req) => {
             status: response.status,
             body: respBody.slice(0, 500),
           });
+          
+          // Log API error to journey
+          logKycJourney(user.id, 'pending', 'registration.api_error', {
+            status: response.status,
+            error: respBody.slice(0, 200),
+          });
         } else {
           console.log("[create-client-legacy] SUCCESS: Client created successfully");
           
@@ -2243,6 +2277,15 @@ serve(async (req) => {
               hasClientId: !!normalizedResponse.clientId,
               hasKycLink: !!normalizedResponse.kycLink,
             });
+            
+            // Log successful client creation to journey
+            const createdClientId = normalizedResponse.clientId || 'unknown';
+            logKycJourney(user.id, createdClientId, 'kyc.client_created', {
+              hasKycLink: !!normalizedResponse.kycLink,
+            });
+            if (normalizedResponse.kycLink) {
+              logKycJourney(user.id, createdClientId, 'kyc.link_generated', {});
+            }
             
             // Return normalized response directly
             return new Response(JSON.stringify(normalizedResponse), {
@@ -2550,6 +2593,11 @@ serve(async (req) => {
         
         // Per API guide: GET /dapp/clients/{id} signs a JSON signBody (not sent in request)
         response = await drGreenRequestBody(`/dapp/clients/${clientId}`, "GET", { clientId }, false, adminEnvConfig);
+        
+        // Log sync event to journey
+        logKycJourney(user.id, clientId, 'kyc.synced', {
+          syncedVia: 'sync-client-status',
+        });
         break;
       }
       

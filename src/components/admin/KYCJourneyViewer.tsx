@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -37,14 +37,22 @@ interface JourneyLog {
   created_at: string;
 }
 
+interface ClientInfo {
+  full_name: string | null;
+  email: string | null;
+}
+
 const EVENT_ICONS: Record<string, React.ReactNode> = {
   'registration.started': <User className="h-4 w-4 text-blue-500" />,
   'registration.step_completed': <ArrowRight className="h-4 w-4 text-blue-400" />,
   'registration.submitted': <FileCheck className="h-4 w-4 text-purple-500" />,
   'registration.success': <CheckCircle2 className="h-4 w-4 text-green-500" />,
   'registration.error': <AlertTriangle className="h-4 w-4 text-red-500" />,
+  'registration.api_error': <AlertTriangle className="h-4 w-4 text-red-500" />,
   'kyc.link_received': <Mail className="h-4 w-4 text-teal-500" />,
   'kyc.link_generated': <Mail className="h-4 w-4 text-teal-500" />,
+  'kyc.client_created': <CheckCircle2 className="h-4 w-4 text-green-500" />,
+  'kyc.synced': <RefreshCw className="h-4 w-4 text-blue-500" />,
   'kyc.verified': <CheckCircle2 className="h-4 w-4 text-green-500" />,
   'kyc.approved': <CheckCircle2 className="h-4 w-4 text-green-500" />,
   'kyc.rejected': <XCircle className="h-4 w-4 text-red-500" />,
@@ -77,6 +85,7 @@ function getEventBadgeClass(eventType: string): string {
 
 export function KYCJourneyViewer() {
   const [logs, setLogs] = useState<JourneyLog[]>([]);
+  const [clientLookup, setClientLookup] = useState<Record<string, ClientInfo>>({});
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [eventFilter, setEventFilter] = useState<string>('all');
@@ -89,10 +98,6 @@ export function KYCJourneyViewer() {
         .select('*')
         .order('created_at', { ascending: false })
         .limit(200);
-
-      if (searchQuery) {
-        query = query.or(`client_id.ilike.%${searchQuery}%,event_type.ilike.%${searchQuery}%`);
-      }
 
       if (eventFilter !== 'all') {
         query = query.ilike('event_type', `${eventFilter}%`);
@@ -109,7 +114,27 @@ export function KYCJourneyViewer() {
         return;
       }
 
-      setLogs(data || []);
+      const logsData: JourneyLog[] = data || [];
+      setLogs(logsData);
+
+      // Resolve customer names from drgreen_clients
+      const uniqueUserIds = [...new Set(logsData.map(l => l.user_id))];
+      if (uniqueUserIds.length > 0) {
+        const { data: clients } = await supabase
+          .from('drgreen_clients')
+          .select('user_id, full_name, email')
+          .in('user_id', uniqueUserIds);
+
+        if (clients) {
+          const lookup: Record<string, ClientInfo> = {};
+          for (const c of clients) {
+            if (c.user_id) {
+              lookup[c.user_id] = { full_name: c.full_name, email: c.email };
+            }
+          }
+          setClientLookup(lookup);
+        }
+      }
     } catch (error) {
       console.error('Error fetching logs:', error);
     } finally {
@@ -125,11 +150,24 @@ export function KYCJourneyViewer() {
     fetchLogs();
   };
 
-  // Group logs by client_id for timeline view
-  const groupedLogs = logs.reduce((acc, log) => {
-    if (!acc[log.client_id]) {
-      acc[log.client_id] = [];
-    }
+  // Filter logs by search query (client-side, includes name/email)
+  const filteredLogs = useMemo(() => {
+    if (!searchQuery.trim()) return logs;
+    const q = searchQuery.toLowerCase();
+    return logs.filter(log => {
+      const info = clientLookup[log.user_id];
+      return (
+        log.client_id.toLowerCase().includes(q) ||
+        log.event_type.toLowerCase().includes(q) ||
+        (info?.full_name?.toLowerCase().includes(q)) ||
+        (info?.email?.toLowerCase().includes(q))
+      );
+    });
+  }, [logs, searchQuery, clientLookup]);
+
+  // Group logs by client_id for stats
+  const groupedLogs = filteredLogs.reduce((acc, log) => {
+    if (!acc[log.client_id]) acc[log.client_id] = [];
     acc[log.client_id].push(log);
     return acc;
   }, {} as Record<string, JourneyLog[]>);
@@ -147,7 +185,7 @@ export function KYCJourneyViewer() {
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="flex gap-2 flex-1 min-w-[200px]">
             <Input
-              placeholder="Search by client ID or event..."
+              placeholder="Search by name, email, client ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -197,19 +235,19 @@ export function KYCJourneyViewer() {
           </div>
           <div className="p-3 rounded-lg bg-teal-500/10 border border-teal-500/20">
             <div className="text-2xl font-bold text-teal-700">
-              {logs.filter(l => l.event_type.startsWith('kyc.')).length}
+              {filteredLogs.filter(l => l.event_type.startsWith('kyc.')).length}
             </div>
             <div className="text-sm text-teal-600">KYC Events</div>
           </div>
           <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
             <div className="text-2xl font-bold text-green-700">
-              {logs.filter(l => l.event_type.includes('approved') || l.event_type.includes('verified')).length}
+              {filteredLogs.filter(l => l.event_type.includes('approved') || l.event_type.includes('verified')).length}
             </div>
             <div className="text-sm text-green-600">Approvals</div>
           </div>
           <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
             <div className="text-2xl font-bold text-amber-700">
-              {logs.filter(l => l.event_type.startsWith('email.')).length}
+              {filteredLogs.filter(l => l.event_type.startsWith('email.')).length}
             </div>
             <div className="text-sm text-amber-600">Emails Sent</div>
           </div>
@@ -221,43 +259,60 @@ export function KYCJourneyViewer() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
-          ) : logs.length === 0 ? (
+          ) : filteredLogs.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               No journey logs found
             </div>
           ) : (
             <div className="space-y-3">
-              {logs.map((log) => (
-                <div
-                  key={log.id}
-                  className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                >
-                  <div className="mt-0.5">
-                    {EVENT_ICONS[log.event_type] || <Clock className="h-4 w-4 text-muted-foreground" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <Badge variant="outline" className={getEventBadgeClass(log.event_type)}>
-                        {log.event_type}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        via {log.event_source}
-                      </span>
+              {filteredLogs.map((log) => {
+                const clientInfo = clientLookup[log.user_id];
+                return (
+                  <div
+                    key={log.id}
+                    className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="mt-0.5">
+                      {EVENT_ICONS[log.event_type] || <Clock className="h-4 w-4 text-muted-foreground" />}
                     </div>
-                    <div className="text-sm font-mono text-muted-foreground truncate">
-                      {log.client_id}
-                    </div>
-                    {Object.keys(log.event_data).length > 0 && (
-                      <div className="mt-2 text-xs bg-muted/50 rounded p-2 font-mono overflow-x-auto">
-                        {JSON.stringify(log.event_data, null, 2)}
+                    <div className="flex-1 min-w-0">
+                      {/* Customer name/email */}
+                      {clientInfo && (
+                        <div className="flex items-center gap-2 mb-1">
+                          <User className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-sm font-medium truncate">
+                            {clientInfo.full_name || 'Unknown'}
+                          </span>
+                          {clientInfo.email && (
+                            <span className="text-xs text-muted-foreground truncate">
+                              ({clientInfo.email})
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <Badge variant="outline" className={getEventBadgeClass(log.event_type)}>
+                          {log.event_type}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          via {log.event_source}
+                        </span>
                       </div>
-                    )}
+                      <div className="text-sm font-mono text-muted-foreground truncate">
+                        {log.client_id}
+                      </div>
+                      {Object.keys(log.event_data).length > 0 && (
+                        <div className="mt-2 text-xs bg-muted/50 rounded p-2 font-mono overflow-x-auto">
+                          {JSON.stringify(log.event_data, null, 2)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground whitespace-nowrap">
+                      {format(new Date(log.created_at), 'MMM d, HH:mm:ss')}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground whitespace-nowrap">
-                    {format(new Date(log.created_at), 'MMM d, HH:mm:ss')}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </ScrollArea>
