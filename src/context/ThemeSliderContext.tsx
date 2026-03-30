@@ -18,6 +18,8 @@ const ThemeSliderContext = createContext<ThemeSliderContextType>({
   resolvedTheme: "light",
   mode: "auto",
   setMode: () => {},
+  reduceMotion: false,
+  setReduceMotion: () => {},
 });
 
 export const useThemeSlider = () => useContext(ThemeSliderContext);
