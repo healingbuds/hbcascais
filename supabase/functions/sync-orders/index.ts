@@ -200,38 +200,68 @@ serve(async (req) => {
     }
 
     console.log(`Fetched ${allOrders.length} orders from Dr Green API`);
-    
-    // Debug: log first order shape to diagnose missing fields
-    if (allOrders.length > 0) {
-      const sample = allOrders[0];
-      console.log('[sync-orders] Sample order keys:', Object.keys(sample));
-      console.log('[sync-orders] Sample order:', JSON.stringify(sample).substring(0, 2000));
+
+    // Build lookup map from local drgreen_clients for enrichment
+    const clientIds = new Set<string>();
+    for (const order of allOrders) {
+      const cid = order.client?.id || order.clientId;
+      if (cid) clientIds.add(cid);
+    }
+
+    const clientLookup: Record<string, any> = {};
+    if (clientIds.size > 0) {
+      const { data: localClients } = await supabase
+        .from('drgreen_clients')
+        .select('drgreen_client_id, email, full_name, user_id, country_code, shipping_address')
+        .in('drgreen_client_id', Array.from(clientIds));
+
+      if (localClients) {
+        for (const c of localClients) {
+          clientLookup[c.drgreen_client_id] = c;
+        }
+      }
+      console.log(`[sync-orders] Loaded ${Object.keys(clientLookup).length} local client records for enrichment`);
     }
 
     let synced = 0;
     const errors: string[] = [];
 
+    const alpha3to2: Record<string, string> = { ZAF: 'ZA', PRT: 'PT', GBR: 'GB', THA: 'TH', USA: 'US', DEU: 'DE', FRA: 'FR', ESP: 'ES', ITA: 'IT', NLD: 'NL', BEL: 'BE', AUT: 'AT', CHE: 'CH', BRA: 'BR', MOZ: 'MZ', AGO: 'AO' };
+
     for (const order of allOrders) {
       try {
-        const customerName = order.client
+        const ordClientId = order.client?.id || order.clientId || null;
+        const local = ordClientId ? clientLookup[ordClientId] : null;
+
+        // Customer name: API first, then local client
+        const apiName = order.client
           ? [order.client.firstName, order.client.lastName].filter(Boolean).join(' ')
           : order.customerName || null;
-        const customerEmail = order.client?.email || order.customerEmail || null;
-        
-        // API returns shipping.countryCode as ISO 3166-1 alpha-3 (e.g. "ZAF") 
-        // Convert common ones to alpha-2 for consistency
-        const alpha3to2: Record<string, string> = { ZAF: 'ZA', PRT: 'PT', GBR: 'GB', THA: 'TH', USA: 'US' };
-        const rawCountryCode = order.shipping?.countryCode || order.client?.shippings?.[0]?.countryCode || null;
-        const countryCode = rawCountryCode ? (alpha3to2[rawCountryCode] || rawCountryCode) : null;
+        const customerName = apiName || (local?.full_name ?? null);
 
-        // Build items array from orderLines count (bulk endpoint doesn't return line details)
+        // Customer email: API first, then local client
+        const customerEmail = order.client?.email || order.customerEmail || (local?.email ?? null);
+
+        // Country code with alpha-3 → alpha-2 conversion
+        const rawCountryCode = order.shipping?.countryCode || order.client?.shippings?.[0]?.countryCode || null;
+        const apiCountryCode = rawCountryCode ? (alpha3to2[rawCountryCode] || rawCountryCode) : null;
+        const countryCode = apiCountryCode || (local?.country_code ?? null);
+
+        // Shipping address: API first, then local client
+        const shippingAddress = order.shipping || (local?.shipping_address ?? null);
+
+        // user_id from local client record
+        const userId = local?.user_id ?? null;
+
+        // Build items array from orderLines count
         const itemCount = order._count?.orderLines || 0;
-        const items = itemCount > 0 
+        const items = itemCount > 0
           ? [{ quantity: order.totalQuantity || itemCount, totalPrice: order.totalPrice || 0 }]
           : [];
 
         // Use localPrice for proper currency amount, fallback to totalAmount
-        const totalAmount = order.localPrice?.totalAmount ?? order.totalAmount ?? 0;
+        const rawTotal = order.localPrice?.totalAmount ?? order.totalAmount ?? 0;
+        const totalAmount = typeof rawTotal === 'number' ? rawTotal : (parseFloat(rawTotal) || 0);
         const currency = order.localPrice?.currency || order.shipping?.currency || order.currency || 'ZAR';
 
         const { error: upsertError } = await supabase
@@ -241,14 +271,15 @@ serve(async (req) => {
             invoice_number: order.invoiceNumber || null,
             status: order.orderStatus || order.status || 'PENDING',
             payment_status: order.paymentStatus || 'PENDING',
-            total_amount: typeof totalAmount === 'number' ? totalAmount : parseFloat(totalAmount) || 0,
+            total_amount: totalAmount,
             items: items,
             customer_name: customerName,
             customer_email: customerEmail,
-            client_id: order.client?.id || order.clientId || null,
+            client_id: ordClientId,
             country_code: countryCode,
             currency: currency,
-            shipping_address: order.shipping || null,
+            shipping_address: shippingAddress,
+            user_id: userId,
             sync_status: 'synced',
             synced_at: new Date().toISOString(),
             created_at: order.createdAt || new Date().toISOString(),
