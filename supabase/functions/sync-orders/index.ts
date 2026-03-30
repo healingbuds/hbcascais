@@ -200,6 +200,13 @@ serve(async (req) => {
     }
 
     console.log(`Fetched ${allOrders.length} orders from Dr Green API`);
+    
+    // Debug: log first order shape to diagnose missing fields
+    if (allOrders.length > 0) {
+      const sample = allOrders[0];
+      console.log('[sync-orders] Sample order keys:', Object.keys(sample));
+      console.log('[sync-orders] Sample order:', JSON.stringify(sample).substring(0, 2000));
+    }
 
     let synced = 0;
     const errors: string[] = [];
@@ -210,22 +217,37 @@ serve(async (req) => {
           ? [order.client.firstName, order.client.lastName].filter(Boolean).join(' ')
           : order.customerName || null;
         const customerEmail = order.client?.email || order.customerEmail || null;
-        const countryCode = order.shippingAddress?.countryCode || order.client?.shippings?.[0]?.country || null;
+        
+        // API returns shipping.countryCode as ISO 3166-1 alpha-3 (e.g. "ZAF") 
+        // Convert common ones to alpha-2 for consistency
+        const alpha3to2: Record<string, string> = { ZAF: 'ZA', PRT: 'PT', GBR: 'GB', THA: 'TH', USA: 'US' };
+        const rawCountryCode = order.shipping?.countryCode || order.client?.shippings?.[0]?.countryCode || null;
+        const countryCode = rawCountryCode ? (alpha3to2[rawCountryCode] || rawCountryCode) : null;
+
+        // Build items array from orderLines count (bulk endpoint doesn't return line details)
+        const itemCount = order._count?.orderLines || 0;
+        const items = itemCount > 0 
+          ? [{ quantity: order.totalQuantity || itemCount, totalPrice: order.totalPrice || 0 }]
+          : [];
+
+        // Use localPrice for proper currency amount, fallback to totalAmount
+        const totalAmount = order.localPrice?.totalAmount ?? order.totalAmount ?? 0;
+        const currency = order.localPrice?.currency || order.shipping?.currency || order.currency || 'ZAR';
 
         const { error: upsertError } = await supabase
           .from('drgreen_orders')
           .upsert({
             drgreen_order_id: order.id,
-            status: order.status || 'PENDING',
+            status: order.orderStatus || order.status || 'PENDING',
             payment_status: order.paymentStatus || 'PENDING',
-            total_amount: parseFloat(order.totalAmount) || parseFloat(order.total) || 0,
-            items: order.items || order.orderItems || [],
+            total_amount: typeof totalAmount === 'number' ? totalAmount : parseFloat(totalAmount) || 0,
+            items: items,
             customer_name: customerName,
             customer_email: customerEmail,
-            client_id: order.clientId || order.client?.id || null,
+            client_id: order.client?.id || order.clientId || null,
             country_code: countryCode,
-            currency: order.currency || 'ZAR',
-            shipping_address: order.shippingAddress || null,
+            currency: currency,
+            shipping_address: order.shipping || null,
             sync_status: 'synced',
             synced_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
