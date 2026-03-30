@@ -237,7 +237,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
                         )}
                       >
                         <PortalIcon className="w-4 h-4" />
-                        <span className="max-w-[120px] truncate text-xs">{truncatedEmail}</span>
+                        <span className="max-w-[120px] truncate text-xs">{drGreenClient?.full_name || truncatedEmail}</span>
                         <ChevronDown className="w-3 h-3 opacity-60" />
                       </button>
                     </DropdownMenuTrigger>
