@@ -1,0 +1,320 @@
+{
+  "breadcrumbs": {
+    "home": "Home",
+    "conditions": "Eligible Conditions",
+    "research": "Research"
+  },
+  "toc": {
+    "title": "Table of Contents",
+    "onThisPage": "On This Page"
+  },
+  "cta": {
+    "title": "Ready to Explore Your Treatment Options?",
+    "subtitle": "Contact our specialist team to learn more about medical cannabis treatment.",
+    "contact": "Contact Us →",
+    "viewConditions": "View All Eligible Conditions"
+  },
+  "consultation": "Schedule a Consultation →",
+  "common": {
+    "causes": "Causes",
+    "symptoms": "Symptoms",
+    "treatment": "Treatment",
+    "medicalCannabis": "Medical Cannabis",
+    "faq": "FAQ"
+  },
+  "anxiety": {
+    "title": "Anxiety and Medical Cannabis",
+    "subtitle": "Anxiety disorders affect millions of people globally, causing persistent worry and fear that interfere with daily activities. For those who haven't found relief with traditional treatments, medical cannabis may offer an alternative approach.",
+    "breadcrumb": "Anxiety",
+    "toc": {
+      "causes": "What Causes Anxiety?",
+      "symptoms": "Anxiety Symptoms",
+      "types": "Types of Anxiety Disorders",
+      "treatment": "Anxiety Treatment",
+      "medicalCannabis": "Medical Cannabis for Anxiety",
+      "faq": "Frequently Asked Questions"
+    },
+    "causes": {
+      "title": "What Causes Anxiety?",
+      "intro": "Anxiety disorders can develop from a complex set of risk factors, including genetics, brain chemistry, personality, and life events. Understanding the underlying causes is essential for effective treatment.",
+      "items": [
+        { "title": "Genetic Factors", "desc": "Family history and inherited traits can increase susceptibility" },
+        { "title": "Brain Chemistry", "desc": "Imbalances in neurotransmitters may contribute to anxiety" },
+        { "title": "Environmental Stress", "desc": "Traumatic experiences or prolonged stress can trigger anxiety" },
+        { "title": "Medical Conditions", "desc": "Certain health issues can cause or worsen anxiety symptoms" }
+      ]
+    },
+    "symptoms": {
+      "title": "Anxiety Symptoms",
+      "intro": "Anxiety manifests through both physical and psychological symptoms:",
+      "physical": {
+        "title": "Physical Symptoms",
+        "items": ["Rapid heartbeat", "Sweating and trembling", "Shortness of breath", "Muscle tension", "Fatigue", "Sleep disturbances"]
+      },
+      "psychological": {
+        "title": "Psychological Symptoms",
+        "items": ["Persistent worry", "Restlessness", "Difficulty concentrating", "Irritability", "Sense of impending doom", "Avoidance behaviors"]
+      }
+    },
+    "types": {
+      "title": "Types of Anxiety Disorders",
+      "items": [
+        { "type": "Generalized Anxiety Disorder (GAD)", "desc": "Persistent excessive worry about various aspects of daily life" },
+        { "type": "Social Anxiety Disorder", "desc": "Intense fear of social situations and being judged by others" },
+        { "type": "Panic Disorder", "desc": "Recurrent unexpected panic attacks and fear of future episodes" },
+        { "type": "Specific Phobias", "desc": "Excessive fear of specific objects or situations" },
+        { "type": "Separation Anxiety", "desc": "Excessive fear of being separated from attachment figures" }
+      ]
+    },
+    "treatment": {
+      "title": "Anxiety Treatment",
+      "intro": "Effective anxiety treatment typically involves a combination of approaches:",
+      "items": [
+        { "title": "Psychotherapy", "desc": "Cognitive behavioral therapy (CBT) and exposure therapy" },
+        { "title": "Medications", "desc": "Antidepressants, anti-anxiety medications, and beta-blockers" },
+        { "title": "Lifestyle Changes", "desc": "Exercise, stress management, and sleep hygiene" },
+        { "title": "Support Groups", "desc": "Connecting with others experiencing similar challenges" }
+      ]
+    },
+    "medicalCannabis": {
+      "title": "Medical Cannabis for Anxiety",
+      "content1": "For patients with anxiety who have not found adequate relief with conventional treatments, medical cannabis may represent an alternative therapeutic option. Research suggests that certain cannabinoids may help regulate the body's stress response system.",
+      "content2": "At Healing Buds, our medical professionals conduct comprehensive evaluations to determine whether medical cannabis is appropriate for your specific anxiety condition. We provide personalized treatment plans and ongoing support."
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "items": [
+        { "question": "Can medical cannabis help with anxiety?", "answer": "Some studies suggest that certain cannabinoids may help manage anxiety symptoms, though responses vary by individual. The endocannabinoid system plays a role in regulating stress and emotional responses." },
+        { "question": "Will medical cannabis make my anxiety worse?", "answer": "Response to medical cannabis varies by individual, and dosing is critical. Our medical team carefully monitors your treatment to find the optimal dosage and formulation for your specific needs." },
+        { "question": "How long does treatment take to work?", "answer": "The timeline varies depending on the individual, the specific product, and the administration method. Some patients notice improvements within days, while others may require several weeks." }
+      ]
+    }
+  },
+  "chronicPain": {
+    "title": "Chronic Pain and Medical Cannabis",
+    "subtitle": "Chronic pain affects millions of people worldwide, significantly impacting quality of life and daily functioning. Medical cannabis has emerged as a potential treatment option for those who haven't found relief with conventional therapies.",
+    "breadcrumb": "Chronic Pain",
+    "causes": {
+      "title": "What Causes Chronic Pain?",
+      "intro": "Chronic pain is defined as pain that persists for more than 12 weeks, often despite treatment.",
+      "items": [
+        { "title": "Injury or Surgery", "desc": "Nerve damage or tissue injury that doesn't heal properly" },
+        { "title": "Chronic Conditions", "desc": "Arthritis, fibromyalgia, and other long-term diseases" },
+        { "title": "Nerve Damage", "desc": "Neuropathy from diabetes, infections, or trauma" },
+        { "title": "Unknown Causes", "desc": "Sometimes chronic pain develops without any identifiable cause" }
+      ]
+    },
+    "symptoms": {
+      "title": "Chronic Pain Symptoms",
+      "intro": "Chronic pain can manifest in various forms and intensities:",
+      "types": { "title": "Pain Types", "items": ["Aching or throbbing pain", "Burning sensations", "Shooting or stabbing pain", "Stiffness and soreness", "Tingling or numbness"] },
+      "associated": { "title": "Associated Symptoms", "items": ["Fatigue and sleep problems", "Mood changes and depression", "Reduced mobility", "Decreased appetite", "Social withdrawal"] }
+    },
+    "treatment": {
+      "title": "Chronic Pain Treatment",
+      "intro": "Effective chronic pain management often requires a multidisciplinary approach:",
+      "items": [
+        { "title": "Physical Therapy", "desc": "Exercise and rehabilitation programs" },
+        { "title": "Medications", "desc": "Pain relievers, anti-inflammatories, and nerve blockers" },
+        { "title": "Psychological Support", "desc": "Cognitive behavioral therapy and counseling" },
+        { "title": "Alternative Therapies", "desc": "Acupuncture, massage, and mindfulness" }
+      ]
+    },
+    "medicalCannabis": { "title": "Medical Cannabis for Chronic Pain", "content1": "Research suggests that cannabinoids may interact with the body's endocannabinoid system to help manage pain signals.", "content2": "Our medical team works with patients to develop personalized treatment plans." },
+    "faq": { "title": "Frequently Asked Questions", "items": [
+      { "question": "Is medical cannabis effective for all types of chronic pain?", "answer": "Medical cannabis may be more effective for certain types of pain, particularly neuropathic pain." },
+      { "question": "Can I use medical cannabis alongside other pain medications?", "answer": "In some cases, medical cannabis may be used as part of a comprehensive pain management plan." },
+      { "question": "How quickly can I expect relief?", "answer": "Response times vary depending on the product, administration method, and individual factors." }
+    ]}
+  },
+  "insomnia": {
+    "title": "Insomnia Treatment",
+    "subtitle": "Understanding sleep disorders and exploring medical cannabis as a treatment option for improving sleep quality and duration.",
+    "breadcrumb": "Insomnia",
+    "causes": { "title": "What Causes Insomnia?", "content1": "Insomnia is a sleep disorder characterized by difficulty falling asleep, staying asleep, or both.", "content2": "Common causes include stress, anxiety, depression, poor sleep habits, medications, and environmental factors.", "content3": "Chronic insomnia can lead to serious health consequences." },
+    "symptoms": { "title": "Insomnia Symptoms", "sleep": { "title": "Sleep-Related Symptoms", "items": ["Difficulty falling asleep", "Waking up during the night", "Waking too early", "Not feeling rested after sleep", "Sleeping for short periods"] }, "daytime": { "title": "Daytime Symptoms", "items": ["Fatigue and low energy", "Difficulty concentrating", "Irritability and mood changes", "Impaired work performance", "Increased errors or accidents"] } },
+    "treatment": { "title": "Treatment Options", "items": [
+      { "title": "Sleep Hygiene", "desc": "Establishing consistent sleep schedules and bedtime routines" },
+      { "title": "Cognitive Behavioral Therapy", "desc": "Addressing thoughts and behaviors affecting sleep" },
+      { "title": "Medications", "desc": "Prescription sleep aids and over-the-counter options" },
+      { "title": "Lifestyle Changes", "desc": "Exercise, diet modifications, and stress management" }
+    ]},
+    "medicalCannabis": { "title": "Medical Cannabis for Sleep", "content1": "Research suggests that certain cannabinoids may help regulate sleep patterns.", "content2": "Our sleep specialists work with patients to develop personalized treatment plans." },
+    "faq": { "title": "Frequently Asked Questions", "items": [
+      { "question": "Can medical cannabis help me fall asleep faster?", "answer": "Some studies suggest certain cannabis formulations may reduce sleep onset latency." },
+      { "question": "Will I feel groggy in the morning?", "answer": "Proper dosing and strain selection are key to avoiding morning grogginess." },
+      { "question": "Is medical cannabis addictive for sleep use?", "answer": "When used as prescribed and monitored by medical professionals, the risk of dependence is managed." }
+    ]}
+  },
+  "ptsd": {
+    "title": "PTSD Treatment",
+    "subtitle": "Understanding post-traumatic stress disorder and exploring medical cannabis as a complementary treatment option.",
+    "breadcrumb": "PTSD",
+    "causes": { "title": "What Causes PTSD?", "content1": "Post-Traumatic Stress Disorder (PTSD) is a mental health condition triggered by experiencing or witnessing a terrifying event.", "content2": "Common triggers include combat exposure, childhood trauma, physical assault, sexual violence, accidents, natural disasters, or witnessing death or injury.", "content3": "PTSD involves changes in brain chemistry and function, particularly in areas related to fear, stress response, and memory processing." },
+    "symptoms": { "title": "PTSD Symptoms", "core": { "title": "Core Symptoms", "items": ["Intrusive memories and flashbacks", "Avoidance of triggers", "Negative thoughts and mood", "Hyperarousal and reactivity"] }, "additional": { "title": "Additional Effects", "items": ["Sleep disturbances and nightmares", "Difficulty concentrating", "Emotional numbness", "Relationship problems"] } },
+    "treatment": { "title": "Treatment Options", "items": [
+      { "title": "Trauma-Focused Therapy", "desc": "EMDR and prolonged exposure therapy" },
+      { "title": "Medications", "desc": "Antidepressants and anti-anxiety medications" },
+      { "title": "Support Groups", "desc": "Connecting with others who understand" },
+      { "title": "Lifestyle Support", "desc": "Exercise, mindfulness, and stress management" }
+    ]},
+    "medicalCannabis": { "title": "Medical Cannabis for PTSD", "content1": "Research shows cannabinoids may help regulate the endocannabinoid system involved in fear and stress responses.", "content2": "Our specialists work with PTSD patients to develop careful, monitored treatment plans." },
+    "faq": { "title": "Frequently Asked Questions", "items": [
+      { "question": "Can medical cannabis help with PTSD nightmares?", "answer": "Some studies suggest cannabis may reduce the frequency and intensity of PTSD-related nightmares." },
+      { "question": "Will cannabis worsen my anxiety symptoms?", "answer": "Proper strain selection and dosing are critical. Our team carefully monitors your response." },
+      { "question": "Can I combine cannabis with my current PTSD treatment?", "answer": "Medical cannabis is often used as a complementary therapy alongside conventional treatments." }
+    ]}
+  },
+  "epilepsy": {
+    "title": "Epilepsy Treatment",
+    "subtitle": "Understanding epilepsy and exploring medical cannabis as a treatment option for seizure management.",
+    "breadcrumb": "Epilepsy",
+    "causes": { "title": "What Causes Epilepsy?", "content1": "Epilepsy is a neurological disorder characterized by recurrent, unprovoked seizures caused by abnormal electrical activity in the brain.", "content2": "Causes include genetic factors, head trauma, brain conditions, infections, prenatal injury, and developmental disorders. In many cases, the cause is unknown.", "content3": "Seizures occur when there's a sudden surge of electrical activity in the brain." },
+    "symptoms": { "title": "Epilepsy Symptoms", "seizures": { "title": "Seizure Types", "items": ["Generalized tonic-clonic seizures", "Absence seizures", "Focal (partial) seizures", "Myoclonic seizures"] }, "signs": { "title": "Common Signs", "items": ["Temporary confusion", "Staring spells", "Uncontrollable jerking", "Loss of consciousness", "Sensory symptoms"] } },
+    "treatment": { "title": "Treatment Options", "items": [
+      { "title": "Anti-Epileptic Drugs", "desc": "Medications to control seizure activity" },
+      { "title": "Surgery", "desc": "For drug-resistant epilepsy when seizure focus is identifiable" },
+      { "title": "Dietary Therapy", "desc": "Ketogenic diet and modified Atkins diet" },
+      { "title": "Nerve Stimulation", "desc": "VNS and responsive neurostimulation devices" }
+    ]},
+    "medicalCannabis": { "title": "Medical Cannabis for Epilepsy", "content1": "CBD-based treatments have shown significant promise in reducing seizure frequency, particularly in treatment-resistant epilepsy.", "content2": "Our neurological specialists work with patients to develop comprehensive seizure management plans." },
+    "faq": { "title": "Frequently Asked Questions", "items": [
+      { "question": "Is CBD approved for epilepsy treatment?", "answer": "Yes, CBD-based medications like Epidiolex are FDA-approved for certain types of epilepsy." },
+      { "question": "Can cannabis replace my current epilepsy medications?", "answer": "Medical cannabis is typically used alongside existing treatments, not as a replacement." },
+      { "question": "How effective is cannabis for seizure control?", "answer": "Studies show significant seizure reduction in many patients with treatment-resistant epilepsy." }
+    ]}
+  },
+  "arthritis": {
+    "title": "Arthritis Treatment",
+    "subtitle": "Understanding arthritis and exploring medical cannabis as a treatment option for joint pain and inflammation.",
+    "breadcrumb": "Arthritis",
+    "causes": { "title": "What Causes Arthritis?", "content1": "Arthritis is inflammation of one or more joints, causing pain and stiffness that can worsen with age.", "content2": "Osteoarthritis occurs when protective cartilage wears down. Rheumatoid arthritis is an autoimmune disorder where the immune system attacks the joints.", "content3": "Risk factors include age, family history, previous joint injuries, obesity, and repetitive stress on joints." },
+    "symptoms": { "title": "Arthritis Symptoms", "common": { "title": "Common Symptoms", "items": ["Joint pain and stiffness", "Swelling and inflammation", "Reduced range of motion", "Warmth around joints"] }, "severe": { "title": "Severe Symptoms", "items": ["Joint deformity", "Chronic fatigue", "Morning stiffness lasting hours", "Difficulty with daily tasks"] } },
+    "treatment": { "title": "Treatment Options", "items": [
+      { "title": "Physical Therapy", "desc": "Exercises to improve strength and flexibility" },
+      { "title": "Medications", "desc": "NSAIDs, DMARDs, and biologics" },
+      { "title": "Joint Injections", "desc": "Corticosteroids and hyaluronic acid" },
+      { "title": "Surgery", "desc": "Joint repair, replacement, or fusion" }
+    ]},
+    "medicalCannabis": { "title": "Medical Cannabis for Arthritis", "content1": "Cannabinoids have shown anti-inflammatory and analgesic properties that may help manage arthritis symptoms.", "content2": "Our rheumatology specialists work with patients to develop comprehensive pain management strategies." },
+    "faq": { "title": "Frequently Asked Questions", "items": [
+      { "question": "Can cannabis reduce joint inflammation?", "answer": "Studies suggest cannabinoids have anti-inflammatory properties that may help reduce joint inflammation." },
+      { "question": "Is topical cannabis effective for arthritis?", "answer": "Topical cannabis products may provide localized relief for joint pain without systemic effects." },
+      { "question": "Can I use cannabis with my arthritis medications?", "answer": "Our team reviews your current medications to ensure safe, complementary treatment." }
+    ]}
+  },
+  "migraines": {
+    "title": "Migraine Treatment",
+    "subtitle": "Understanding migraines and exploring medical cannabis as a treatment option for headache management.",
+    "breadcrumb": "Migraines",
+    "causes": { "title": "What Causes Migraines?", "content1": "Migraines are severe, recurring headaches often accompanied by other symptoms like nausea and sensitivity to light.", "content2": "Triggers include hormonal changes, stress, certain foods, sensory stimuli, sleep changes, and weather changes.", "content3": "Migraines involve changes in brain activity affecting nerve signals, chemicals, and blood vessels." },
+    "symptoms": { "title": "Migraine Symptoms", "headache": { "title": "Headache Symptoms", "items": ["Throbbing or pulsing pain", "Pain on one or both sides", "Sensitivity to light and sound", "Nausea and vomiting"] }, "other": { "title": "Other Symptoms", "items": ["Visual disturbances (aura)", "Tingling sensations", "Difficulty speaking", "Cognitive difficulties"] } },
+    "treatment": { "title": "Treatment Options", "items": [
+      { "title": "Preventive Medications", "desc": "Daily medications to reduce frequency" },
+      { "title": "Acute Treatments", "desc": "Triptans and pain relievers for active migraines" },
+      { "title": "Lifestyle Management", "desc": "Identifying and avoiding triggers" },
+      { "title": "Alternative Therapies", "desc": "Acupuncture, biofeedback, and supplements" }
+    ]},
+    "medicalCannabis": { "title": "Medical Cannabis for Migraines", "content1": "Research suggests cannabinoids may help reduce migraine frequency and intensity through effects on the endocannabinoid system.", "content2": "Our headache specialists work with patients to develop comprehensive migraine management plans." },
+    "faq": { "title": "Frequently Asked Questions", "items": [
+      { "question": "Can cannabis prevent migraines?", "answer": "Some studies suggest regular cannabis use may reduce migraine frequency in certain patients." },
+      { "question": "Is cannabis effective during an active migraine?", "answer": "Some patients report relief during acute migraines, though response varies by individual." },
+      { "question": "What's the best cannabis product for migraines?", "answer": "Our specialists can recommend specific formulations based on your migraine patterns." }
+    ]}
+  },
+  "multipleSclerosis": {
+    "title": "Multiple Sclerosis Treatment",
+    "subtitle": "Understanding MS and exploring medical cannabis as a treatment option for symptom management.",
+    "breadcrumb": "Multiple Sclerosis",
+    "causes": { "title": "What Causes Multiple Sclerosis?", "content1": "Multiple sclerosis is an autoimmune disease where the immune system attacks the protective myelin sheath covering nerve fibers.", "content2": "The exact cause is unknown, but genetic and environmental factors play a role. Risk factors include family history, infections, climate, and vitamin D levels.", "content3": "MS disrupts communication between the brain and body, causing a wide range of symptoms." },
+    "symptoms": { "title": "MS Symptoms", "neurological": { "title": "Neurological Symptoms", "items": ["Numbness or tingling", "Muscle weakness", "Vision problems", "Balance and coordination issues"] }, "other": { "title": "Other Symptoms", "items": ["Fatigue", "Cognitive changes", "Bladder dysfunction", "Spasticity and muscle stiffness"] } },
+    "treatment": { "title": "Treatment Options", "items": [
+      { "title": "Disease-Modifying Therapies", "desc": "Medications to slow MS progression" },
+      { "title": "Symptom Management", "desc": "Treatments for specific symptoms" },
+      { "title": "Physical Therapy", "desc": "Exercises for strength and mobility" },
+      { "title": "Occupational Therapy", "desc": "Strategies for daily living" }
+    ]},
+    "medicalCannabis": { "title": "Medical Cannabis for MS", "content1": "Cannabis-based treatments have shown promise in managing MS symptoms, particularly spasticity and pain.", "content2": "Our neurology specialists work with MS patients to develop comprehensive symptom management plans." },
+    "faq": { "title": "Frequently Asked Questions", "items": [
+      { "question": "Is cannabis approved for MS treatment?", "answer": "Cannabis-based medications like Sativex are approved in some countries for MS spasticity." },
+      { "question": "Can cannabis help with MS fatigue?", "answer": "Some patients report improved energy levels, though effects vary by individual." },
+      { "question": "Will cannabis interact with my MS medications?", "answer": "Our team reviews your current treatments to ensure safe, effective complementary therapy." }
+    ]}
+  },
+  "neuropathicPain": {
+    "title": "Neuropathic Pain Treatment",
+    "subtitle": "Understanding nerve pain and exploring medical cannabis as a treatment option.",
+    "breadcrumb": "Neuropathic Pain",
+    "causes": { "title": "What Causes Neuropathic Pain?", "content1": "Neuropathic pain results from damage to or dysfunction of the nervous system, causing abnormal pain signals.", "content2": "Common causes include diabetes, shingles, chemotherapy, injuries, infections, and conditions like multiple sclerosis.", "content3": "Unlike other types of pain, neuropathic pain persists even after the initial injury heals." },
+    "symptoms": { "title": "Neuropathic Pain Symptoms", "sensations": { "title": "Pain Sensations", "items": ["Burning or shooting pain", "Electric shock sensations", "Stabbing or lancinating pain", "Tingling and numbness"] }, "other": { "title": "Other Symptoms", "items": ["Increased sensitivity to touch", "Pain from normally painless stimuli", "Sleep disturbances", "Emotional impact"] } },
+    "treatment": { "title": "Treatment Options", "items": [
+      { "title": "Medications", "desc": "Anticonvulsants, antidepressants, and topical treatments" },
+      { "title": "Nerve Blocks", "desc": "Injections to interrupt pain signals" },
+      { "title": "Physical Therapy", "desc": "TENS, exercises, and desensitization" },
+      { "title": "Interventional Procedures", "desc": "Spinal cord stimulation" }
+    ]},
+    "medicalCannabis": { "title": "Medical Cannabis for Neuropathic Pain", "content1": "Research strongly supports cannabinoids for neuropathic pain management, with multiple studies showing significant relief.", "content2": "Our pain specialists work with patients to develop personalized neuropathic pain treatment plans." },
+    "faq": { "title": "Frequently Asked Questions", "items": [
+      { "question": "Is cannabis more effective for nerve pain than other pain types?", "answer": "Research suggests cannabinoids may be particularly effective for neuropathic pain." },
+      { "question": "Can topical cannabis help nerve pain?", "answer": "Topical products may provide localized relief, particularly for peripheral neuropathy." },
+      { "question": "How long until I see results?", "answer": "Many patients notice improvement within weeks, though optimal dosing may take time to establish." }
+    ]}
+  },
+  "backPain": {
+    "title": "Back Pain Treatment",
+    "subtitle": "Understanding back pain and exploring medical cannabis as a treatment option.",
+    "breadcrumb": "Back Pain",
+    "causes": { "title": "What Causes Back Pain?", "content1": "Back pain is one of the most common medical problems, affecting most people at some point in their lives.", "content2": "Causes include muscle strains, disc problems, arthritis, osteoporosis, and structural abnormalities.", "content3": "Risk factors include poor posture, obesity, sedentary lifestyle, and physically demanding work." },
+    "symptoms": { "title": "Back Pain Symptoms", "pain": { "title": "Pain Characteristics", "items": ["Muscle aching", "Shooting or stabbing pain", "Pain radiating down the leg", "Limited flexibility"] }, "severe": { "title": "Warning Signs", "items": ["Numbness or tingling", "Weakness in legs", "Bladder or bowel problems", "Fever with back pain"] } },
+    "treatment": { "title": "Treatment Options", "items": [
+      { "title": "Physical Therapy", "desc": "Exercises to strengthen and stretch" },
+      { "title": "Medications", "desc": "Pain relievers and muscle relaxants" },
+      { "title": "Injections", "desc": "Epidural steroid injections" },
+      { "title": "Surgery", "desc": "For structural problems or nerve compression" }
+    ]},
+    "medicalCannabis": { "title": "Medical Cannabis for Back Pain", "content1": "Medical cannabis may help manage chronic back pain through anti-inflammatory and analgesic effects.", "content2": "Our pain management specialists develop personalized treatment plans for back pain relief." },
+    "faq": { "title": "Frequently Asked Questions", "items": [
+      { "question": "Can cannabis help with chronic back pain?", "answer": "Many patients with chronic back pain report significant relief with medical cannabis." },
+      { "question": "Is cannabis better than opioids for back pain?", "answer": "Some patients find cannabis provides comparable relief with fewer side effects than opioids." },
+      { "question": "Can I use topical cannabis for back pain?", "answer": "Topical products can provide localized relief for muscle-related back pain." }
+    ]}
+  },
+  "parkinsons": {
+    "title": "Parkinson's Disease Treatment",
+    "subtitle": "Understanding Parkinson's and exploring medical cannabis for symptom management.",
+    "breadcrumb": "Parkinson's",
+    "causes": { "title": "What Causes Parkinson's?", "content1": "Parkinson's disease is a progressive neurological disorder affecting movement, caused by the loss of dopamine-producing brain cells.", "content2": "The exact cause is unknown, but genetic mutations and environmental factors may contribute.", "content3": "Parkinson's primarily affects people over 60, though early-onset forms exist." },
+    "symptoms": { "title": "Parkinson's Symptoms", "motor": { "title": "Motor Symptoms", "items": ["Tremor at rest", "Slowed movement (bradykinesia)", "Rigid muscles", "Impaired posture and balance"] }, "nonmotor": { "title": "Non-Motor Symptoms", "items": ["Sleep disturbances", "Depression and anxiety", "Cognitive changes", "Autonomic dysfunction"] } },
+    "treatment": { "title": "Treatment Options", "items": [
+      { "title": "Dopamine Therapy", "desc": "Levodopa and dopamine agonists" },
+      { "title": "Physical Therapy", "desc": "Exercises to improve movement and balance" },
+      { "title": "Deep Brain Stimulation", "desc": "Surgical intervention for advanced cases" },
+      { "title": "Speech Therapy", "desc": "Addressing voice and swallowing difficulties" }
+    ]},
+    "medicalCannabis": { "title": "Medical Cannabis for Parkinson's", "content1": "Research suggests cannabinoids may help manage several Parkinson's symptoms including tremor, pain, and sleep issues.", "content2": "Our movement disorder specialists work with patients to explore complementary cannabis treatments." },
+    "faq": { "title": "Frequently Asked Questions", "items": [
+      { "question": "Can cannabis reduce Parkinson's tremors?", "answer": "Some studies and patient reports suggest cannabis may help reduce tremor severity." },
+      { "question": "Will cannabis interact with my Parkinson's medications?", "answer": "Our specialists carefully review your medications for potential interactions." },
+      { "question": "Can cannabis help with Parkinson's sleep problems?", "answer": "Many Parkinson's patients report improved sleep quality with medical cannabis." }
+    ]}
+  },
+  "crps": {
+    "title": "Complex Regional Pain Syndrome Treatment",
+    "subtitle": "Understanding CRPS and exploring medical cannabis for pain management.",
+    "breadcrumb": "CRPS",
+    "causes": { "title": "What Causes CRPS?", "content1": "Complex Regional Pain Syndrome is a chronic pain condition usually affecting a limb after injury, surgery, stroke, or heart attack.", "content2": "CRPS involves abnormal responses in the nervous system, causing pain disproportionate to the initial injury.", "content3": "The condition can spread beyond the initially affected area and cause long-lasting disability." },
+    "symptoms": { "title": "CRPS Symptoms", "pain": { "title": "Pain Symptoms", "items": ["Continuous burning or throbbing pain", "Sensitivity to touch or cold", "Swelling of the affected area", "Changes in skin color and temperature"] }, "other": { "title": "Other Symptoms", "items": ["Changes in skin texture", "Abnormal sweating", "Joint stiffness", "Difficulty moving the affected limb"] } },
+    "treatment": { "title": "Treatment Options", "items": [
+      { "title": "Physical Therapy", "desc": "Gradual movement and desensitization" },
+      { "title": "Medications", "desc": "Pain medications, antidepressants, and anticonvulsants" },
+      { "title": "Nerve Blocks", "desc": "Injections to interrupt pain signals" },
+      { "title": "Spinal Cord Stimulation", "desc": "Electrical pulses to modify pain signals" }
+    ]},
+    "medicalCannabis": { "title": "Medical Cannabis for CRPS", "content1": "Medical cannabis may help manage CRPS pain through multiple mechanisms, including modulation of pain signals.", "content2": "Our pain specialists work with CRPS patients to develop comprehensive, multimodal treatment plans." },
+    "faq": { "title": "Frequently Asked Questions", "items": [
+      { "question": "Can cannabis help with CRPS pain?", "answer": "Some CRPS patients report significant pain relief with medical cannabis treatment." },
+      { "question": "Is cannabis effective for CRPS-related sleep problems?", "answer": "Many patients report improved sleep quality, which can help overall pain management." },
+      { "question": "Can I use cannabis with my current CRPS treatments?", "answer": "Medical cannabis is often used alongside other CRPS treatments as part of a comprehensive plan." }
+    ]}
+  }
+}

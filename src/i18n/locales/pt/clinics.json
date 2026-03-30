@@ -1,0 +1,60 @@
+{
+  "hero": {
+    "title": "Clínicas de Cannabis Medicinal",
+    "subtitle": "Lideradas por médicos formados em medicina de cannabis. Atualmente operacional na África do Sul, com Reino Unido e Portugal em breve."
+  },
+  "together": {
+    "title": "Unimos pessoas",
+    "paragraph1": "Porque o acesso a cuidados de cannabis medicinal de qualidade requer experiência clínica especializada, as nossas clínicas conectam pacientes com médicos experientes formados em cannabis. Atualmente operacional na África do Sul, com expansão para o Reino Unido e Portugal em breve.",
+    "paragraph2": "Não se trata apenas de cannabis — trata-se de ajudar as pessoas a encontrar o alívio transformador que merecem através de cuidados personalizados e baseados em evidências."
+  },
+  "services": {
+    "title": "Os Nossos Serviços",
+    "learnMore": "Saber mais",
+    "consultations": {
+      "title": "Consultas especializadas",
+      "description": "Os nossos médicos são profissionais de medicina formados como especialistas em cannabis, fornecendo orientação baseada em evidências para o seu tratamento."
+    },
+    "treatment": {
+      "title": "Planos de tratamento personalizados",
+      "description": "Os nossos médicos começam com uma revisão abrangente do seu histórico médico para criar planos de tratamento de cannabis personalizados."
+    },
+    "support": {
+      "title": "Apoio contínuo ao paciente",
+      "description": "Acompanhamento contínuo ao longo da sua jornada de tratamento com cannabis, com apoio clínico especializado dos nossos médicos."
+    }
+  },
+  "regions": {
+    "southAfrica": {
+      "title": "Na África do Sul",
+      "paragraph1": "As nossas clínicas na África do Sul estão totalmente operacionais, fornecendo acesso ao tratamento com cannabis medicinal através da nossa loja e dispensário, juntamente com a nossa rede de especialistas formados.",
+      "paragraph2": "Consultas abrangentes e apoio contínuo garantem que os pacientes recebam cuidados apropriados adaptados às suas necessidades."
+    },
+    "uk": {
+      "title": "No Reino Unido",
+      "paragraph1": "Em Breve. Desde 2018, a cannabis medicinal está disponível no Reino Unido através de prescritores especializados. As nossas clínicas no Reino Unido serão lideradas por médicos registados no GMC com extensa formação em terapêutica de cannabis.",
+      "paragraph2": "Ofereceremos avaliações lideradas por consultores e esquemas de acesso para garantir tratamento acessível para pacientes elegíveis em Inglaterra, Escócia, País de Gales e Irlanda do Norte."
+    },
+    "thailand": {
+      "title": "Na Tailândia",
+      "paragraph1": "Operamos instalações de fabrico parceiras na Tailândia, aproveitando as regulamentações progressivas do país sobre cannabis e a experiência tradicional de cultivo.",
+      "paragraph2": "As nossas operações tailandesas focam-se na produção e processamento, com serviços clínicos planeados para expansão futura."
+    },
+    "portugal": {
+      "title": "Em Portugal",
+      "paragraph1": "Em Breve (após o Reino Unido). Portugal servirá como o nosso principal centro de produção, processamento e expedição para distribuição europeia.",
+      "paragraph2": "As nossas operações portuguesas expandirão o acesso pelo Sul da Europa com consultas especializadas em português e inglês."
+    }
+  },
+  "testimonial": {
+    "quote": "Adoro a ideia de contribuir para as evidências crescentes que sem dúvida ajudarão muitos outros no futuro.",
+    "name": "Laura Drummond",
+    "role": "Paciente, Reino Unido"
+  },
+  "cta": {
+    "title": "Saiba mais sobre as nossas clínicas de cannabis medicinal",
+    "description": "Atualmente operacional na África do Sul. Reino Unido em breve, seguido por Portugal. Encontre cuidados especializados em cannabis.",
+    "contactButton": "Contacte-nos",
+    "eligibilityButton": "Verificar elegibilidade"
+  }
+}

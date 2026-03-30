@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "whatWeDo": "What We Do",
+    "research": "Research",
+    "theWire": "The Wire",
+    "aboutUs": "About Us",
+    "contactUs": "Contact Us",
+    "shop": "Dispensary",
+    "checkEligibility": "Check Eligibility",
+    "patientLogin": "Patient Login",
+    "signOut": "Sign Out",
+    "dashboard": "Dashboard"
+  },
+  "dropdown": {
+    "cultivating": "Cultivating & Processing",
+    "cultivatingDesc": "Pharmaceutical-grade cultivation",
+    "manufacture": "Manufacture & Distribution",
+    "manufactureDesc": "Global supply chain excellence",
+    "clinics": "Medical Cannabis Clinics",
+    "clinicsDesc": "Patient-centered care",
+    "pharmacy": "Online Medical Cannabis Pharmacy",
+    "pharmacyDesc": "Convenient access to care",
+    "aboutHealing": "About Healing Buds",
+    "aboutHealingDesc": "Our story, values & facilities",
+    "blockchain": "Blockchain Technology",
+    "blockchainDesc": "Seed-to-patient traceability"
+  },
+  "footer": {
+    "tagline": "Shaping the future of cannabis through research and excellence.",
+    "company": "Company",
+    "aboutUs": "About Us",
+    "ourStandards": "Our Standards",
+    "research": "Research",
+    "theWire": "The Wire",
+    "resources": "Resources",
+    "patientAccess": "Patient Access",
+    "conditionsTreated": "Conditions Treated",
+    "franchiseOpportunities": "Franchise Opportunities",
+    "legal": "Legal",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "compliance": "Compliance",
+    "copyright": "© {{year}} Healing Buds Global. All rights reserved.",
+    "commitment": "Committed to advancing global cannabis medicine"
+  }
+}

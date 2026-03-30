@@ -1,0 +1,294 @@
+{
+  "breadcrumbs": {
+    "home": "Início",
+    "conditions": "Condições Elegíveis",
+    "research": "Investigação"
+  },
+  "toc": {
+    "title": "Índice",
+    "onThisPage": "Nesta Página"
+  },
+  "cta": {
+    "title": "Pronto para Explorar as Suas Opções de Tratamento?",
+    "subtitle": "Contacte a nossa equipa especializada para saber mais sobre o tratamento com cannabis medicinal.",
+    "contact": "Contacte-nos →",
+    "viewConditions": "Ver Todas as Condições Elegíveis"
+  },
+  "consultation": "Agendar Consulta →",
+  "common": {
+    "causes": "Causas",
+    "symptoms": "Sintomas",
+    "treatment": "Tratamento",
+    "medicalCannabis": "Cannabis Medicinal",
+    "faq": "FAQ"
+  },
+  "anxiety": {
+    "title": "Ansiedade e Cannabis Medicinal",
+    "subtitle": "Os transtornos de ansiedade afetam milhões de pessoas globalmente, causando preocupação e medo persistentes que interferem nas atividades diárias.",
+    "breadcrumb": "Ansiedade",
+    "toc": {
+      "causes": "O Que Causa a Ansiedade?",
+      "symptoms": "Sintomas de Ansiedade",
+      "types": "Tipos de Transtornos de Ansiedade",
+      "treatment": "Tratamento da Ansiedade",
+      "medicalCannabis": "Cannabis Medicinal para Ansiedade",
+      "faq": "Perguntas Frequentes"
+    },
+    "causes": {
+      "title": "O Que Causa a Ansiedade?",
+      "intro": "Os transtornos de ansiedade podem desenvolver-se a partir de um conjunto complexo de fatores de risco.",
+      "items": [
+        { "title": "Fatores Genéticos", "desc": "Histórico familiar e traços hereditários podem aumentar a suscetibilidade" },
+        { "title": "Química Cerebral", "desc": "Desequilíbrios nos neurotransmissores podem contribuir para a ansiedade" },
+        { "title": "Stress Ambiental", "desc": "Experiências traumáticas ou stress prolongado podem desencadear ansiedade" },
+        { "title": "Condições Médicas", "desc": "Certos problemas de saúde podem causar ou agravar sintomas de ansiedade" }
+      ]
+    },
+    "symptoms": {
+      "title": "Sintomas de Ansiedade",
+      "intro": "A ansiedade manifesta-se através de sintomas físicos e psicológicos:",
+      "physical": { "title": "Sintomas Físicos", "items": ["Batimento cardíaco acelerado", "Suor e tremores", "Falta de ar", "Tensão muscular", "Fadiga", "Distúrbios do sono"] },
+      "psychological": { "title": "Sintomas Psicológicos", "items": ["Preocupação persistente", "Inquietação", "Dificuldade de concentração", "Irritabilidade", "Sensação de perigo iminente", "Comportamentos de evitamento"] }
+    },
+    "types": {
+      "title": "Tipos de Transtornos de Ansiedade",
+      "items": [
+        { "type": "Transtorno de Ansiedade Generalizada (TAG)", "desc": "Preocupação excessiva persistente sobre vários aspetos da vida diária" },
+        { "type": "Transtorno de Ansiedade Social", "desc": "Medo intenso de situações sociais e de ser julgado pelos outros" },
+        { "type": "Transtorno de Pânico", "desc": "Ataques de pânico inesperados recorrentes" },
+        { "type": "Fobias Específicas", "desc": "Medo excessivo de objetos ou situações específicas" },
+        { "type": "Ansiedade de Separação", "desc": "Medo excessivo de se separar de figuras de apego" }
+      ]
+    },
+    "treatment": {
+      "title": "Tratamento da Ansiedade",
+      "intro": "O tratamento eficaz da ansiedade geralmente envolve uma combinação de abordagens:",
+      "items": [
+        { "title": "Psicoterapia", "desc": "Terapia cognitivo-comportamental (TCC) e terapia de exposição" },
+        { "title": "Medicamentos", "desc": "Antidepressivos, medicamentos ansiolíticos e beta-bloqueadores" },
+        { "title": "Mudanças no Estilo de Vida", "desc": "Exercício, gestão do stress e higiene do sono" },
+        { "title": "Grupos de Apoio", "desc": "Conectar-se com outros que experienciam desafios semelhantes" }
+      ]
+    },
+    "medicalCannabis": { "title": "Cannabis Medicinal para Ansiedade", "content1": "Para pacientes com ansiedade que não encontraram alívio adequado com tratamentos convencionais, a cannabis medicinal pode representar uma opção terapêutica alternativa.", "content2": "Na Healing Buds, os nossos profissionais médicos realizam avaliações abrangentes para determinar se a cannabis medicinal é apropriada." },
+    "faq": { "title": "Perguntas Frequentes", "items": [
+      { "question": "A cannabis medicinal pode ajudar com a ansiedade?", "answer": "Alguns estudos sugerem que certos canabinoides podem ajudar a gerir os sintomas de ansiedade." },
+      { "question": "A cannabis medicinal pode piorar a minha ansiedade?", "answer": "A resposta à cannabis medicinal varia por indivíduo, e a dosagem é crítica." },
+      { "question": "Quanto tempo demora o tratamento a fazer efeito?", "answer": "O cronograma varia dependendo do indivíduo, do produto específico e do método de administração." }
+    ]}
+  },
+  "chronicPain": {
+    "title": "Dor Crónica e Cannabis Medicinal",
+    "subtitle": "A dor crónica afeta milhões de pessoas em todo o mundo, impactando significativamente a qualidade de vida.",
+    "breadcrumb": "Dor Crónica",
+    "causes": { "title": "O Que Causa a Dor Crónica?", "intro": "A dor crónica é definida como dor que persiste por mais de 12 semanas.", "items": [
+      { "title": "Lesão ou Cirurgia", "desc": "Dano nervoso ou lesão tecidual que não cicatriza adequadamente" },
+      { "title": "Condições Crónicas", "desc": "Artrite, fibromialgia e outras doenças de longo prazo" },
+      { "title": "Dano Nervoso", "desc": "Neuropatia de diabetes, infeções ou trauma" },
+      { "title": "Causas Desconhecidas", "desc": "Por vezes a dor crónica desenvolve-se sem causa identificável" }
+    ]},
+    "symptoms": { "title": "Sintomas da Dor Crónica", "intro": "A dor crónica pode manifestar-se de várias formas:", "types": { "title": "Tipos de Dor", "items": ["Dor latejante ou pulsante", "Sensações de queimadura", "Dor aguda ou penetrante", "Rigidez e sensibilidade", "Formigueiro ou dormência"] }, "associated": { "title": "Sintomas Associados", "items": ["Fadiga e problemas de sono", "Alterações de humor e depressão", "Mobilidade reduzida", "Apetite diminuído", "Isolamento social"] } },
+    "treatment": { "title": "Tratamento da Dor Crónica", "intro": "A gestão eficaz da dor crónica frequentemente requer uma abordagem multidisciplinar:", "items": [
+      { "title": "Fisioterapia", "desc": "Programas de exercício e reabilitação" },
+      { "title": "Medicamentos", "desc": "Analgésicos, anti-inflamatórios e bloqueadores nervosos" },
+      { "title": "Apoio Psicológico", "desc": "Terapia cognitivo-comportamental e aconselhamento" },
+      { "title": "Terapias Alternativas", "desc": "Acupuntura, massagem e mindfulness" }
+    ]},
+    "medicalCannabis": { "title": "Cannabis Medicinal para Dor Crónica", "content1": "A investigação sugere que os canabinoides podem interagir com o sistema endocanabinoide do corpo para ajudar a gerir os sinais de dor.", "content2": "A nossa equipa médica trabalha com os pacientes para desenvolver planos de tratamento personalizados." },
+    "faq": { "title": "Perguntas Frequentes", "items": [
+      { "question": "A cannabis medicinal é eficaz para todos os tipos de dor crónica?", "answer": "A cannabis medicinal pode ser mais eficaz para certos tipos de dor, particularmente dor neuropática." },
+      { "question": "Posso usar cannabis medicinal com outros medicamentos?", "answer": "Em alguns casos, a cannabis medicinal pode ser usada como parte de um plano abrangente." },
+      { "question": "Com que rapidez posso esperar alívio?", "answer": "Os tempos de resposta variam dependendo do produto e fatores individuais." }
+    ]}
+  },
+  "insomnia": {
+    "title": "Tratamento da Insónia",
+    "subtitle": "Compreender os distúrbios do sono e explorar a cannabis medicinal como opção de tratamento.",
+    "breadcrumb": "Insónia",
+    "causes": { "title": "O Que Causa a Insónia?", "content1": "A insónia é um distúrbio do sono caracterizado por dificuldade em adormecer ou manter o sono.", "content2": "As causas comuns incluem stress, ansiedade, depressão, maus hábitos de sono e fatores ambientais.", "content3": "A insónia crónica pode levar a consequências graves para a saúde." },
+    "symptoms": { "title": "Sintomas da Insónia", "sleep": { "title": "Sintomas de Sono", "items": ["Dificuldade em adormecer", "Acordar durante a noite", "Acordar muito cedo", "Não se sentir descansado", "Dormir por períodos curtos"] }, "daytime": { "title": "Sintomas Diurnos", "items": ["Fadiga e baixa energia", "Dificuldade de concentração", "Irritabilidade", "Desempenho prejudicado", "Aumento de erros"] } },
+    "treatment": { "title": "Opções de Tratamento", "items": [
+      { "title": "Higiene do Sono", "desc": "Estabelecer horários de sono consistentes" },
+      { "title": "Terapia Cognitivo-Comportamental", "desc": "Abordar pensamentos e comportamentos" },
+      { "title": "Medicamentos", "desc": "Auxiliares de sono prescritos" },
+      { "title": "Mudanças no Estilo de Vida", "desc": "Exercício e gestão do stress" }
+    ]},
+    "medicalCannabis": { "title": "Cannabis Medicinal para o Sono", "content1": "A investigação sugere que certos canabinoides podem ajudar a regular os padrões de sono.", "content2": "Os nossos especialistas em sono trabalham com os pacientes para desenvolver planos personalizados." },
+    "faq": { "title": "Perguntas Frequentes", "items": [
+      { "question": "A cannabis pode ajudar-me a adormecer mais rapidamente?", "answer": "Alguns estudos sugerem que certas formulações podem reduzir a latência do início do sono." },
+      { "question": "Vou sentir-me grogue de manhã?", "answer": "A dosagem adequada e a seleção de estirpes são fundamentais." },
+      { "question": "A cannabis medicinal é viciante?", "answer": "Quando usada conforme prescrito e monitorizada, o risco de dependência é gerido." }
+    ]}
+  },
+  "ptsd": {
+    "title": "Tratamento do PTSD",
+    "subtitle": "Compreender o transtorno de stress pós-traumático e explorar a cannabis medicinal como opção de tratamento complementar.",
+    "breadcrumb": "PTSD",
+    "causes": { "title": "O Que Causa o PTSD?", "content1": "O Transtorno de Stress Pós-Traumático é uma condição de saúde mental desencadeada por experienciar ou testemunhar um evento aterrador.", "content2": "Os gatilhos comuns incluem exposição a combate, trauma infantil, agressão física, violência sexual, acidentes e desastres naturais.", "content3": "O PTSD envolve mudanças na química e função cerebral." },
+    "symptoms": { "title": "Sintomas do PTSD", "core": { "title": "Sintomas Principais", "items": ["Memórias intrusivas e flashbacks", "Evitamento de gatilhos", "Pensamentos e humor negativos", "Hipervigilância e reatividade"] }, "additional": { "title": "Efeitos Adicionais", "items": ["Distúrbios do sono e pesadelos", "Dificuldade de concentração", "Entorpecimento emocional", "Problemas de relacionamento"] } },
+    "treatment": { "title": "Opções de Tratamento", "items": [
+      { "title": "Terapia Focada no Trauma", "desc": "EMDR e terapia de exposição prolongada" },
+      { "title": "Medicamentos", "desc": "Antidepressivos e ansiolíticos" },
+      { "title": "Grupos de Apoio", "desc": "Conectar-se com outros que compreendem" },
+      { "title": "Apoio ao Estilo de Vida", "desc": "Exercício, mindfulness e gestão do stress" }
+    ]},
+    "medicalCannabis": { "title": "Cannabis Medicinal para PTSD", "content1": "A investigação mostra que os canabinoides podem ajudar a regular o sistema endocanabinoide envolvido nas respostas de medo e stress.", "content2": "Os nossos especialistas trabalham com pacientes de PTSD para desenvolver planos de tratamento cuidadosos." },
+    "faq": { "title": "Perguntas Frequentes", "items": [
+      { "question": "A cannabis pode ajudar com pesadelos de PTSD?", "answer": "Alguns estudos sugerem que a cannabis pode reduzir a frequência e intensidade dos pesadelos." },
+      { "question": "A cannabis vai piorar os meus sintomas de ansiedade?", "answer": "A seleção adequada de estirpes e dosagem são críticas." },
+      { "question": "Posso combinar cannabis com o meu tratamento atual?", "answer": "A cannabis medicinal é frequentemente usada como terapia complementar." }
+    ]}
+  },
+  "epilepsy": {
+    "title": "Tratamento da Epilepsia",
+    "subtitle": "Compreender a epilepsia e explorar a cannabis medicinal como opção de tratamento para gestão de convulsões.",
+    "breadcrumb": "Epilepsia",
+    "causes": { "title": "O Que Causa a Epilepsia?", "content1": "A epilepsia é um distúrbio neurológico caracterizado por convulsões recorrentes causadas por atividade elétrica anormal no cérebro.", "content2": "As causas incluem fatores genéticos, trauma craniano, condições cerebrais, infeções e distúrbios do desenvolvimento.", "content3": "As convulsões ocorrem quando há uma onda súbita de atividade elétrica no cérebro." },
+    "symptoms": { "title": "Sintomas da Epilepsia", "seizures": { "title": "Tipos de Convulsões", "items": ["Convulsões tónico-clónicas generalizadas", "Crises de ausência", "Convulsões focais (parciais)", "Convulsões mioclónicas"] }, "signs": { "title": "Sinais Comuns", "items": ["Confusão temporária", "Olhar fixo", "Movimentos bruscos incontroláveis", "Perda de consciência", "Sintomas sensoriais"] } },
+    "treatment": { "title": "Opções de Tratamento", "items": [
+      { "title": "Medicamentos Antiepilépticos", "desc": "Medicamentos para controlar a atividade convulsiva" },
+      { "title": "Cirurgia", "desc": "Para epilepsia resistente a medicamentos" },
+      { "title": "Terapia Dietética", "desc": "Dieta cetogénica e dieta Atkins modificada" },
+      { "title": "Estimulação Nervosa", "desc": "VNS e dispositivos de neuroestimulação" }
+    ]},
+    "medicalCannabis": { "title": "Cannabis Medicinal para Epilepsia", "content1": "Os tratamentos baseados em CBD mostraram promessa significativa na redução da frequência de convulsões.", "content2": "Os nossos especialistas neurológicos trabalham com pacientes para desenvolver planos abrangentes de gestão de convulsões." },
+    "faq": { "title": "Perguntas Frequentes", "items": [
+      { "question": "O CBD é aprovado para tratamento de epilepsia?", "answer": "Sim, medicamentos baseados em CBD como o Epidiolex são aprovados para certos tipos de epilepsia." },
+      { "question": "A cannabis pode substituir os meus medicamentos atuais?", "answer": "A cannabis medicinal é tipicamente usada junto com tratamentos existentes." },
+      { "question": "Quão eficaz é a cannabis para controlo de convulsões?", "answer": "Estudos mostram redução significativa de convulsões em muitos pacientes." }
+    ]}
+  },
+  "arthritis": {
+    "title": "Tratamento da Artrite",
+    "subtitle": "Compreender a artrite e explorar a cannabis medicinal para dor articular e inflamação.",
+    "breadcrumb": "Artrite",
+    "causes": { "title": "O Que Causa a Artrite?", "content1": "A artrite é inflamação de uma ou mais articulações, causando dor e rigidez.", "content2": "A osteoartrite ocorre quando a cartilagem protetora se desgasta. A artrite reumatoide é uma doença autoimune.", "content3": "Os fatores de risco incluem idade, histórico familiar, lesões articulares anteriores e obesidade." },
+    "symptoms": { "title": "Sintomas da Artrite", "common": { "title": "Sintomas Comuns", "items": ["Dor e rigidez articular", "Inchaço e inflamação", "Amplitude de movimento reduzida", "Calor nas articulações"] }, "severe": { "title": "Sintomas Graves", "items": ["Deformidade articular", "Fadiga crónica", "Rigidez matinal prolongada", "Dificuldade nas tarefas diárias"] } },
+    "treatment": { "title": "Opções de Tratamento", "items": [
+      { "title": "Fisioterapia", "desc": "Exercícios para melhorar força e flexibilidade" },
+      { "title": "Medicamentos", "desc": "AINEs, DMARDs e biológicos" },
+      { "title": "Injeções Articulares", "desc": "Corticosteroides e ácido hialurónico" },
+      { "title": "Cirurgia", "desc": "Reparação, substituição ou fusão articular" }
+    ]},
+    "medicalCannabis": { "title": "Cannabis Medicinal para Artrite", "content1": "Os canabinoides mostraram propriedades anti-inflamatórias e analgésicas que podem ajudar a gerir os sintomas da artrite.", "content2": "Os nossos especialistas em reumatologia desenvolvem estratégias abrangentes de gestão da dor." },
+    "faq": { "title": "Perguntas Frequentes", "items": [
+      { "question": "A cannabis pode reduzir a inflamação articular?", "answer": "Estudos sugerem que os canabinoides têm propriedades anti-inflamatórias." },
+      { "question": "A cannabis tópica é eficaz para artrite?", "answer": "Produtos tópicos podem fornecer alívio localizado para dor articular." },
+      { "question": "Posso usar cannabis com os meus medicamentos para artrite?", "answer": "A nossa equipa revê os seus medicamentos para garantir tratamento seguro." }
+    ]}
+  },
+  "migraines": {
+    "title": "Tratamento de Enxaquecas",
+    "subtitle": "Compreender as enxaquecas e explorar a cannabis medicinal para gestão de cefaleias.",
+    "breadcrumb": "Enxaquecas",
+    "causes": { "title": "O Que Causa Enxaquecas?", "content1": "As enxaquecas são cefaleias graves e recorrentes frequentemente acompanhadas de outros sintomas.", "content2": "Os gatilhos incluem alterações hormonais, stress, certos alimentos, estímulos sensoriais e mudanças climáticas.", "content3": "As enxaquecas envolvem mudanças na atividade cerebral afetando sinais nervosos e vasos sanguíneos." },
+    "symptoms": { "title": "Sintomas de Enxaqueca", "headache": { "title": "Sintomas de Cefaleia", "items": ["Dor latejante ou pulsante", "Dor num ou ambos os lados", "Sensibilidade à luz e som", "Náuseas e vómitos"] }, "other": { "title": "Outros Sintomas", "items": ["Distúrbios visuais (aura)", "Sensações de formigueiro", "Dificuldade em falar", "Dificuldades cognitivas"] } },
+    "treatment": { "title": "Opções de Tratamento", "items": [
+      { "title": "Medicamentos Preventivos", "desc": "Medicamentos diários para reduzir frequência" },
+      { "title": "Tratamentos Agudos", "desc": "Triptanos e analgésicos" },
+      { "title": "Gestão do Estilo de Vida", "desc": "Identificar e evitar gatilhos" },
+      { "title": "Terapias Alternativas", "desc": "Acupuntura e biofeedback" }
+    ]},
+    "medicalCannabis": { "title": "Cannabis Medicinal para Enxaquecas", "content1": "A investigação sugere que os canabinoides podem ajudar a reduzir a frequência e intensidade das enxaquecas.", "content2": "Os nossos especialistas em cefaleias desenvolvem planos abrangentes de gestão de enxaquecas." },
+    "faq": { "title": "Perguntas Frequentes", "items": [
+      { "question": "A cannabis pode prevenir enxaquecas?", "answer": "Alguns estudos sugerem que o uso regular pode reduzir a frequência em certos pacientes." },
+      { "question": "A cannabis é eficaz durante uma enxaqueca ativa?", "answer": "Alguns pacientes relatam alívio, embora a resposta varie." },
+      { "question": "Qual o melhor produto para enxaquecas?", "answer": "Os nossos especialistas podem recomendar formulações específicas." }
+    ]}
+  },
+  "multipleSclerosis": {
+    "title": "Tratamento da Esclerose Múltipla",
+    "subtitle": "Compreender a EM e explorar a cannabis medicinal para gestão de sintomas.",
+    "breadcrumb": "Esclerose Múltipla",
+    "causes": { "title": "O Que Causa a Esclerose Múltipla?", "content1": "A esclerose múltipla é uma doença autoimune onde o sistema imunitário ataca a bainha de mielina protetora.", "content2": "A causa exata é desconhecida, mas fatores genéticos e ambientais desempenham um papel.", "content3": "A EM perturba a comunicação entre o cérebro e o corpo." },
+    "symptoms": { "title": "Sintomas da EM", "neurological": { "title": "Sintomas Neurológicos", "items": ["Dormência ou formigueiro", "Fraqueza muscular", "Problemas de visão", "Problemas de equilíbrio e coordenação"] }, "other": { "title": "Outros Sintomas", "items": ["Fadiga", "Alterações cognitivas", "Disfunção da bexiga", "Espasticidade e rigidez muscular"] } },
+    "treatment": { "title": "Opções de Tratamento", "items": [
+      { "title": "Terapias Modificadoras da Doença", "desc": "Medicamentos para retardar a progressão" },
+      { "title": "Gestão de Sintomas", "desc": "Tratamentos para sintomas específicos" },
+      { "title": "Fisioterapia", "desc": "Exercícios para força e mobilidade" },
+      { "title": "Terapia Ocupacional", "desc": "Estratégias para a vida diária" }
+    ]},
+    "medicalCannabis": { "title": "Cannabis Medicinal para EM", "content1": "Os tratamentos baseados em cannabis mostraram promessa na gestão dos sintomas da EM, particularmente espasticidade e dor.", "content2": "Os nossos especialistas em neurologia desenvolvem planos abrangentes de gestão de sintomas." },
+    "faq": { "title": "Perguntas Frequentes", "items": [
+      { "question": "A cannabis é aprovada para tratamento de EM?", "answer": "Medicamentos baseados em cannabis como o Sativex são aprovados em alguns países para espasticidade." },
+      { "question": "A cannabis pode ajudar com a fadiga da EM?", "answer": "Alguns pacientes relatam níveis de energia melhorados." },
+      { "question": "A cannabis vai interagir com os meus medicamentos?", "answer": "A nossa equipa revê os seus tratamentos para garantir terapia complementar segura." }
+    ]}
+  },
+  "neuropathicPain": {
+    "title": "Tratamento da Dor Neuropática",
+    "subtitle": "Compreender a dor nervosa e explorar a cannabis medicinal como opção de tratamento.",
+    "breadcrumb": "Dor Neuropática",
+    "causes": { "title": "O Que Causa a Dor Neuropática?", "content1": "A dor neuropática resulta de dano ou disfunção do sistema nervoso.", "content2": "As causas comuns incluem diabetes, herpes zoster, quimioterapia, lesões e infeções.", "content3": "Ao contrário de outros tipos de dor, a dor neuropática persiste após a lesão inicial cicatrizar." },
+    "symptoms": { "title": "Sintomas da Dor Neuropática", "sensations": { "title": "Sensações de Dor", "items": ["Dor ardente ou lancinante", "Sensações de choque elétrico", "Dor penetrante", "Formigueiro e dormência"] }, "other": { "title": "Outros Sintomas", "items": ["Sensibilidade aumentada ao toque", "Dor de estímulos normalmente indolores", "Distúrbios do sono", "Impacto emocional"] } },
+    "treatment": { "title": "Opções de Tratamento", "items": [
+      { "title": "Medicamentos", "desc": "Anticonvulsivantes, antidepressivos e tratamentos tópicos" },
+      { "title": "Bloqueios Nervosos", "desc": "Injeções para interromper sinais de dor" },
+      { "title": "Fisioterapia", "desc": "TENS, exercícios e dessensibilização" },
+      { "title": "Procedimentos Intervencionistas", "desc": "Estimulação da medula espinhal" }
+    ]},
+    "medicalCannabis": { "title": "Cannabis Medicinal para Dor Neuropática", "content1": "A investigação apoia fortemente os canabinoides para gestão da dor neuropática.", "content2": "Os nossos especialistas em dor desenvolvem planos de tratamento personalizados." },
+    "faq": { "title": "Perguntas Frequentes", "items": [
+      { "question": "A cannabis é mais eficaz para dor nervosa?", "answer": "A investigação sugere que os canabinoides podem ser particularmente eficazes para dor neuropática." },
+      { "question": "A cannabis tópica pode ajudar?", "answer": "Produtos tópicos podem fornecer alívio localizado para neuropatia periférica." },
+      { "question": "Quanto tempo até ver resultados?", "answer": "Muitos pacientes notam melhoria em semanas." }
+    ]}
+  },
+  "backPain": {
+    "title": "Tratamento de Dor nas Costas",
+    "subtitle": "Compreender a dor nas costas e explorar a cannabis medicinal como opção de tratamento.",
+    "breadcrumb": "Dor nas Costas",
+    "causes": { "title": "O Que Causa Dor nas Costas?", "content1": "A dor nas costas é um dos problemas médicos mais comuns, afetando a maioria das pessoas.", "content2": "As causas incluem distensões musculares, problemas de disco, artrite, osteoporose e anomalias estruturais.", "content3": "Os fatores de risco incluem má postura, obesidade, estilo de vida sedentário e trabalho fisicamente exigente." },
+    "symptoms": { "title": "Sintomas de Dor nas Costas", "pain": { "title": "Características da Dor", "items": ["Dor muscular", "Dor lancinante ou penetrante", "Dor irradiando para a perna", "Flexibilidade limitada"] }, "severe": { "title": "Sinais de Alerta", "items": ["Dormência ou formigueiro", "Fraqueza nas pernas", "Problemas de bexiga ou intestino", "Febre com dor nas costas"] } },
+    "treatment": { "title": "Opções de Tratamento", "items": [
+      { "title": "Fisioterapia", "desc": "Exercícios para fortalecer e alongar" },
+      { "title": "Medicamentos", "desc": "Analgésicos e relaxantes musculares" },
+      { "title": "Injeções", "desc": "Injeções epidurais de esteroides" },
+      { "title": "Cirurgia", "desc": "Para problemas estruturais ou compressão nervosa" }
+    ]},
+    "medicalCannabis": { "title": "Cannabis Medicinal para Dor nas Costas", "content1": "A cannabis medicinal pode ajudar a gerir a dor crónica nas costas através de efeitos anti-inflamatórios e analgésicos.", "content2": "Os nossos especialistas em gestão da dor desenvolvem planos de tratamento personalizados." },
+    "faq": { "title": "Perguntas Frequentes", "items": [
+      { "question": "A cannabis pode ajudar com dor crónica nas costas?", "answer": "Muitos pacientes relatam alívio significativo com cannabis medicinal." },
+      { "question": "A cannabis é melhor que opioides?", "answer": "Alguns pacientes encontram alívio comparável com menos efeitos secundários." },
+      { "question": "Posso usar cannabis tópica?", "answer": "Produtos tópicos podem fornecer alívio localizado para dor muscular." }
+    ]}
+  },
+  "parkinsons": {
+    "title": "Tratamento da Doença de Parkinson",
+    "subtitle": "Compreender o Parkinson e explorar a cannabis medicinal para gestão de sintomas.",
+    "breadcrumb": "Parkinson",
+    "causes": { "title": "O Que Causa o Parkinson?", "content1": "A doença de Parkinson é um distúrbio neurológico progressivo que afeta o movimento.", "content2": "A causa exata é desconhecida, mas mutações genéticas e fatores ambientais podem contribuir.", "content3": "O Parkinson afeta principalmente pessoas com mais de 60 anos." },
+    "symptoms": { "title": "Sintomas do Parkinson", "motor": { "title": "Sintomas Motores", "items": ["Tremor em repouso", "Movimento lento (bradicinesia)", "Músculos rígidos", "Postura e equilíbrio prejudicados"] }, "nonmotor": { "title": "Sintomas Não-Motores", "items": ["Distúrbios do sono", "Depressão e ansiedade", "Alterações cognitivas", "Disfunção autonómica"] } },
+    "treatment": { "title": "Opções de Tratamento", "items": [
+      { "title": "Terapia com Dopamina", "desc": "Levodopa e agonistas da dopamina" },
+      { "title": "Fisioterapia", "desc": "Exercícios para melhorar movimento e equilíbrio" },
+      { "title": "Estimulação Cerebral Profunda", "desc": "Intervenção cirúrgica para casos avançados" },
+      { "title": "Terapia da Fala", "desc": "Abordar dificuldades de voz e deglutição" }
+    ]},
+    "medicalCannabis": { "title": "Cannabis Medicinal para Parkinson", "content1": "A investigação sugere que os canabinoides podem ajudar a gerir vários sintomas do Parkinson.", "content2": "Os nossos especialistas em distúrbios do movimento exploram tratamentos complementares com cannabis." },
+    "faq": { "title": "Perguntas Frequentes", "items": [
+      { "question": "A cannabis pode reduzir os tremores do Parkinson?", "answer": "Alguns estudos e relatos sugerem que a cannabis pode ajudar a reduzir a gravidade dos tremores." },
+      { "question": "A cannabis vai interagir com os meus medicamentos?", "answer": "Os nossos especialistas revêem cuidadosamente os seus medicamentos." },
+      { "question": "A cannabis pode ajudar com problemas de sono?", "answer": "Muitos pacientes de Parkinson relatam melhoria na qualidade do sono." }
+    ]}
+  },
+  "crps": {
+    "title": "Tratamento da Síndrome de Dor Regional Complexa",
+    "subtitle": "Compreender a SDRC e explorar a cannabis medicinal para gestão da dor.",
+    "breadcrumb": "SDRC",
+    "causes": { "title": "O Que Causa a SDRC?", "content1": "A Síndrome de Dor Regional Complexa é uma condição de dor crónica que geralmente afeta um membro após lesão.", "content2": "A SDRC envolve respostas anormais no sistema nervoso, causando dor desproporcional à lesão inicial.", "content3": "A condição pode espalhar-se além da área inicialmente afetada." },
+    "symptoms": { "title": "Sintomas da SDRC", "pain": { "title": "Sintomas de Dor", "items": ["Dor ardente ou latejante contínua", "Sensibilidade ao toque ou frio", "Inchaço da área afetada", "Mudanças na cor e temperatura da pele"] }, "other": { "title": "Outros Sintomas", "items": ["Mudanças na textura da pele", "Sudorese anormal", "Rigidez articular", "Dificuldade em mover o membro afetado"] } },
+    "treatment": { "title": "Opções de Tratamento", "items": [
+      { "title": "Fisioterapia", "desc": "Movimento gradual e dessensibilização" },
+      { "title": "Medicamentos", "desc": "Analgésicos, antidepressivos e anticonvulsivantes" },
+      { "title": "Bloqueios Nervosos", "desc": "Injeções para interromper sinais de dor" },
+      { "title": "Estimulação da Medula Espinhal", "desc": "Pulsos elétricos para modificar sinais de dor" }
+    ]},
+    "medicalCannabis": { "title": "Cannabis Medicinal para SDRC", "content1": "A cannabis medicinal pode ajudar a gerir a dor da SDRC através de múltiplos mecanismos.", "content2": "Os nossos especialistas em dor desenvolvem planos de tratamento abrangentes e multimodais." },
+    "faq": { "title": "Perguntas Frequentes", "items": [
+      { "question": "A cannabis pode ajudar com a dor da SDRC?", "answer": "Alguns pacientes relatam alívio significativo da dor com cannabis medicinal." },
+      { "question": "A cannabis é eficaz para problemas de sono?", "answer": "Muitos pacientes relatam melhoria na qualidade do sono." },
+      { "question": "Posso usar cannabis com os meus tratamentos atuais?", "answer": "A cannabis medicinal é frequentemente usada como parte de um plano abrangente." }
+    ]}
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated:",
+    "introduction": {
+      "title": "Introduction",
+      "content": "Healing Buds Global (\"we,\" \"our,\" or \"us\") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform, including our website and medical cannabis services."
+    },
+    "informationCollect": {
+      "title": "Information We Collect",
+      "personal": {
+        "title": "Personal Information",
+        "items": [
+          "Name, email address, and contact information",
+          "Wallet addresses and blockchain transaction data",
+          "Medical documentation and eligibility information",
+          "Age verification and identification documents",
+          "Payment and billing information"
+        ]
+      },
+      "automatic": {
+        "title": "Automatically Collected Information",
+        "items": [
+          "IP address, browser type, and device information",
+          "Usage data and analytics",
+          "Cookies and tracking technologies"
+        ]
+      }
+    },
+    "howWeUse": {
+      "title": "How We Use Your Information",
+      "items": [
+        "To provide and maintain our platform and fulfilment services",
+        "To verify eligibility and comply with cannabis regulations",
+        "To process transactions and manage access",
+        "To communicate with you about your account and services",
+        "To ensure blockchain traceability and compliance",
+        "To improve our services and develop new features",
+        "To prevent fraud and maintain security"
+      ]
+    },
+    "informationSharing": {
+      "title": "Information Sharing",
+      "intro": "We may share your information with:",
+      "items": [
+        { "label": "Licensed Partners:", "desc": "Cannabis cultivation and fulfilment providers" },
+        { "label": "Regulatory Authorities:", "desc": "As required by applicable cannabis laws" },
+        { "label": "Service Providers:", "desc": "Third-party vendors who assist our operations" },
+        { "label": "Blockchain Networks:", "desc": "Transaction data recorded on public blockchains" },
+        { "label": "Legal Requirements:", "desc": "When required by law or legal process" }
+      ]
+    },
+    "dataSecurity": {
+      "title": "Data Security",
+      "intro": "We implement appropriate technical and organizational measures to protect your personal information, including:",
+      "items": [
+        "Encryption of sensitive data in transit and at rest",
+        "Secure blockchain infrastructure",
+        "Regular security audits and assessments",
+        "Access controls and authentication protocols",
+        "Compliance with GDPR and other data protection regulations"
+      ]
+    },
+    "yourRights": {
+      "title": "Your Rights",
+      "intro": "Depending on your location, you may have the following rights:",
+      "items": [
+        "Access to your personal information",
+        "Correction of inaccurate data",
+        "Deletion of your data (subject to legal obligations)",
+        "Restriction of processing",
+        "Data portability",
+        "Objection to processing",
+        "Withdrawal of consent"
+      ]
+    },
+    "blockchain": {
+      "title": "Blockchain Considerations",
+      "content": "Please note that information recorded on blockchain networks is public and permanent. While we use blockchain for transparency and compliance, this means certain transaction data cannot be deleted or modified once recorded."
+    },
+    "international": {
+      "title": "International Transfers",
+      "content": "Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place for such transfers in compliance with applicable data protection laws."
+    },
+    "children": {
+      "title": "Children's Privacy",
+      "content": "Our services are not intended for individuals under the age of 18 (or the legal age for cannabis use in your jurisdiction). We do not knowingly collect information from minors."
+    },
+    "changes": {
+      "title": "Changes to This Policy",
+      "content": "We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new policy on this page and updating the \"Last updated\" date."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "content": "If you have questions about this Privacy Policy or our privacy practices, please contact us at:",
+      "email": "Email:",
+      "address": "Address:",
+      "addressValue": "Healing Buds Global Headquarters"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated:",
+    "agreement": {
+      "title": "Agreement to Terms",
+      "content": "By accessing or using Healing Buds Global's platform and services, you agree to be bound by these Terms of Service. If you do not agree to these terms, you may not access or use our services."
+    },
+    "eligibility": {
+      "title": "Eligibility",
+      "intro": "To use our services, you must:",
+      "items": [
+        "Be at least 18 years old or the legal age for cannabis use in your jurisdiction",
+        "Have legal authorization to use medical cannabis in your region",
+        "Provide accurate medical documentation and eligibility verification",
+        "Comply with all applicable local, state, and federal laws regarding cannabis",
+        "Have a valid cryptocurrency wallet for NFT transactions"
+      ]
+    },
+    "nftKeys": {
+      "title": "NFT Keys and Access",
+      "ownership": {
+        "title": "NFT Ownership",
+        "items": [
+          "NFT Keys (Standard, Gold, Platinum) grant access to our cannabis fulfilment platform",
+          "Each NFT is an ERC-721 token on the blockchain",
+          "You retain ownership and can trade NFTs on secondary markets",
+          "NFT value is determined by blockchain activity and market demand"
+        ]
+      },
+      "tiers": {
+        "title": "Key Tiers",
+        "items": [
+          { "label": "Standard Key:", "desc": "Access to one planet with basic features" },
+          { "label": "Gold Key:", "desc": "Access to multiple planets with enhanced benefits" },
+          { "label": "Platinum Key:", "desc": "Access to all 20 planets and custom strain creation" }
+        ]
+      }
+    },
+    "compliance": {
+      "title": "Regulatory Compliance",
+      "intro": "Our platform operates in accordance with regulated cannabis markets:",
+      "items": [
+        "All cannabis products are cultivated and distributed by licensed partners",
+        "Full seed-to-sale blockchain traceability ensures compliance",
+        "Currently licensed in Portugal with planned global expansion",
+        "Users must comply with their local jurisdiction's cannabis laws",
+        "We reserve the right to verify eligibility and deny service"
+      ]
+    },
+    "useServices": {
+      "title": "Use of Services",
+      "intro": "You agree to:",
+      "items": [
+        "Use services only for lawful purposes",
+        "Provide accurate and complete information",
+        "Maintain the security of your account and wallet",
+        "Not engage in fraud, manipulation, or illegal activities",
+        "Not attempt to circumvent our eligibility verification",
+        "Respect intellectual property rights"
+      ]
+    },
+    "risks": {
+      "title": "Risks and Disclaimers",
+      "warning": "Important Risks:",
+      "items": [
+        { "label": "Regulatory Risk:", "desc": "Cannabis laws vary by jurisdiction and may change" },
+        { "label": "Market Volatility:", "desc": "NFT resale values may fluctuate significantly" },
+        { "label": "Operational Risk:", "desc": "Service depends on licensed partners' performance" },
+        { "label": "Blockchain Risk:", "desc": "Transactions are irreversible; wallet security is your responsibility" }
+      ]
+    },
+    "blockchainTraceability": {
+      "title": "Blockchain and Traceability",
+      "intro": "Our platform uses blockchain technology for:",
+      "items": [
+        "Transparent seed-to-sale product tracking",
+        "Immutable record of all transactions and fulfilments",
+        "Verification of product authenticity and regulatory compliance",
+        "Prevention of counterfeit products"
+      ],
+      "note": "Please note: Blockchain data is public and permanent. Once recorded, information cannot be modified or deleted."
+    },
+    "intellectualProperty": {
+      "title": "Intellectual Property",
+      "content": "All content, trademarks, and intellectual property on our platform are owned by Healing Buds Global or our licensors. You may not use, reproduce, or distribute any content without our express written permission."
+    },
+    "liability": {
+      "title": "Limitation of Liability",
+      "intro": "To the fullest extent permitted by law, Healing Buds Global shall not be liable for:",
+      "items": [
+        "Indirect, incidental, or consequential damages",
+        "Loss of profits, data, or business opportunities",
+        "Changes in cannabis laws or regulations",
+        "NFT market value fluctuations",
+        "Third-party actions or failures",
+        "Blockchain network issues or wallet security breaches"
+      ]
+    },
+    "termination": {
+      "title": "Termination",
+      "content": "We reserve the right to suspend or terminate your access to our services at any time, with or without cause, including for violation of these terms or applicable laws. Upon termination, your NFT ownership rights remain, but platform access may be revoked."
+    },
+    "governingLaw": {
+      "title": "Governing Law",
+      "content": "These Terms shall be governed by and construed in accordance with the laws of Portugal, where we currently hold our primary license. Disputes shall be resolved through arbitration in accordance with applicable arbitration rules."
+    },
+    "changesTerms": {
+      "title": "Changes to Terms",
+      "content": "We may modify these Terms at any time. Material changes will be notified via email or platform notification. Continued use of services after changes constitutes acceptance of modified terms."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "content": "For questions about these Terms of Service, please contact us at:",
+      "email": "Email:",
+      "address": "Address:",
+      "addressValue": "Healing Buds Global Headquarters"
+    }
+  }
+}

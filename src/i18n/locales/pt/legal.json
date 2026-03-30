@@ -1,0 +1,219 @@
+{
+  "privacy": {
+    "title": "Política de Privacidade",
+    "lastUpdated": "Última atualização:",
+    "introduction": {
+      "title": "Introdução",
+      "content": "A Healing Buds Global (\"nós\", \"nosso\" ou \"nos\") está comprometida em proteger a sua privacidade. Esta Política de Privacidade explica como recolhemos, usamos, divulgamos e protegemos as suas informações quando utiliza a nossa plataforma, incluindo o nosso website e serviços de cannabis medicinal."
+    },
+    "informationCollect": {
+      "title": "Informações que Recolhemos",
+      "personal": {
+        "title": "Informações Pessoais",
+        "items": [
+          "Nome, endereço de email e informações de contacto",
+          "Endereços de carteira e dados de transações blockchain",
+          "Documentação médica e informações de elegibilidade",
+          "Verificação de idade e documentos de identificação",
+          "Informações de pagamento e faturação"
+        ]
+      },
+      "automatic": {
+        "title": "Informações Recolhidas Automaticamente",
+        "items": [
+          "Endereço IP, tipo de navegador e informações do dispositivo",
+          "Dados de utilização e análises",
+          "Cookies e tecnologias de rastreamento"
+        ]
+      }
+    },
+    "howWeUse": {
+      "title": "Como Utilizamos as Suas Informações",
+      "items": [
+        "Para fornecer e manter a nossa plataforma e serviços de cumprimento",
+        "Para verificar elegibilidade e cumprir regulamentos de cannabis",
+        "Para processar transações e gerir acesso",
+        "Para comunicar consigo sobre a sua conta e serviços",
+        "Para garantir rastreabilidade blockchain e conformidade",
+        "Para melhorar os nossos serviços e desenvolver novas funcionalidades",
+        "Para prevenir fraude e manter a segurança"
+      ]
+    },
+    "informationSharing": {
+      "title": "Partilha de Informações",
+      "intro": "Podemos partilhar as suas informações com:",
+      "items": [
+        { "label": "Parceiros Licenciados:", "desc": "Fornecedores de cultivo e cumprimento de cannabis" },
+        { "label": "Autoridades Reguladoras:", "desc": "Conforme exigido pelas leis de cannabis aplicáveis" },
+        { "label": "Prestadores de Serviços:", "desc": "Fornecedores terceiros que auxiliam as nossas operações" },
+        { "label": "Redes Blockchain:", "desc": "Dados de transações registados em blockchains públicos" },
+        { "label": "Requisitos Legais:", "desc": "Quando exigido por lei ou processo legal" }
+      ]
+    },
+    "dataSecurity": {
+      "title": "Segurança de Dados",
+      "intro": "Implementamos medidas técnicas e organizacionais apropriadas para proteger as suas informações pessoais, incluindo:",
+      "items": [
+        "Encriptação de dados sensíveis em trânsito e em repouso",
+        "Infraestrutura blockchain segura",
+        "Auditorias e avaliações de segurança regulares",
+        "Controlos de acesso e protocolos de autenticação",
+        "Conformidade com o RGPD e outros regulamentos de proteção de dados"
+      ]
+    },
+    "yourRights": {
+      "title": "Os Seus Direitos",
+      "intro": "Dependendo da sua localização, pode ter os seguintes direitos:",
+      "items": [
+        "Acesso às suas informações pessoais",
+        "Correção de dados imprecisos",
+        "Eliminação dos seus dados (sujeito a obrigações legais)",
+        "Restrição de processamento",
+        "Portabilidade de dados",
+        "Oposição ao processamento",
+        "Retirada de consentimento"
+      ]
+    },
+    "blockchain": {
+      "title": "Considerações Blockchain",
+      "content": "Note que as informações registadas em redes blockchain são públicas e permanentes. Embora utilizemos blockchain para transparência e conformidade, isto significa que certos dados de transações não podem ser eliminados ou modificados uma vez registados."
+    },
+    "international": {
+      "title": "Transferências Internacionais",
+      "content": "As suas informações podem ser transferidas e processadas em países diferentes do seu. Garantimos que salvaguardas apropriadas estão em vigor para tais transferências em conformidade com as leis de proteção de dados aplicáveis."
+    },
+    "children": {
+      "title": "Privacidade de Menores",
+      "content": "Os nossos serviços não se destinam a indivíduos com menos de 18 anos (ou a idade legal para uso de cannabis na sua jurisdição). Não recolhemos intencionalmente informações de menores."
+    },
+    "changes": {
+      "title": "Alterações a Esta Política",
+      "content": "Podemos atualizar esta Política de Privacidade periodicamente. Notificaremos sobre quaisquer alterações materiais publicando a nova política nesta página e atualizando a data de \"Última atualização\"."
+    },
+    "contact": {
+      "title": "Contacte-nos",
+      "content": "Se tiver questões sobre esta Política de Privacidade ou as nossas práticas de privacidade, contacte-nos em:",
+      "email": "Email:",
+      "address": "Morada:",
+      "addressValue": "Sede da Healing Buds Global"
+    }
+  },
+  "terms": {
+    "title": "Termos de Serviço",
+    "lastUpdated": "Última atualização:",
+    "agreement": {
+      "title": "Acordo com os Termos",
+      "content": "Ao aceder ou utilizar a plataforma e serviços da Healing Buds Global, concorda em estar vinculado a estes Termos de Serviço. Se não concordar com estes termos, não pode aceder ou utilizar os nossos serviços."
+    },
+    "eligibility": {
+      "title": "Elegibilidade",
+      "intro": "Para utilizar os nossos serviços, deve:",
+      "items": [
+        "Ter pelo menos 18 anos ou a idade legal para uso de cannabis na sua jurisdição",
+        "Ter autorização legal para usar cannabis medicinal na sua região",
+        "Fornecer documentação médica precisa e verificação de elegibilidade",
+        "Cumprir todas as leis locais, estaduais e federais aplicáveis relativas à cannabis",
+        "Ter uma carteira de criptomoedas válida para transações NFT"
+      ]
+    },
+    "nftKeys": {
+      "title": "Chaves NFT e Acesso",
+      "ownership": {
+        "title": "Propriedade NFT",
+        "items": [
+          "As Chaves NFT (Standard, Gold, Platinum) concedem acesso à nossa plataforma de cumprimento de cannabis",
+          "Cada NFT é um token ERC-721 na blockchain",
+          "Mantém a propriedade e pode negociar NFTs em mercados secundários",
+          "O valor do NFT é determinado pela atividade blockchain e procura do mercado"
+        ]
+      },
+      "tiers": {
+        "title": "Níveis de Chave",
+        "items": [
+          { "label": "Chave Standard:", "desc": "Acesso a um planeta com funcionalidades básicas" },
+          { "label": "Chave Gold:", "desc": "Acesso a múltiplos planetas com benefícios melhorados" },
+          { "label": "Chave Platinum:", "desc": "Acesso a todos os 20 planetas e criação de variedades personalizadas" }
+        ]
+      }
+    },
+    "compliance": {
+      "title": "Conformidade Regulamentar",
+      "intro": "A nossa plataforma opera em conformidade com mercados de cannabis regulamentados:",
+      "items": [
+        "Todos os produtos de cannabis são cultivados e distribuídos por parceiros licenciados",
+        "Rastreabilidade blockchain completa da semente à venda garante conformidade",
+        "Atualmente licenciados em Portugal com expansão global planeada",
+        "Os utilizadores devem cumprir as leis de cannabis da sua jurisdição local",
+        "Reservamo-nos o direito de verificar elegibilidade e negar serviço"
+      ]
+    },
+    "useServices": {
+      "title": "Utilização dos Serviços",
+      "intro": "Concorda em:",
+      "items": [
+        "Utilizar os serviços apenas para fins legais",
+        "Fornecer informações precisas e completas",
+        "Manter a segurança da sua conta e carteira",
+        "Não se envolver em fraude, manipulação ou atividades ilegais",
+        "Não tentar contornar a nossa verificação de elegibilidade",
+        "Respeitar os direitos de propriedade intelectual"
+      ]
+    },
+    "risks": {
+      "title": "Riscos e Isenções",
+      "warning": "Riscos Importantes:",
+      "items": [
+        { "label": "Risco Regulamentar:", "desc": "As leis de cannabis variam por jurisdição e podem mudar" },
+        { "label": "Volatilidade de Mercado:", "desc": "Os valores de revenda de NFT podem flutuar significativamente" },
+        { "label": "Risco Operacional:", "desc": "O serviço depende do desempenho dos parceiros licenciados" },
+        { "label": "Risco Blockchain:", "desc": "As transações são irreversíveis; a segurança da carteira é sua responsabilidade" }
+      ]
+    },
+    "blockchainTraceability": {
+      "title": "Blockchain e Rastreabilidade",
+      "intro": "A nossa plataforma utiliza tecnologia blockchain para:",
+      "items": [
+        "Rastreamento transparente da semente à venda do produto",
+        "Registo imutável de todas as transações e cumprimentos",
+        "Verificação da autenticidade do produto e conformidade regulamentar",
+        "Prevenção de produtos contrafeitos"
+      ],
+      "note": "Nota: Os dados blockchain são públicos e permanentes. Uma vez registadas, as informações não podem ser modificadas ou eliminadas."
+    },
+    "intellectualProperty": {
+      "title": "Propriedade Intelectual",
+      "content": "Todo o conteúdo, marcas registadas e propriedade intelectual na nossa plataforma são propriedade da Healing Buds Global ou dos nossos licenciadores. Não pode usar, reproduzir ou distribuir qualquer conteúdo sem a nossa permissão expressa por escrito."
+    },
+    "liability": {
+      "title": "Limitação de Responsabilidade",
+      "intro": "Na máxima extensão permitida por lei, a Healing Buds Global não será responsável por:",
+      "items": [
+        "Danos indiretos, incidentais ou consequenciais",
+        "Perda de lucros, dados ou oportunidades de negócio",
+        "Alterações nas leis ou regulamentos de cannabis",
+        "Flutuações no valor de mercado de NFT",
+        "Ações ou falhas de terceiros",
+        "Problemas de rede blockchain ou violações de segurança de carteira"
+      ]
+    },
+    "termination": {
+      "title": "Rescisão",
+      "content": "Reservamo-nos o direito de suspender ou terminar o seu acesso aos nossos serviços a qualquer momento, com ou sem causa, incluindo por violação destes termos ou leis aplicáveis. Após a rescisão, os seus direitos de propriedade NFT permanecem, mas o acesso à plataforma pode ser revogado."
+    },
+    "governingLaw": {
+      "title": "Lei Aplicável",
+      "content": "Estes Termos serão regidos e interpretados de acordo com as leis de Portugal, onde atualmente detemos a nossa licença principal. As disputas serão resolvidas através de arbitragem de acordo com as regras de arbitragem aplicáveis."
+    },
+    "changesTerms": {
+      "title": "Alterações aos Termos",
+      "content": "Podemos modificar estes Termos a qualquer momento. Alterações materiais serão notificadas por email ou notificação na plataforma. O uso continuado dos serviços após alterações constitui aceitação dos termos modificados."
+    },
+    "contact": {
+      "title": "Contacte-nos",
+      "content": "Para questões sobre estes Termos de Serviço, contacte-nos em:",
+      "email": "Email:",
+      "address": "Morada:",
+      "addressValue": "Sede da Healing Buds Global"
+    }
+  }
+}

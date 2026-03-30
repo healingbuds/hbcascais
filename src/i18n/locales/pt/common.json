@@ -1,0 +1,46 @@
+{
+  "nav": {
+    "whatWeDo": "O Que Fazemos",
+    "research": "Investigação",
+    "theWire": "Notícias",
+    "aboutUs": "Sobre Nós",
+    "contactUs": "Contacte-nos",
+    "shop": "Dispensário",
+    "checkEligibility": "Verificar Elegibilidade",
+    "patientLogin": "Login do Paciente",
+    "signOut": "Sair",
+    "dashboard": "Painel"
+  },
+  "dropdown": {
+    "cultivating": "Cultivo e Processamento",
+    "cultivatingDesc": "Cultivo de grau farmacêutico",
+    "manufacture": "Fabrico e Distribuição",
+    "manufactureDesc": "Excelência na cadeia de fornecimento global",
+    "clinics": "Clínicas de Cannabis Medicinal",
+    "clinicsDesc": "Cuidados centrados no paciente",
+    "pharmacy": "Farmácia Online de Cannabis Medicinal",
+    "pharmacyDesc": "Acesso conveniente aos cuidados",
+    "aboutHealing": "Sobre a Healing Buds",
+    "aboutHealingDesc": "A nossa história, valores e instalações",
+    "blockchain": "Tecnologia Blockchain",
+    "blockchainDesc": "Rastreabilidade da semente ao paciente"
+  },
+  "footer": {
+    "tagline": "Moldando o futuro da cannabis através da investigação e excelência.",
+    "company": "Empresa",
+    "aboutUs": "Sobre Nós",
+    "ourStandards": "Os Nossos Padrões",
+    "research": "Investigação",
+    "theWire": "Notícias",
+    "resources": "Recursos",
+    "patientAccess": "Acesso ao Paciente",
+    "conditionsTreated": "Condições Tratadas",
+    "franchiseOpportunities": "Oportunidades de Franquia",
+    "legal": "Legal",
+    "privacyPolicy": "Política de Privacidade",
+    "termsOfService": "Termos de Serviço",
+    "compliance": "Conformidade",
+    "copyright": "© {{year}} Healing Buds Global. Todos os direitos reservados.",
+    "commitment": "Comprometidos em avançar a medicina global de cannabis"
+  }
+}

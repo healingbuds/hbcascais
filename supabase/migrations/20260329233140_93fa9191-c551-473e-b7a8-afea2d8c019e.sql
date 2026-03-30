@@ -1,0 +1,1 @@
+ALTER TABLE public.drgreen_orders ADD CONSTRAINT drgreen_orders_drgreen_order_id_key UNIQUE (drgreen_order_id);

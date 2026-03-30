@@ -1,0 +1,18 @@
+{
+  "hero": {
+    "title": "The Wire",
+    "subtitle": "Notícias internas, atualizações e insights da vanguarda da inovação em cannabis regulada e tecnologia blockchain."
+  },
+  "featured": "Destaque",
+  "readArticle": "Ler Artigo →",
+  "latestUpdates": "Últimas Atualizações",
+  "readMore": "Ler Mais →",
+  "articleNotFound": {
+    "title": "Artigo Não Encontrado",
+    "description": "O artigo que procura não existe.",
+    "backButton": "Voltar ao The Wire"
+  },
+  "backToWire": "Voltar ao The Wire",
+  "readOriginal": "Ler Artigo Original",
+  "moreFromWire": "Mais do The Wire"
+}

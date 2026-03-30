@@ -1,0 +1,18 @@
+{
+  "hero": {
+    "title": "The Wire",
+    "subtitle": "Inside news, updates, and insights from the forefront of regulated cannabis innovation and blockchain technology."
+  },
+  "featured": "Featured",
+  "readArticle": "Read Article →",
+  "latestUpdates": "Latest Updates",
+  "readMore": "Read More →",
+  "articleNotFound": {
+    "title": "Article Not Found",
+    "description": "The article you're looking for doesn't exist.",
+    "backButton": "Back to The Wire"
+  },
+  "backToWire": "Back to The Wire",
+  "readOriginal": "Read Original Article",
+  "moreFromWire": "More from The Wire"
+}
