@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useTenant } from "@/hooks/useTenant";
 import ThemeToggle from "@/components/ThemeToggle";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/context/ThemeSliderContext";
 import { useApiEnvironment, ApiEnvironment } from "@/context/ApiEnvironmentContext";
 import { EnvironmentSelector } from "@/components/admin/EnvironmentSelector";
 import {

@@ -1,5 +1,5 @@
-import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { ReactNode } from "react";
+import { ThemeSliderProvider } from "@/context/ThemeSliderContext";
 
 interface ThemeProviderProps {
   children: ReactNode;
@@ -10,23 +10,10 @@ interface ThemeProviderProps {
   disableTransitionOnChange?: boolean;
 }
 
-export function ThemeProvider({ 
-  children, 
-  defaultTheme = "light",
-  storageKey = "healing-buds-theme",
-  attribute = "class",
-  enableSystem = true,
-  disableTransitionOnChange = false
-}: ThemeProviderProps) {
+export function ThemeProvider({ children }: ThemeProviderProps) {
   return (
-    <NextThemesProvider 
-      attribute={attribute}
-      defaultTheme={defaultTheme}
-      storageKey={storageKey}
-      enableSystem={enableSystem}
-      disableTransitionOnChange={disableTransitionOnChange}
-    >
+    <ThemeSliderProvider>
       {children}
-    </NextThemesProvider>
+    </ThemeSliderProvider>
   );
 }
