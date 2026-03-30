@@ -114,62 +114,63 @@ All operations (read + write) use the same credential set per environment. No se
 
 `GET /user/me` **must be called first** on every admin session to confirm `primaryNft` is set. Without a primary NFT, client and order creation will fail silently or error. If `primaryNft` is `null`, call `PATCH /dapp/users/primary-nft` with a `tokenId` before any other operations.
 
-### 3.4 Complete Endpoint List (23 endpoints)
+### 3.4 Complete Endpoint List (25 endpoints)
+
+#### Profile & NFTs (Admin bootstrap)
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| Get user profile | GET | `/user/me` | **Call first** — returns `primaryNft` |
+| Get user NFTs | GET | `/dapp/users/nfts` | List owned NFTs for selector UI |
+| Update primary NFT | PATCH | `/dapp/users/primary-nft` | Body: `{ tokenId }` |
 
 #### Dashboard & Analytics
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| Dashboard summary | GET | `/dapp/dashboard/summary` |
-| Dashboard analytics | GET | `/dapp/dashboard/analytics` |
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| Dashboard summary | GET | `/dapp/dashboard/summary` | KPIs, earnings, commission, NFT holdings |
+| Dashboard analytics | GET | `/dapp/dashboard/analytics` | Query: `startDate`, `endDate`, `filterBy`, `orderBy` |
 
 #### Clients
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| Create client | POST | `/dapp/clients` |
-| List clients | GET | `/dapp/clients?take=200&page=1&orderBy=desc` |
-| List clients (filtered) | GET | `/dapp/clients/list?status=Active&kyc=Verified` |
-| Get client | GET | `/dapp/clients/{clientId}` |
-| Update client | PATCH | `/dapp/clients/{clientId}` |
-| Delete client | DELETE | `/dapp/clients/{clientId}` |
-| Activate client | PATCH | `/dapp/clients/{clientId}/activate` |
-| Deactivate client | PATCH | `/dapp/clients/{clientId}/deactivate` |
-| Request KYC link | POST | `/dapp/clients/{clientId}/kyc` |
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| Create client | POST | `/dapp/clients` | Requires `primaryNft` to be set |
+| List clients | GET | `/dapp/clients?take=200&page=1&orderBy=desc` | Paginated |
+| List clients (filtered) | GET | `/dapp/clients/list?status=Active&kyc=Verified` | |
+| Get client | GET | `/dapp/clients/{clientId}` | |
+| Update client | PATCH | `/dapp/clients/{clientId}` | |
+| Delete client | DELETE | `/dapp/clients/{clientId}` | |
+| Activate/Deactivate | PATCH | `/dapp/clients/{clientId}/activate` or `/deactivate` | |
+| Request KYC link | POST | `/dapp/clients/{clientId}/kyc` | |
+| Clients summary | GET | `/dapp/clients/summary` | Counts by status (PENDING/VERIFIED/REJECTED) |
 
 #### Sales
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| Sales summary | GET | `/dapp/dashboard/sales` |
-| Sales filtered | GET | `/dapp/sales?stage=...` |
-| Sales summary by stage | GET | `/dapp/sales/summary` |
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| Sales list | GET | `/dapp/sales?stage=LEADS` | Stages: `LEADS`, `ONGOING`, `CLOSED` |
+| Sales summary | GET | `/dapp/sales/summary` | Total revenue, total orders, avg order value |
+| Dashboard sales | GET | `/dapp/dashboard/sales` | Legacy alias |
 
 #### Products (Strains)
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| List strains | GET | `/strains?countryCode={alpha3}&take=100&page=1` |
-| Get strain | GET | `/strains/{strainId}` |
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| List strains | GET | `/strains?countryCode={alpha3}&take=100&page=1` | Uses HMAC signing |
+| Get strain | GET | `/strains/{strainId}` | |
 
 #### Carts
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| Add to cart | POST | `/dapp/carts` |
-| Empty cart | DELETE | `/dapp/carts/{cartId}` |
-| Delete cart item | DELETE | `/dapp/carts/{cartId}?strainId={strainId}` |
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| List cart items | GET | `/dapp/carts` | |
+| Add to cart | POST | `/dapp/carts` | Body: `{ clientCartId, strainId, quantity }` |
+| Delete cart item | DELETE | `/dapp/carts/{cartId}?strainId={strainId}` | |
+| Empty cart | DELETE | `/dapp/carts/{cartId}` | |
 
 #### Orders
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| Create order | POST | `/dapp/orders` |
-| Get order | GET | `/dapp/orders/{orderId}` |
-| Update order | PATCH | `/dapp/orders/{orderId}` |
-| Get client orders | GET | `/dapp/client/{clientId}/orders` |
-| Get client order detail | GET | `/dapp/clients/{clientId}/orders/{orderId}` |
-
-#### NFTs & Profile
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| Get user NFTs | GET | `/dapp/users/nfts` |
-| Update primary NFT | PATCH | `/dapp/users/primary-nft` |
-| Get user profile | GET | `/dapp/users/me` |
+| Action | Method | Endpoint | Notes |
+|--------|--------|----------|-------|
+| List all orders | GET | `/dapp/orders` | |
+| Create order | POST | `/dapp/orders` | Body: `{ clientId }` — creates from cart |
+| Get order | GET | `/dapp/orders/{orderId}` | |
+| Get client orders | GET | `/dapp/client/{clientId}/orders` | Returns `totalAmount` but items may be empty |
+| Get client order detail | GET | `/dapp/clients/{clientId}/orders/{orderId}` | |
 
 **Country codes:** Dr. Green uses ISO 3166-1 **alpha-3** (ZAF, PRT, GBR), not alpha-2.
 
