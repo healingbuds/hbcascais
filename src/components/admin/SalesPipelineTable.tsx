@@ -1,7 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
-import { Search, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+
+type SortField = "client" | "stage" | "date" | null;
+type SortDir = "asc" | "desc";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,6 +85,8 @@ const SalesPipelineTable = () => {
   const [search, setSearch] = useState("");
   const [stage, setStage] = useState<string>("");
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const [sortField, setSortField] = useState<SortField>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   const fetchSales = useCallback(
     async (p = 1, s = "", st = "") => {
@@ -129,12 +134,51 @@ const SalesPipelineTable = () => {
   const handleStageChange = (s: string) => {
     setStage(s);
     setPage(1);
+    setSortField(null);
   };
 
   const goToPage = (p: number) => {
     setPage(p);
+    setSortField(null);
     fetchSales(p, search, stage);
   };
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  };
+
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-50" />;
+    return sortDir === "asc"
+      ? <ArrowUp className="w-3 h-3 ml-1" />
+      : <ArrowDown className="w-3 h-3 ml-1" />;
+  };
+
+  const sortedRecords = useMemo(() => {
+    if (!sortField) return records;
+    return [...records].sort((a, b) => {
+      let cmp = 0;
+      switch (sortField) {
+        case "client":
+          cmp = `${a.client.firstName} ${a.client.lastName}`.localeCompare(
+            `${b.client.firstName} ${b.client.lastName}`
+          );
+          break;
+        case "stage":
+          cmp = a.stage.localeCompare(b.stage);
+          break;
+        case "date":
+          cmp = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          break;
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+  }, [records, sortField, sortDir]);
 
   return (
     <motion.div
@@ -180,13 +224,23 @@ const SalesPipelineTable = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Client</TableHead>
-                  <TableHead className="hidden sm:table-cell">Email</TableHead>
-                  <TableHead>Stage</TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    Order ID
+                  <TableHead>
+                    <button className="flex items-center cursor-pointer select-none" onClick={() => handleSort("client")}>
+                      Client <SortIcon field="client" />
+                    </button>
                   </TableHead>
-                  <TableHead className="hidden sm:table-cell">Date</TableHead>
+                  <TableHead className="hidden sm:table-cell">Email</TableHead>
+                  <TableHead>
+                    <button className="flex items-center cursor-pointer select-none" onClick={() => handleSort("stage")}>
+                      Stage <SortIcon field="stage" />
+                    </button>
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">Order ID</TableHead>
+                  <TableHead className="hidden sm:table-cell">
+                    <button className="flex items-center cursor-pointer select-none" onClick={() => handleSort("date")}>
+                      Date <SortIcon field="date" />
+                    </button>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -220,7 +274,7 @@ const SalesPipelineTable = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      records.map((r) => (
+                      sortedRecords.map((r) => (
                         <TableRow
                           key={r.id}
                           className="cursor-pointer hover:bg-muted/50 transition-colors"
