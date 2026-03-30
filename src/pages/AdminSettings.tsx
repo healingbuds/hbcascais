@@ -70,7 +70,7 @@ interface EnvState {
 const AdminSettings = () => {
   const { environment, environmentLabel } = useApiEnvironment();
   const { toast } = useToast();
-  const { value: themeValue, setValue: setThemeValue, mode: themeMode, setMode: setThemeMode } = useThemeSlider();
+  const { value: themeValue, setValue: setThemeValue, mode: themeMode, setMode: setThemeMode, reduceMotion, setReduceMotion } = useThemeSlider();
 
   const [adminDefault, setAdminDefault] = useState<"light" | "dark" | "auto">(() => {
     return (localStorage.getItem("healing-buds-theme-admin-default") as any) || "auto";
