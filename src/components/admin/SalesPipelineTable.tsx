@@ -1,7 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
-import { Search, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+
+type SortField = "client" | "stage" | "date" | null;
+type SortDir = "asc" | "desc";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
