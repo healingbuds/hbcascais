@@ -2,7 +2,7 @@
 
 > **Last Updated:** 2026-03-29  
 > **Project:** Healing Buds Medical Cannabis Platform  
-> **Stack:** React + Vite + Tailwind + TypeScript + Lovable Cloud (Supabase)
+> **Stack:** React + Vite + Tailwind + TypeScript + Lovable Cloud (Supabase) → migrating to Next.js
 
 ---
 
@@ -21,44 +21,39 @@
 - **No Lovable references** in production builds
 - Remove `componentTagger` from `vite.config.ts` and Lovable `<meta>` tags from `index.html`
 
+### Budstacks Ecosystem Context
+- **Budstacks.io** is the SaaS platform that controls all Dr. Green NFT franchise sales
+- **Dr. Green NFT** (ERC-721) is the "Digital Franchise License" — mandatory key for tenants to operate a storefront
+- **Healing Buds** is the "Genesis Template" — the flagship master codebase that future white-label tenants will clone
+- All storefronts are powered by the Budstacks engine, connecting to Dr. Green fulfillment and licensing backend
+- Future NFT holders receive a cloned version of this repository to launch their own branded stores
+- Remove `componentTagger` from `vite.config.ts` and Lovable `<meta>` tags from `index.html`
+
 ---
 
 ## 2. Deployment
 
-### cPanel Deployment via GitHub Actions
+### Current State
+CI/CD workflows have been removed. Deployment infrastructure is pending redesign.
 
-| Setting | Value |
-|---------|-------|
-| SSH Host | `server712.brixly.uk` |
-| SSH Port | `21098` |
-| SSH User | `healingu` |
-| Remote Path (healingbuds.pt) | `~/public_html/` |
-| Remote Path (healingbuds.co.za) | `~/healingbuds.co.za/` |
+### Target Architecture
+- Framework migration target: **Next.js** (App Router)
+- Proxy route: `/api/proxy` (replaces Supabase edge function proxy)
+- Compatible hosts: Vercel, AWS Amplify, or GitHub Actions to any Next.js host
+- Environment variables managed via `.env.local` (dev) and hosting provider secrets (prod)
 
-**Workflow:** `.github/workflows/deploy_to_cpanel.yml`  
-**Trigger:** Push to `main` branch  
-**Process:** Checkout → Build → rsync via SSH to cPanel  
+### Target Environment Variables
+| Variable | Purpose |
+|----------|---------|
+| `DRGREEN_API_KEY` | Base64 API key (provisioned per tenant via Budstacks) |
+| `DRGREEN_PRIVATE_KEY` | secp256k1 private key for request signing |
+| `DEFAULT_COUNTRY_CODE` | Alpha-3 country targeting (e.g., ZAF, PRT) |
+| `NEXT_PUBLIC_API_BASE_URL` | `/api/proxy` |
 
-**GitHub Secrets (configured):**
-- `CPANEL_HOST`, `CPANEL_USER`, `CPANEL_SSH_KEY` (ED25519)
-
-### Vite Configuration (Critical)
-```typescript
-export default defineConfig({
-  base: "./", // REQUIRED — prevents white screen on cPanel
-});
-```
-
-### Troubleshooting
-- **White screen:** Check `base: "./"` in `vite.config.ts`, and search for merge conflict markers (`<<<<<<<`)
-- **403 Forbidden:** Run `chmod -R a+rX public_html` via SSH
-- **Deployment fails:** Check GitHub Actions logs, verify SSH key is authorized
-
-### Manual Deployment
-```bash
-npm run build
-# Upload contents of dist/ to public_html via cPanel File Manager
-```
+### Current Stack (Pre-Migration)
+- React + Vite + Tailwind + TypeScript
+- Backend: Lovable Cloud (Supabase edge functions)
+- Proxy: `drgreen-proxy` edge function
 
 ---
 
@@ -307,3 +302,17 @@ Client creation requires a `medicalRecord` object with 22 fields. Key mappings:
 | WalletConnect | Wallet connection relay | Hardcoded project ID |
 | Ethereum Mainnet | NFT ownership verification | Public RPC |
 | Lovable AI | Image generation, strain knowledge | Auto-managed |
+
+---
+
+## 12. Compliance & Error Handling
+
+### System-Driven Compliance
+- All regional compliance (e.g., South African 750g daily limits, address verification) is enforced by the Dr. Green API
+- The storefront renders product availability and quantity caps provided by the API — no client-side overrides
+- Country codes for product fetching use ISO 3166-1 alpha-3 (ZAF, PRT, GBR)
+
+### API Error State Handling
+- **Compliance blocks**: Display the exact error string returned by the API (e.g., weight-limit errors)
+- **Address rejection**: Show the system's "Invalid Delivery Location" prompt verbatim
+- **Auth failures (401/403)**: Immediate redirect to login or KYC verification flow
