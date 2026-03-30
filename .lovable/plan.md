@@ -1,35 +1,16 @@
 
 
-## Fix Cart UX: Toast Overlap + Cart Discoverability
+## Fix: Toast Still Appearing Bottom-Right Over Cart
 
-### Problems
-1. **Toast covers cart button** — "Added to cart" toast appears bottom-right, overlapping the floating cart button at `bottom-6 right-6`
-2. **Cart hard to find** — floating button blends in, no persistent header cart icon on shop pages
+The "Added to cart" toast uses the **shadcn/radix toast** system, not Sonner — so the Sonner `position="top-right"` change had no effect on it.
 
-### Solution
+### Fix
 
-#### 1. Move toast position to top-right
-**File: `src/components/ui/sonner.tsx`**
-- Add `position="top-right"` to the Sonner component so toasts no longer overlap the floating cart button
+**File: `src/components/ui/toast.tsx`** — Change the `ToastViewport` position from bottom-right to top-right:
 
-#### 2. Improve floating cart button visibility
-**File: `src/components/shop/FloatingCartButton.tsx`**
-- Add a subtle pulse animation when items are in the cart (attracts attention)
-- Increase size slightly and add a stronger shadow for better visibility
-- On mobile: position it above the bottom actions bar (`bottom-20` instead of `bottom-6`) so it doesn't get hidden
-
-#### 3. Add cart icon to shop header
-**File: `src/layout/Header.tsx`**
-- When on a `/shop` route, render the `CartButton` component in the header bar (desktop and mobile) for persistent cart access
-- This gives users a second, always-visible way to open the cart
-
-#### 4. Make "Added to cart" toast actionable
-**File: `src/components/shop/ProductCard.tsx`**
-- Replace the plain toast with one that includes a "View Cart" action button, so users can jump straight to their cart after adding an item
+- Replace `sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col` with `sm:top-0 sm:right-0 sm:flex-col-reverse`
+- This moves all shadcn toasts (including "Added to cart") to the top-right corner, away from the floating cart button
 
 ### Files changed
-1. `src/components/ui/sonner.tsx` — add `position="top-right"`
-2. `src/components/shop/FloatingCartButton.tsx` — pulse animation, mobile positioning
-3. `src/layout/Header.tsx` — add CartButton on shop routes
-4. `src/components/shop/ProductCard.tsx` — add "View Cart" action to toast
+1. `src/components/ui/toast.tsx` — viewport position fix (single line change)
 
