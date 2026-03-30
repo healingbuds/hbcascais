@@ -245,10 +245,25 @@ const Checkout = () => {
     }
 
     setIsProcessing(true);
-    setPaymentStatus('Creating order...');
+    setPaymentStatus('Verifying account...');
 
     try {
       const clientId = drGreenClient.drgreen_client_id;
+
+      // PRE-FLIGHT: Verify client is still Active + KYC Verified via API
+      const preflight = await getClientDetails(clientId);
+      if (preflight.error) {
+        throw new Error('Could not verify your account status. Please try again.');
+      }
+      if (preflight.data && preflight.data.adminApproval !== 'VERIFIED') {
+        throw new Error('Your account is not yet approved. Please wait for admin verification before placing an order.');
+      }
+      if (preflight.data && !preflight.data.isKYCVerified) {
+        throw new Error('Your KYC verification is not complete. Please complete verification before placing an order.');
+      }
+      console.log('[Checkout] Pre-flight passed: client is VERIFIED + KYC done');
+
+      setPaymentStatus('Creating order...');
 
       // Use the atomic createOrder which handles:
       // 1. PATCH client shipping address
