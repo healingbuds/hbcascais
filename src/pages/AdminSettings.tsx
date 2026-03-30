@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useThemeSlider, setAdminThemeDefault } from "@/context/ThemeSliderContext";
+import * as SliderPrimitive from "@radix-ui/react-slider";
 import {
   Server,
   FlaskConical,
@@ -18,6 +20,10 @@ import {
   Eye,
   EyeOff,
   RefreshCw,
+  Sun,
+  Moon,
+  Monitor,
+  Palette,
 } from "lucide-react";
 
 interface EnvConfig {
