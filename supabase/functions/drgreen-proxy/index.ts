@@ -1475,6 +1475,7 @@ const ACTION_NORMALIZER_MAP: Record<string, 'list' | 'single' | 'client'> = {
   'get-client': 'client',
   'dapp-order-details': 'single',
   'get-order': 'single',
+  'get-client-order-detail': 'single',
 };
 
 /**
