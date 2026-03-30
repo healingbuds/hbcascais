@@ -1,39 +1,36 @@
 
 
-## Revenue & Sales Dashboard Page
+## Add Sales Pipeline Table to Revenue Dashboard
 
 ### Overview
-Create a new dedicated admin page at `/admin/revenue` that combines data from the Dr Green API's `dashboard-summary` and `sales-summary` endpoints with the existing `dashboard-analytics` time-series data and `get-sales-summary` pipeline data, rendering KPI cards, charts, and a sales pipeline breakdown.
+Add a searchable, paginated sales pipeline table below the existing charts on the AdminRevenue page. This reuses the `getSales` endpoint already available via `useDrGreenApi()`.
 
-### Data Sources (already wired in `src/lib/drgreen/admin.ts`)
-- `getDashboardSummary()` — totalClients, totalOrders, totalSales, pendingOrders
-- `getSalesSummary()` — totalSales, monthlySales, weeklySales, dailySales
-- `getDashboardAnalytics()` — salesData time-series (date + amount), ordersData time-series (date + count)
-- `getSalesSummaryNew()` — pipeline counts (LEADS, ONGOING, CLOSED)
+### Single file changed
+**`src/pages/AdminRevenue.tsx`**
 
-### Files to Create/Edit
+### What gets added
 
-**1. `src/pages/AdminRevenue.tsx`** (new)
-- Admin page wrapped in `AdminLayout`
-- Fetches all 4 endpoints in parallel on mount
-- **KPI Row** (4 cards): Total Revenue, Monthly Sales, Weekly Sales, Daily Sales — using `getSalesSummary()` data, formatted with `formatPrice`
-- **Secondary KPI Row** (4 cards): Total Clients, Total Orders, Pending Orders, Verified Clients — from `getDashboardSummary()`
-- **Sales Trend Chart**: Line/area chart using Recharts (`ChartContainer` from `src/components/ui/chart.tsx`) plotting `salesData` from `getDashboardAnalytics()`
-- **Orders Trend Chart**: Bar chart plotting `ordersData` from `getDashboardAnalytics()`
-- **Pipeline Breakdown**: Donut/pie chart showing LEADS vs ONGOING vs CLOSED from `getSalesSummaryNew()`
-- Refresh button, loading skeletons, error states — matching existing admin patterns
+1. **New state** for the sales table:
+   - `salesRecords` array, `salesPage` (current page), `salesPageMeta` (pagination info from `PageMetaDto`), `salesSearch` (search string), `salesStage` filter (LEADS/ONGOING/CLOSED/all), `salesLoading` boolean
 
-**2. `src/App.tsx`** (edit)
-- Add lazy import for `AdminRevenue`
-- Add route: `/admin/revenue` protected with `ProtectedRoute requiredRole="admin"`
+2. **`fetchSales` function** — calls `api.getSales({ page, take: 10, orderBy: 'desc', search, stage })` and updates state
 
-**3. `src/layout/AdminLayout.tsx`** (edit — add nav link)
-- Add "Revenue" link to admin sidebar navigation pointing to `/admin/revenue`
+3. **Sales Pipeline Table section** (below the Orders Chart):
+   - **Filter bar**: Search input (debounced), stage filter buttons (All / Leads / Ongoing / Closed)
+   - **Table** using existing `Table/TableHeader/TableBody/TableRow/TableCell/TableHead` components with columns:
+     - Client name (`firstName lastName`)
+     - Email
+     - Stage (color-coded Badge — blue for LEADS, amber for ONGOING, green for CLOSED)
+     - Order ID (truncated, or "—")
+     - Created date (formatted)
+   - **Pagination controls**: Previous/Next buttons using `pageMetaDto.hasPreviousPage`/`hasNextPage`, page indicator
+   - Loading skeleton rows while fetching
 
-### Technical Details
-- Uses existing `useDrGreenApi()` hook — no new API functions needed
-- Charts use the project's existing Recharts + `ChartContainer`/`ChartTooltip` components
-- Currency formatting via `formatPrice()` from `src/lib/currency.ts`
-- Follows existing admin page patterns (motion animations, Card components, Skeleton loading)
-- Date range filter for analytics endpoint (optional controls for startDate/endDate)
+4. **Initial load**: `fetchSales()` called alongside existing `fetchAll()` in the `useEffect`
+
+### Patterns reused
+- Stage badge colors from `SalesDashboard.tsx` (blue/amber/green)
+- Motion animation wrapper matching existing chart cards
+- Same Card/CardHeader/CardContent structure
+- Table component from `src/components/ui/table.tsx`
 
