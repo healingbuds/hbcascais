@@ -1,16 +1,47 @@
 
 
-## Fix: Toast Still Appearing Bottom-Right Over Cart
+## Fix sync-orders: Populate Missing Fields from Local Client Records
 
-The "Added to cart" toast uses the **shadcn/radix toast** system, not Sonner — so the Sonner `position="top-right"` change had no effect on it.
+### Problem
+The Dr. Green API bulk orders endpoint often returns orders without `client.email` or with minimal client data. The sync function doesn't cross-reference local `drgreen_clients` records, leaving `customer_email`, `customer_name`, and `user_id` null on synced orders.
 
-### Fix
+### Fix (1 file)
 
-**File: `src/components/ui/toast.tsx`** — Change the `ToastViewport` position from bottom-right to top-right:
+**`supabase/functions/sync-orders/index.ts`**
 
-- Replace `sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col` with `sm:top-0 sm:right-0 sm:flex-col-reverse`
-- This moves all shadcn toasts (including "Added to cart") to the top-right corner, away from the floating cart button
+After fetching all orders from Dr. Green API, before the upsert loop:
 
-### Files changed
-1. `src/components/ui/toast.tsx` — viewport position fix (single line change)
+1. **Build a set of unique `client_id` values** from all fetched orders
+2. **Query `drgreen_clients` table** for those IDs to get `email`, `full_name`, `user_id`, `country_code`, and `shipping_address`
+3. **Build a lookup map** keyed by `drgreen_client_id`
+4. **In the upsert loop**, fall back to local client data when the API response is missing fields:
+   - `customer_email` → `order.client?.email || localClient.email`
+   - `customer_name` → built from API or `localClient.full_name`
+   - `user_id` → `localClient.user_id` (links order to auth user)
+   - `country_code` → fall back to `localClient.country_code`
+   - `shipping_address` → fall back to `localClient.shipping_address`
+5. **Wrap each order upsert in try/catch** (already done) and add safer null coalescing for all numeric parsing to prevent `NaN` crashes
+
+### Technical Detail
+
+```text
+Dr. Green API orders
+        │
+        ▼
+  Collect unique clientIds
+        │
+        ▼
+  SELECT from drgreen_clients
+  WHERE drgreen_client_id IN (...)
+        │
+        ▼
+  Build clientLookup map
+        │
+        ▼
+  For each order:
+    merge API fields + local client fallbacks
+    → upsert to drgreen_orders
+```
+
+The single DB query adds negligible overhead and ensures all available local data enriches the synced orders.
 
