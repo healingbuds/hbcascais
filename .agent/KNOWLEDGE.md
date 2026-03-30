@@ -1,6 +1,6 @@
 # Healing Buds — Master Knowledge Base
 
-> **Last Updated:** 2026-03-29  
+> **Last Updated:** 2026-03-30  
 > **Project:** Healing Buds Medical Cannabis Platform  
 > **Stack:** React + Vite + Tailwind + TypeScript + Lovable Cloud (Supabase) → migrating to Next.js
 
@@ -101,19 +101,62 @@ All operations (read + write) use the same credential set per environment. No se
 | GET without query params | A JSON `signBody` (NOT sent in request) |
 | POST / PATCH / DELETE | The JSON body string |
 
-### 3.4 Key Endpoints
+### 3.4 Complete Endpoint List (23 endpoints)
 
+#### Dashboard & Analytics
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Dashboard summary | GET | `/dapp/dashboard/summary` |
+| Dashboard analytics | GET | `/dapp/dashboard/analytics` |
+
+#### Clients
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Create client | POST | `/dapp/clients` |
+| List clients | GET | `/dapp/clients?take=200&page=1&orderBy=desc` |
+| List clients (filtered) | GET | `/dapp/clients/list?status=Active&kyc=Verified` |
+| Get client | GET | `/dapp/clients/{clientId}` |
+| Update client | PATCH | `/dapp/clients/{clientId}` |
+| Delete client | DELETE | `/dapp/clients/{clientId}` |
+| Activate client | PATCH | `/dapp/clients/{clientId}/activate` |
+| Deactivate client | PATCH | `/dapp/clients/{clientId}/deactivate` |
+| Request KYC link | POST | `/dapp/clients/{clientId}/kyc` |
+
+#### Sales
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Sales summary | GET | `/dapp/dashboard/sales` |
+| Sales filtered | GET | `/dapp/sales?stage=...` |
+| Sales summary by stage | GET | `/dapp/sales/summary` |
+
+#### Products (Strains)
 | Action | Method | Endpoint |
 |--------|--------|----------|
 | List strains | GET | `/strains?countryCode={alpha3}&take=100&page=1` |
-| List clients | GET | `/dapp/clients?take=200&page=1&orderBy=desc` |
-| Get client | GET | `/dapp/clients/{clientId}` |
-| Create client | POST | `/dapp/clients` |
-| Update client | PATCH | `/dapp/clients/{clientId}` |
+| Get strain | GET | `/strains/{strainId}` |
+
+#### Carts
+| Action | Method | Endpoint |
+|--------|--------|----------|
 | Add to cart | POST | `/dapp/carts` |
+| Empty cart | DELETE | `/dapp/carts/{cartId}` |
+| Delete cart item | DELETE | `/dapp/carts/{cartId}?strainId={strainId}` |
+
+#### Orders
+| Action | Method | Endpoint |
+|--------|--------|----------|
 | Create order | POST | `/dapp/orders` |
-| Get orders | GET | `/dapp/client/{clientId}/orders` |
-| Sales summary | GET | `/dapp/dashboard/sales` |
+| Get order | GET | `/dapp/orders/{orderId}` |
+| Update order | PATCH | `/dapp/orders/{orderId}` |
+| Get client orders | GET | `/dapp/client/{clientId}/orders` |
+| Get client order detail | GET | `/dapp/clients/{clientId}/orders/{orderId}` |
+
+#### NFTs & Profile
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Get user NFTs | GET | `/dapp/users/nfts` |
+| Update primary NFT | PATCH | `/dapp/users/primary-nft` |
+| Get user profile | GET | `/dapp/users/me` |
 
 **Country codes:** Dr. Green uses ISO 3166-1 **alpha-3** (ZAF, PRT, GBR), not alpha-2.
 
@@ -140,6 +183,29 @@ The proxy includes normalization helpers to handle varying API response structur
 - NFT-scoped access: clients created with one API key are invisible to another
 - **Order list endpoint returns empty `items[]`**: `GET /dapp/client/{id}/orders` returns `totalAmount` but no item details. The sync code must NOT overwrite locally-stored items with empty arrays. Orders created via checkout have correct items; only API-synced orders may have empty items.
 - **Legacy orders with `user_id = null`**: Orders synced by edge functions (sync-orders) may lack `user_id`. Admin hooks must guard against querying `drgreen_clients` with null `user_id` to prevent 400 errors.
+
+### 3.8 Order Lifecycle
+
+```text
+1. POST /dapp/clients           → create client
+2. GET  /dapp/clients/list      → confirm Active + KYC Verified
+3. GET  /strains                → fetch products for country
+4. POST /dapp/carts             → add items to cart
+5. POST /dapp/orders            → create order from cart
+6. GET  /dapp/orders/:orderId   → confirm order details
+7. Admin reviews                → PENDING → VERIFIED | REJECTED
+```
+
+**Pre-checkout validation:** Before step 5, the checkout re-verifies the client's KYC + admin approval status via the API (not just local DB).  
+**Post-order confirmation:** After step 5, the checkout fetches the created order (step 6) and uses the API-returned `totalAmount` as source of truth.
+
+### 3.9 Currency & Pricing
+
+- No currency or locale parameter on any endpoint
+- `price`, `totalAmount`, and `retailPrice` are raw numbers (USD-standardized)
+- `countryCode` filters product **availability**, not currency
+- The UI converts to local currency (e.g., ZAR) using exchange rates fetched from the `exchange-rates` edge function
+- Never display raw API prices to users without conversion
 
 ---
 
