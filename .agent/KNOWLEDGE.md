@@ -101,19 +101,62 @@ All operations (read + write) use the same credential set per environment. No se
 | GET without query params | A JSON `signBody` (NOT sent in request) |
 | POST / PATCH / DELETE | The JSON body string |
 
-### 3.4 Key Endpoints
+### 3.4 Complete Endpoint List (23 endpoints)
 
+#### Dashboard & Analytics
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Dashboard summary | GET | `/dapp/dashboard/summary` |
+| Dashboard analytics | GET | `/dapp/dashboard/analytics` |
+
+#### Clients
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Create client | POST | `/dapp/clients` |
+| List clients | GET | `/dapp/clients?take=200&page=1&orderBy=desc` |
+| List clients (filtered) | GET | `/dapp/clients/list?status=Active&kyc=Verified` |
+| Get client | GET | `/dapp/clients/{clientId}` |
+| Update client | PATCH | `/dapp/clients/{clientId}` |
+| Delete client | DELETE | `/dapp/clients/{clientId}` |
+| Activate client | PATCH | `/dapp/clients/{clientId}/activate` |
+| Deactivate client | PATCH | `/dapp/clients/{clientId}/deactivate` |
+| Request KYC link | POST | `/dapp/clients/{clientId}/kyc` |
+
+#### Sales
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Sales summary | GET | `/dapp/dashboard/sales` |
+| Sales filtered | GET | `/dapp/sales?stage=...` |
+| Sales summary by stage | GET | `/dapp/sales/summary` |
+
+#### Products (Strains)
 | Action | Method | Endpoint |
 |--------|--------|----------|
 | List strains | GET | `/strains?countryCode={alpha3}&take=100&page=1` |
-| List clients | GET | `/dapp/clients?take=200&page=1&orderBy=desc` |
-| Get client | GET | `/dapp/clients/{clientId}` |
-| Create client | POST | `/dapp/clients` |
-| Update client | PATCH | `/dapp/clients/{clientId}` |
+| Get strain | GET | `/strains/{strainId}` |
+
+#### Carts
+| Action | Method | Endpoint |
+|--------|--------|----------|
 | Add to cart | POST | `/dapp/carts` |
+| Empty cart | DELETE | `/dapp/carts/{cartId}` |
+| Delete cart item | DELETE | `/dapp/carts/{cartId}?strainId={strainId}` |
+
+#### Orders
+| Action | Method | Endpoint |
+|--------|--------|----------|
 | Create order | POST | `/dapp/orders` |
-| Get orders | GET | `/dapp/client/{clientId}/orders` |
-| Sales summary | GET | `/dapp/dashboard/sales` |
+| Get order | GET | `/dapp/orders/{orderId}` |
+| Update order | PATCH | `/dapp/orders/{orderId}` |
+| Get client orders | GET | `/dapp/client/{clientId}/orders` |
+| Get client order detail | GET | `/dapp/clients/{clientId}/orders/{orderId}` |
+
+#### NFTs & Profile
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Get user NFTs | GET | `/dapp/users/nfts` |
+| Update primary NFT | PATCH | `/dapp/users/primary-nft` |
+| Get user profile | GET | `/dapp/users/me` |
 
 **Country codes:** Dr. Green uses ISO 3166-1 **alpha-3** (ZAF, PRT, GBR), not alpha-2.
 
