@@ -1,36 +1,28 @@
 
 
-## Add Sales Pipeline Table to Revenue Dashboard
+## Add CSV Export to Revenue Dashboard
 
 ### Overview
-Add a searchable, paginated sales pipeline table below the existing charts on the AdminRevenue page. This reuses the `getSales` endpoint already available via `useDrGreenApi()`.
+Add a "Export CSV" button to the dashboard header that downloads all currently loaded dashboard data (KPIs, sales trend, order volume, pipeline summary) as a single CSV file.
 
-### Single file changed
+### Changes
+
 **`src/pages/AdminRevenue.tsx`**
 
-### What gets added
+1. **Import** `Download` icon from lucide-react
+2. **Add `handleExportCSV` function** that:
+   - Builds CSV sections from current state (`sales`, `dashboard`, `analytics.salesData`, `analytics.ordersData`, `pipeline`)
+   - Section 1: "Revenue KPIs" — Total/Monthly/Weekly/Daily sales
+   - Section 2: "Operations KPIs" — Clients/Orders/Pending/Verified counts
+   - Section 3: "Sales Trend" — date,amount rows from `analytics.salesData`
+   - Section 4: "Order Volume" — date,count rows from `analytics.ordersData`
+   - Section 5: "Pipeline Summary" — Leads/Ongoing/Closed counts
+   - Creates a Blob, triggers download via temporary anchor element
+   - Filename includes current date: `revenue-dashboard-YYYY-MM-DD.csv`
+3. **Add Export button** next to the existing Refresh button in the header, disabled when `loading` or no data
 
-1. **New state** for the sales table:
-   - `salesRecords` array, `salesPage` (current page), `salesPageMeta` (pagination info from `PageMetaDto`), `salesSearch` (search string), `salesStage` filter (LEADS/ONGOING/CLOSED/all), `salesLoading` boolean
-
-2. **`fetchSales` function** — calls `api.getSales({ page, take: 10, orderBy: 'desc', search, stage })` and updates state
-
-3. **Sales Pipeline Table section** (below the Orders Chart):
-   - **Filter bar**: Search input (debounced), stage filter buttons (All / Leads / Ongoing / Closed)
-   - **Table** using existing `Table/TableHeader/TableBody/TableRow/TableCell/TableHead` components with columns:
-     - Client name (`firstName lastName`)
-     - Email
-     - Stage (color-coded Badge — blue for LEADS, amber for ONGOING, green for CLOSED)
-     - Order ID (truncated, or "—")
-     - Created date (formatted)
-   - **Pagination controls**: Previous/Next buttons using `pageMetaDto.hasPreviousPage`/`hasNextPage`, page indicator
-   - Loading skeleton rows while fetching
-
-4. **Initial load**: `fetchSales()` called alongside existing `fetchAll()` in the `useEffect`
-
-### Patterns reused
-- Stage badge colors from `SalesDashboard.tsx` (blue/amber/green)
-- Motion animation wrapper matching existing chart cards
-- Same Card/CardHeader/CardContent structure
-- Table component from `src/components/ui/table.tsx`
+### Technical Notes
+- Pure client-side CSV generation — no new dependencies or API calls
+- Uses existing state variables, no additional fetching needed
+- Button disabled while loading to prevent exporting empty data
 
