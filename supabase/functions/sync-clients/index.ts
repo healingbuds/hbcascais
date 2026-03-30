@@ -242,9 +242,18 @@ serve(async (req) => {
         const mapped = alpha3ToAlpha2[shipping.countryCode.toUpperCase()];
         if (mapped) return mapped;
       }
-      // 3. Country name lookup
+      // 3. Country field — could be a name ("South Africa"), ISO-2 ("ZA"), or ISO-3 ("ZAF")
       if (shipping?.country) {
-        const mapped = countryNameToCode[shipping.country.toLowerCase().trim()];
+        const val = shipping.country.trim();
+        // If it's already a 2-letter ISO code, use it directly
+        if (val.length === 2) return val.toUpperCase();
+        // If it's a 3-letter ISO code, convert
+        if (val.length === 3) {
+          const mapped = alpha3ToAlpha2[val.toUpperCase()];
+          if (mapped) return mapped;
+        }
+        // Full country name lookup
+        const mapped = countryNameToCode[val.toLowerCase()];
         if (mapped) return mapped;
       }
       // 4. phoneCountryCode (may be dial code like +27, or ISO code)
