@@ -7,7 +7,7 @@ import { User } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
 import { LogOut, ArrowRight, User as UserIcon, Leaf, LayoutDashboard } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/context/ThemeSliderContext";
 import { cn } from "@/lib/utils";
 import { useShop } from "@/context/ShopContext";
 

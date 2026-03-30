@@ -195,3 +195,10 @@
   --shadow-card: 0 0 0 1px hsla(170, 15%, 30%, 0.15), 0 2px 4px hsla(175, 15%, 5%, 0.3), 0 12px 24px hsla(175, 15%, 5%, 0.4);
   --shadow-elegant: 0 0 0 1px hsla(170, 15%, 30%, 0.12), 0 8px 24px -4px hsla(175, 18%, 5%, 0.5);
 }
+
+/* Smooth theme transitions for the ambiance slider */
+*,
+*::before,
+*::after {
+  transition: background-color 0.3s ease, color 0.2s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
