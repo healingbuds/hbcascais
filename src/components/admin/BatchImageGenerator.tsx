@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Upload, Sparkles, Check, AlertCircle, Loader2 } from "lucide-react";
+import { Upload, Sparkles, Check, AlertCircle, Loader2, RefreshCw } from "lucide-react";
 
 // Import the jar template
 import jarTemplate from "@/assets/jar-template-reference.jpg";
