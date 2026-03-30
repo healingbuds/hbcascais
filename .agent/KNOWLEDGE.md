@@ -302,3 +302,17 @@ Client creation requires a `medicalRecord` object with 22 fields. Key mappings:
 | WalletConnect | Wallet connection relay | Hardcoded project ID |
 | Ethereum Mainnet | NFT ownership verification | Public RPC |
 | Lovable AI | Image generation, strain knowledge | Auto-managed |
+
+---
+
+## 12. Compliance & Error Handling
+
+### System-Driven Compliance
+- All regional compliance (e.g., South African 750g daily limits, address verification) is enforced by the Dr. Green API
+- The storefront renders product availability and quantity caps provided by the API — no client-side overrides
+- Country codes for product fetching use ISO 3166-1 alpha-3 (ZAF, PRT, GBR)
+
+### API Error State Handling
+- **Compliance blocks**: Display the exact error string returned by the API (e.g., weight-limit errors)
+- **Address rejection**: Show the system's "Invalid Delivery Location" prompt verbatim
+- **Auth failures (401/403)**: Immediate redirect to login or KYC verification flow
