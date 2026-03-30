@@ -74,6 +74,7 @@ const stageBadgeClass = (stage: string) => {
 
 const SalesPipelineTable = () => {
   const api = useDrGreenApi();
+  const navigate = useNavigate();
   const [records, setRecords] = useState<SaleRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
