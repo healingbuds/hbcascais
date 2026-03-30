@@ -296,7 +296,25 @@ serve(async (req) => {
     for (const client of allClients) {
       try {
         const fullName = [client.firstName, client.lastName].filter(Boolean).join(' ');
-        const shipping = client.shippings?.[0] || null;
+
+        // Fetch full client details (includes complete shipping address)
+        let detailShipping: any = null;
+        try {
+          const detailResp = await drGreenGetBody(`/dapp/clients/${client.id}`, { clientId: client.id });
+          if (detailResp.ok) {
+            const detailData = await detailResp.json();
+            const detailClient = detailData?.data || detailData;
+            detailShipping = detailClient?.shippings?.[0] || null;
+            console.log(`[sync-clients] Detail fetch OK for ${client.id}, shipping fields: ${detailShipping ? Object.keys(detailShipping).join(',') : 'none'}`);
+          } else {
+            console.warn(`[sync-clients] Detail fetch failed for ${client.id}: ${detailResp.status}`);
+          }
+        } catch (detailErr) {
+          console.warn(`[sync-clients] Detail fetch error for ${client.id}:`, detailErr);
+        }
+
+        // Use detail-level shipping (full address) if available, fall back to list-level
+        const shipping = detailShipping || client.shippings?.[0] || null;
         const countryCode = resolveCountryCode(shipping, client.phoneCountryCode);
 
         // Normalize full shipping address from API
@@ -329,6 +347,9 @@ serve(async (req) => {
         } else {
           synced++;
         }
+
+        // Rate limiting: 200ms delay between detail calls
+        await delay(200);
       } catch (err) {
         errors.push(`${client.id}: ${err instanceof Error ? err.message : 'Unknown error'}`);
       }
