@@ -111,17 +111,17 @@ const AnimatedRoutes = () => {
           } />
           
           {/* Admin Routes - Protected by AdminLayout (which uses useUserRole) */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/clients" element={<AdminClients />} />
-          <Route path="/admin/orders" element={<AdminOrders />} />
-          <Route path="/admin/prescriptions" element={<AdminPrescriptions />} />
-          <Route path="/admin/strains" element={<AdminStrains />} />
-          <Route path="/admin/strain-sync" element={<AdminStrainSync />} />
-          <Route path="/admin/strain-knowledge" element={<AdminStrainKnowledge />} />
-          <Route path="/admin/roles" element={<AdminRoles />} />
-          <Route path="/admin/wallet-mappings" element={<AdminWalletMappings />} />
-          <Route path="/admin/tools" element={<AdminTools />} />
-          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/clients" element={<ProtectedRoute requiredRole="admin"><AdminClients /></ProtectedRoute>} />
+          <Route path="/admin/orders" element={<ProtectedRoute requiredRole="admin"><AdminOrders /></ProtectedRoute>} />
+          <Route path="/admin/prescriptions" element={<ProtectedRoute requiredRole="admin"><AdminPrescriptions /></ProtectedRoute>} />
+          <Route path="/admin/strains" element={<ProtectedRoute requiredRole="admin"><AdminStrains /></ProtectedRoute>} />
+          <Route path="/admin/strain-sync" element={<ProtectedRoute requiredRole="admin"><AdminStrainSync /></ProtectedRoute>} />
+          <Route path="/admin/strain-knowledge" element={<ProtectedRoute requiredRole="admin"><AdminStrainKnowledge /></ProtectedRoute>} />
+          <Route path="/admin/roles" element={<ProtectedRoute requiredRole="admin"><AdminRoles /></ProtectedRoute>} />
+          <Route path="/admin/wallet-mappings" element={<ProtectedRoute requiredRole="admin"><AdminWalletMappings /></ProtectedRoute>} />
+          <Route path="/admin/tools" element={<ProtectedRoute requiredRole="admin"><AdminTools /></ProtectedRoute>} />
+          <Route path="/admin/settings" element={<ProtectedRoute requiredRole="admin"><AdminSettings /></ProtectedRoute>} />
           
           
           {/* Legal */}
