@@ -171,7 +171,7 @@ const AdminRevenue = () => {
           <h1 className="text-2xl font-bold text-foreground">Revenue & Sales</h1>
           <p className="text-sm text-muted-foreground mt-1">Financial overview and pipeline metrics</p>
         </div>
-        <Button variant="outline" size="sm" onClick={fetchAll} disabled={loading}>
+        <Button variant="outline" size="sm" onClick={() => fetchAll(startDate, endDate)} disabled={loading}>
           {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
           Refresh
         </Button>
