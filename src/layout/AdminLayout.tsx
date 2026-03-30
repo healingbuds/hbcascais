@@ -91,6 +91,7 @@ const systemNavItems: NavItem[] = [
 // Route segment → breadcrumb label mapping
 const ROUTE_LABELS: Record<string, string> = {
   admin: "Admin",
+  revenue: "Revenue",
   clients: "Clients",
   orders: "Orders",
   prescriptions: "Prescriptions",

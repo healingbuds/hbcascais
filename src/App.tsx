@@ -130,6 +130,7 @@ const AnimatedRoutes = () => {
           <Route path="/admin/wallet-mappings" element={<ProtectedRoute requiredRole="admin"><AdminWalletMappings /></ProtectedRoute>} />
           <Route path="/admin/tools" element={<ProtectedRoute requiredRole="admin"><AdminTools /></ProtectedRoute>} />
           <Route path="/admin/settings" element={<ProtectedRoute requiredRole="admin"><AdminSettings /></ProtectedRoute>} />
+          <Route path="/admin/revenue" element={<ProtectedRoute requiredRole="admin"><AdminRevenue /></ProtectedRoute>} />
           
           
           {/* Legal */}
