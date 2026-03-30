@@ -1,79 +1,40 @@
 
 
-## Update KNOWLEDGE.md with Budstacks/Genesis Template Context
+## Fix KYC Journey Logs: Add Server-Side Logging + Show Customer Names
 
-Add three new sections to `.agent/KNOWLEDGE.md` that capture the strategic context, franchise model, and target architecture from the uploaded documentation.
+Two issues to address: (1) the proxy doesn't log events so the journey is incomplete, and (2) the viewer doesn't show who each log belongs to.
 
-### Changes to `.agent/KNOWLEDGE.md`
+### Part 1: Show Customer Name in KYC Journey Viewer
 
-**1. Rename and expand Section 1 (Project Identity)** to include a new subsection:
+**File: `src/components/admin/KYCJourneyViewer.tsx`**
 
-**Add after line 22 (after Branding):**
+- After fetching journey logs, cross-reference `user_id` values against the `profiles` table (or `drgreen_clients` table which has `full_name` and `email`) to resolve names
+- Join approach: fetch `drgreen_clients` records for all unique `user_id` values in the log set, build a lookup map `user_id → full_name / email`
+- Display the customer name prominently in each log row (above or beside the `client_id`)
+- Also make the search filter work against customer names
+- Add name to the `JourneyLog` interface display (resolved client-side from the lookup)
 
-```markdown
-### Budstacks Ecosystem Context
-- **Budstacks.io** is the SaaS platform that controls all Dr. Green NFT franchise sales
-- **Dr. Green NFT** (ERC-721) is the "Digital Franchise License" — mandatory key for tenants to operate a storefront
-- **Healing Buds** is the "Genesis Template" — the flagship master codebase that future white-label tenants will clone
-- All storefronts are powered by the Budstacks engine, connecting to Dr. Green fulfillment and licensing backend
-- Future NFT holders receive a cloned version of this repository to launch their own branded stores
-```
+### Part 2: Add Journey Logging to `drgreen-proxy`
 
-**2. Rewrite Section 2 (Deployment)** — remove all cPanel/GitHub Actions references (workflows are deleted), replace with:
+**File: `supabase/functions/drgreen-proxy/index.ts`**
 
-```markdown
-## 2. Deployment
+Add a `logKycJourney` helper (non-blocking, fire-and-forget) that inserts into `kyc_journey_logs` using the existing `supabaseClient` (service role). Log at these points:
 
-### Current State
-CI/CD workflows have been removed. Deployment infrastructure is pending redesign.
+| Location | Event Type | Data |
+|----------|-----------|------|
+| `create-client-legacy` success (~line 2221) | `kyc.client_created` | clientId, hasKycLink |
+| `create-client-legacy` KYC link present (~line 2233) | `kyc.link_generated` | clientId |
+| `create-client-legacy` API error (~line 2202) | `registration.api_error` | status, error snippet |
+| `dapp-verify-client` approve/reject | `client.approved` / `client.rejected` | clientId |
+| `sync-client-status` / `sync-client-by-email` | `kyc.synced` | clientId, kycStatus |
 
-### Target Architecture
-- Framework migration target: **Next.js** (App Router)
-- Proxy route: `/api/proxy` (replaces Supabase edge function proxy)
-- Compatible hosts: Vercel, AWS Amplify, or GitHub Actions to any Next.js host
-- Environment variables managed via `.env.local` (dev) and hosting provider secrets (prod)
+The helper needs `supabaseClient`, `userId`, `clientId`, `eventType`, and `eventData`. Source will be `'drgreen-proxy'`.
 
-### Target Environment Variables
-| Variable | Purpose |
-|----------|---------|
-| `DRGREEN_API_KEY` | Base64 API key (provisioned per tenant via Budstacks) |
-| `DRGREEN_PRIVATE_KEY` | secp256k1 private key for request signing |
-| `DEFAULT_COUNTRY_CODE` | Alpha-3 country targeting (e.g., ZAF, PRT) |
-| `NEXT_PUBLIC_API_BASE_URL` | `/api/proxy` |
+### Part 3: Add RLS Policy for Service Role Inserts
 
-### Current Stack (Pre-Migration)
-- React + Vite + Tailwind + TypeScript
-- Backend: Lovable Cloud (Supabase edge functions)
-- Proxy: `drgreen-proxy` edge function
-```
+**Database migration**: Add an INSERT policy on `kyc_journey_logs` for service role (or adjust existing). The current INSERT policy requires `auth.uid() = user_id`, but the proxy uses service role which bypasses RLS — so no migration needed.
 
-**3. Add new Section 12 (Compliance & Error Handling)** after Section 11:
-
-```markdown
-## 12. Compliance & Error Handling
-
-### System-Driven Compliance
-- All regional compliance (e.g., South African 750g daily limits, address verification) is enforced by the Dr. Green API
-- The storefront renders product availability and quantity caps provided by the API — no client-side overrides
-- Country codes for product fetching use ISO 3166-1 alpha-3 (ZAF, PRT, GBR)
-
-### API Error State Handling
-- **Compliance blocks**: Display the exact error string returned by the API (e.g., weight-limit errors)
-- **Address rejection**: Show the system's "Invalid Delivery Location" prompt verbatim
-- **Auth failures (401/403)**: Immediate redirect to login or KYC verification flow
-```
-
-**4. Update the header metadata** (line 5) to reflect the broader context:
-
-```
-> **Stack:** React + Vite + Tailwind + TypeScript + Lovable Cloud (Supabase) → migrating to Next.js
-```
-
-**5. Update `mem://deployment/cpanel-automation`** to note workflows removed and deployment pending redesign.
-
-### Summary of sections after update
-1. Project Identity (+ Budstacks Ecosystem Context)
-2. Deployment (rewritten — target Next.js, current Vite)
-3–11. Unchanged
-12. Compliance & Error Handling (new)
+### Files Changed
+1. `src/components/admin/KYCJourneyViewer.tsx` — resolve and display customer names from `drgreen_clients`
+2. `supabase/functions/drgreen-proxy/index.ts` — add `logKycJourney` helper + ~5 logging calls
 
