@@ -103,7 +103,7 @@ const ADMIN_ACTIONS = [
 // Actions that require ownership verification (user must own the resource)
 const OWNERSHIP_ACTIONS = [
   'get-client', 'get-cart-legacy', 'get-cart',
-  'add-to-cart', 'remove-from-cart', 'empty-cart',
+  'add-to-cart', 'remove-from-cart', 'empty-cart', 'delete-cart-item',
   'place-order', 'get-order', 'get-orders',
   'get-my-details',           // Users can fetch their own client details
   'update-shipping-address',  // Users can update their own shipping address
