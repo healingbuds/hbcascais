@@ -220,10 +220,16 @@ const AdminRevenue = () => {
             <h1 className="text-2xl font-bold text-foreground">Revenue & Sales</h1>
             <p className="text-sm text-muted-foreground mt-1">Financial overview and pipeline metrics</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => fetchAll(startDate, endDate)} disabled={loading}>
-            {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportCSV} disabled={loading || !hasData}>
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => fetchAll(startDate, endDate)} disabled={loading}>
+              {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+              Refresh
+            </Button>
+          </div>
         </div>
         <DateRangeFilter
           startDate={startDate}
