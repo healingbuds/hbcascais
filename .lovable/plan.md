@@ -1,57 +1,39 @@
 
 
-## Fix: Client Detail Endpoint Signing — 401 Errors
+## Revenue & Sales Dashboard Page
 
-### Root Cause
-The edge function logs show **every detail fetch returns 401 Unauthorized**. Cross-referencing with the working `drgreen-proxy` (line 2460), the `/dapp/clients/{id}` endpoint requires signing `JSON.stringify({ clientId })` as the payload — not an empty string.
+### Overview
+Create a new dedicated admin page at `/admin/revenue` that combines data from the Dr Green API's `dashboard-summary` and `sales-summary` endpoints with the existing `dashboard-analytics` time-series data and `get-sales-summary` pipeline data, rendering KPI cards, charts, and a sales pipeline breakdown.
 
-**Working pattern (drgreen-proxy line 2460):**
-```typescript
-drGreenRequestBody(`/dapp/clients/${clientId}`, "GET", { clientId })
-// → signs: '{"clientId":"47542db8-..."}'
-```
+### Data Sources (already wired in `src/lib/drgreen/admin.ts`)
+- `getDashboardSummary()` — totalClients, totalOrders, totalSales, pendingOrders
+- `getSalesSummary()` — totalSales, monthlySales, weeklySales, dailySales
+- `getDashboardAnalytics()` — salesData time-series (date + amount), ordersData time-series (date + count)
+- `getSalesSummaryNew()` — pipeline counts (LEADS, ONGOING, CLOSED)
 
-**Current broken pattern (sync-clients):**
-```typescript
-drGreenGetDetail(`/dapp/clients/${client.id}`)
-// → signs: "" (empty string) → 401
-```
+### Files to Create/Edit
 
-### Fix — `supabase/functions/sync-clients/index.ts`
+**1. `src/pages/AdminRevenue.tsx`** (new)
+- Admin page wrapped in `AdminLayout`
+- Fetches all 4 endpoints in parallel on mount
+- **KPI Row** (4 cards): Total Revenue, Monthly Sales, Weekly Sales, Daily Sales — using `getSalesSummary()` data, formatted with `formatPrice`
+- **Secondary KPI Row** (4 cards): Total Clients, Total Orders, Pending Orders, Verified Clients — from `getDashboardSummary()`
+- **Sales Trend Chart**: Line/area chart using Recharts (`ChartContainer` from `src/components/ui/chart.tsx`) plotting `salesData` from `getDashboardAnalytics()`
+- **Orders Trend Chart**: Bar chart plotting `ordersData` from `getDashboardAnalytics()`
+- **Pipeline Breakdown**: Donut/pie chart showing LEADS vs ONGOING vs CLOSED from `getSalesSummaryNew()`
+- Refresh button, loading skeletons, error states — matching existing admin patterns
 
-**Change 1:** Update `drGreenGetDetail` to accept a sign body and sign the JSON-stringified body:
+**2. `src/App.tsx`** (edit)
+- Add lazy import for `AdminRevenue`
+- Add route: `/admin/revenue` protected with `ProtectedRoute requiredRole="admin"`
 
-```typescript
-async function drGreenGetDetail(endpoint: string, signBody: object): Promise<Response> {
-  const apiKey = Deno.env.get("DRGREEN_API_KEY");
-  const privateKey = Deno.env.get("DRGREEN_PRIVATE_KEY");
-  if (!apiKey || !privateKey) throw new Error("Dr Green API credentials not configured");
+**3. `src/layout/AdminLayout.tsx`** (edit — add nav link)
+- Add "Revenue" link to admin sidebar navigation pointing to `/admin/revenue`
 
-  const payload = JSON.stringify(signBody);
-  const signature = await generateSignature(payload, privateKey);
-  const url = `${DRGREEN_API_URL}${endpoint}`;
-  console.log(`[sync-clients] GET ${url} (signing: ${payload})`);
-
-  return fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "x-auth-apikey": apiKey,
-      "x-auth-signature": signature,
-    },
-  });
-}
-```
-
-**Change 2:** Update the call site (~line 303) to pass `{ clientId: client.id }`:
-
-```typescript
-const detailResp = await drGreenGetDetail(`/dapp/clients/${client.id}`, { clientId: client.id });
-```
-
-### Single file changed
-`supabase/functions/sync-clients/index.ts` — two edits (function signature + call site)
-
-### Expected outcome
-Detail fetches should return 200 with full shipping data (address1, city, postalCode), which gets merged into the `drgreen_clients` upsert.
+### Technical Details
+- Uses existing `useDrGreenApi()` hook — no new API functions needed
+- Charts use the project's existing Recharts + `ChartContainer`/`ChartTooltip` components
+- Currency formatting via `formatPrice()` from `src/lib/currency.ts`
+- Follows existing admin page patterns (motion animations, Card components, Skeleton loading)
+- Date range filter for analytics endpoint (optional controls for startDate/endDate)
 
