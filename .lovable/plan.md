@@ -1,70 +1,62 @@
 
 
-## Continuous Theme Slider — Replacing Binary Light/Dark Toggle
+## Three-Part Plan: Reduced-Motion Hero, News Image Review, Product Jar Generation Fix
 
-### Concept
+This covers three distinct requests:
 
-Replace the binary light/dark toggle with a **continuous slider** (0–100). The left end is full dark mode, the right end is a warm light mode. As the user slides toward light, the theme gradually:
+### 1. Reduced-Motion Mode with Static Hero Image
 
-- Lightens backgrounds and darkens text
-- **Reduces blue channel / shifts hue warmer** (adding a slight amber/cream warmth for eye comfort)
-- Transitions through a natural midpoint that feels like a comfortable "dusk" mode
+**What**: Add a "Reduce Motion" toggle under the existing Accessibility section in Admin Settings. When enabled (or when the user's OS prefers reduced motion), the Hero replaces the video and all framer-motion animations with a static AI-generated medical cannabis hero image relevant to South Africa.
 
-The value is persisted in `localStorage` and applied via CSS custom properties set on `document.documentElement`.
+**Image generation**: Use the AI gateway script to generate a high-quality hero image with a prompt like: *"Professional medical cannabis clinic in South Africa, warm natural lighting, aloe plants and indigenous flora, clean modern healthcare aesthetic, cannabis leaf motifs, diverse South African patients, earth tones and teal accents"*. Upload to the `product-images` storage bucket as `hero-static.png`.
 
-### How It Works
-
-Instead of toggling a `.dark` class, we set CSS variables dynamically via JavaScript based on the slider position. The slider interpolates between the dark palette and the light palette, with the light end skewing warmer (lower blue, higher warmth).
-
-```text
-0 ──────────── 50 ──────────── 100
-DARK          DUSK           WARM LIGHT
-cool teal    neutral sage    warm cream-sage
-```
-
-### Technical Approach
-
-1. **New Context: `ThemeSliderContext`** — stores the slider value (0–100), persists to localStorage, and applies interpolated CSS variables to `:root` on every change. Replaces `next-themes` usage.
-
-2. **Interpolation logic** — a utility function that takes the slider value and computes each CSS variable by interpolating between dark and light HSL values. On the lighter end (70–100), the hue shifts slightly warmer (reduce saturation on blue-greens, add warmth to backgrounds) and lightness increases.
-
-3. **Updated `ThemeToggle`** — the icon-only variant becomes a small inline slider with Sun/Moon icons at each end. The button variant (used in mobile nav) becomes a horizontal slider row with labels.
-
-4. **Updated `ThemeProvider`** — drops `next-themes` dependency; wraps children in the new `ThemeSliderContext`.
-
-5. **CSS changes** — the `.dark { }` block in `theme.css` remains as a reference but is no longer toggled via class. Instead, the context sets every `--background`, `--foreground`, `--card`, etc. variable directly based on interpolation.
-
-### Files
+**Implementation**:
 
 | File | Change |
 |------|--------|
-| `src/context/ThemeSliderContext.tsx` | **New** — context with slider value, localStorage persistence, CSS variable interpolation engine |
-| `src/components/ThemeToggle.tsx` | Replace toggle buttons with a slider (Sun ← slider → Moon), keep cursor toggle separate |
-| `src/components/ThemeProvider.tsx` | Remove `next-themes`, use `ThemeSliderContext` |
-| `src/styles/theme.css` | Keep both palettes as reference; add transition on `*` for smooth color changes |
-| `src/layout/Header.tsx` | No import changes needed (ThemeToggle API stays the same) |
-| `src/layout/AdminLayout.tsx` | Same — no changes |
-| `src/components/NavigationOverlay.tsx` | ThemeToggle button variant now renders slider row |
+| `src/context/ThemeSliderContext.tsx` | Add `reduceMotion: boolean` and `setReduceMotion` to context. Persist in localStorage. Auto-detect from `prefers-reduced-motion` media query. |
+| `src/components/Hero.tsx` | Read `reduceMotion` from context. If true: hide `<video>`, disable framer-motion variants (set all to `initial` state), show static hero image from storage instead. Remove particle field and animated glow. |
+| `src/pages/AdminSettings.tsx` | Add a "Reduce Motion" toggle under the Accessibility section — a switch that sets the site-wide default. Description: "Disables hero video, particle effects, and scroll animations for visitors who prefer less motion." |
+| `src/components/ParticleField.tsx` | Early-return `null` when `reduceMotion` is true. |
+| `src/components/ScrollAnimation.tsx` | Pass children through without animation wrapper when `reduceMotion` is true. |
 
-### Slider UI (icon variant — header)
+### 2. News Images — Review of `fetch-wire-articles`
 
-```text
-☀️ ═══════●══════ 🌙
-```
+**Current state**: The `fetch-wire-articles` edge function fetches RSS articles but does **not** extract or generate images. Articles are inserted with no `image_url` field.
 
-A compact horizontal slider (~120px wide) with Sun on the left (warm light) and Moon on the right (dark). Uses the existing `Slider` component from `src/components/ui/slider.tsx`.
+**Issue**: Articles on The Wire likely display without images, making them visually flat.
 
-### Slider UI (button variant — mobile nav)
+**Proposed fix**:
+- Extract `<media:content>` or `<enclosure>` image URLs from RSS XML during parsing in `fetch-wire-articles/index.ts`
+- If no image found in RSS, optionally generate a category-themed placeholder using the AI image gateway
+- Add `image_url` column to the articles insert if not already present
 
-A full-width row: Sun icon, slider, Moon icon, with a label like "Ambiance" below.
+### 3. Product Jar Image Generation — Model & Dapp Strain Image Integration
 
-### Warmth Logic
+**Current issues found**:
 
-At slider positions 60–100 (lighter end):
-- Background hue shifts from sage-green (150°) toward warm cream (40–45°)
-- Background saturation drops slightly for a softer feel
-- Blue-tinted borders get warmer (reduced blue saturation)
-- Card backgrounds gain a slight warm tint
+1. **Wrong model name**: `generate-product-image/index.ts` uses `google/gemini-2.5-flash-image-preview` — this is not a valid model. The correct model names are `google/gemini-2.5-flash-image`, `google/gemini-3-pro-image-preview`, or `google/gemini-3.1-flash-image-preview`.
 
-This creates a natural "warm reading mode" at the lightest setting.
+2. **Not using dapp strain images**: The batch generator fetches strains from the local `strains` table (`image_url` column) and passes it as `originalImageUrl`, but the `generate-product-image` function only uses it as metadata — it doesn't actually compose the jar label with the strain's dapp image. The prompt mentions editing a jar template but doesn't incorporate the strain-specific image from the dapp API.
+
+**Proposed fix**:
+
+| File | Change |
+|------|--------|
+| `supabase/functions/generate-product-image/index.ts` | Fix model to `google/gemini-2.5-flash-image`. When `originalImageUrl` (the dapp strain image) is provided, include it in the AI prompt as a second image reference: "Use this strain photo as reference for the label artwork and bud appearance inside the jar." This composes the jar with the actual strain imagery. |
+| `supabase/functions/batch-generate-images/index.ts` | Ensure `image_url` from the strains table (which comes from the dapp sync) is passed through correctly. |
+| `src/components/admin/BatchImageGenerator.tsx` | Add a "Regenerate All" option that clears cached images and re-generates with updated prompts. |
+
+### Files to modify (summary)
+
+- `src/context/ThemeSliderContext.tsx` — add `reduceMotion` state
+- `src/components/Hero.tsx` — conditional static image mode
+- `src/pages/AdminSettings.tsx` — add Reduce Motion toggle
+- `src/components/ParticleField.tsx` — respect reduceMotion
+- `src/components/ScrollAnimation.tsx` — respect reduceMotion
+- `supabase/functions/fetch-wire-articles/index.ts` — extract RSS images
+- `supabase/functions/generate-product-image/index.ts` — fix model, use dapp strain images in composition
+- `supabase/functions/batch-generate-images/index.ts` — pass strain images
+- `src/components/admin/BatchImageGenerator.tsx` — add regenerate option
+- **Generate static hero image** via AI gateway script → upload to storage
 
