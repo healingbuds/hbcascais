@@ -217,10 +217,35 @@ serve(async (req) => {
     let synced = 0, created = 0, updated = 0;
     const errors: string[] = [];
 
+    const alpha3ToAlpha2: Record<string, string> = {
+      PRT: 'PT', ZAF: 'ZA', GBR: 'GB', DEU: 'DE', FRA: 'FR', ESP: 'ES',
+      ITA: 'IT', NLD: 'NL', BEL: 'BE', AUT: 'AT', CHE: 'CH', POL: 'PL',
+      CZE: 'CZ', BRA: 'BR', USA: 'US', CAN: 'CA', AUS: 'AU', NZL: 'NZ',
+      IRL: 'IE', GRC: 'GR', SWE: 'SE', NOR: 'NO', DNK: 'DK', FIN: 'FI',
+    };
+
     for (const client of allClients) {
       try {
         const fullName = [client.firstName, client.lastName].filter(Boolean).join(' ');
-        const countryCode = client.shippings?.[0]?.country || client.phoneCountryCode || 'PT';
+        const shipping = client.shippings?.[0] || null;
+
+        // Resolve country code: prefer countryCode, fall back to alpha-3 conversion of country name
+        const rawCode = shipping?.countryCode || client.phoneCountryCode || '';
+        const countryCode = rawCode.length === 3
+          ? (alpha3ToAlpha2[rawCode.toUpperCase()] || rawCode.substring(0, 2).toUpperCase())
+          : rawCode || shipping?.country?.substring(0, 2)?.toUpperCase() || 'PT';
+
+        // Normalize full shipping address from API
+        const shippingAddress = shipping ? {
+          address1: shipping.address1 || shipping.addressLine1 || '',
+          address2: shipping.address2 || shipping.addressLine2 || '',
+          city: shipping.city || '',
+          state: shipping.state || shipping.city || '',
+          country: shipping.country || '',
+          countryCode: countryCode,
+          postalCode: shipping.postalCode || shipping.zipCode || '',
+          landmark: shipping.landmark || '',
+        } : null;
 
         const { error: upsertError } = await supabase
           .from('drgreen_clients')
@@ -231,6 +256,7 @@ serve(async (req) => {
             is_kyc_verified: client.isKYCVerified ?? false,
             admin_approval: client.adminApproval || 'PENDING',
             country_code: countryCode,
+            ...(shippingAddress && { shipping_address: shippingAddress }),
             updated_at: new Date().toISOString(),
           }, { onConflict: 'drgreen_client_id' });
 
