@@ -587,6 +587,16 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
                       {drGreenClient && (
                         <ShippingAddressForm
                           clientId={drGreenClient.drgreen_client_id}
+                          initialAddress={drGreenClient.shipping_address ? {
+                            address1: (drGreenClient.shipping_address as any).address1 || '',
+                            address2: (drGreenClient.shipping_address as any).address2 || '',
+                            landmark: (drGreenClient.shipping_address as any).landmark || '',
+                            city: (drGreenClient.shipping_address as any).city || '',
+                            state: (drGreenClient.shipping_address as any).state || '',
+                            postalCode: (drGreenClient.shipping_address as any).postalCode || '',
+                            country: (drGreenClient.shipping_address as any).country || '',
+                            countryCode: (drGreenClient.shipping_address as any).countryCode || drGreenClient.country_code || '',
+                          } : undefined}
                           defaultCountry={drGreenClient.country_code || countryCode || 'ZA'}
                           onSuccess={handleShippingAddressSaved}
                           submitLabel="Save & Continue"

@@ -181,14 +181,15 @@ async function drGreenGet(endpoint: string, queryParams: Record<string, string |
 }
 
 // GET request for individual client detail (no query params → sign empty string)
-async function drGreenGetDetail(endpoint: string): Promise<Response> {
+async function drGreenGetDetail(endpoint: string, signBody: object): Promise<Response> {
   const apiKey = Deno.env.get("DRGREEN_API_KEY");
   const privateKey = Deno.env.get("DRGREEN_PRIVATE_KEY");
   if (!apiKey || !privateKey) throw new Error("Dr Green API credentials not configured");
 
-  const signature = await generateSignature("", privateKey);
+  const payload = JSON.stringify(signBody);
+  const signature = await generateSignature(payload, privateKey);
   const url = `${DRGREEN_API_URL}${endpoint}`;
-  console.log(`[sync-clients] GET ${url}`);
+  console.log(`[sync-clients] GET ${url} (signing: ${payload})`);
 
   return fetch(url, {
     method: "GET",
@@ -298,7 +299,7 @@ serve(async (req) => {
         // Fetch full client details (includes complete shipping address)
         let detailShipping: any = null;
         try {
-          const detailResp = await drGreenGetDetail(`/dapp/clients/${client.id}`);
+          const detailResp = await drGreenGetDetail(`/dapp/clients/${client.id}`, { clientId: client.id });
           if (detailResp.ok) {
             const detailData = await detailResp.json();
             const detailClient = detailData?.data || detailData;
