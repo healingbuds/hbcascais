@@ -1,26 +1,79 @@
 
 
-## Update Passwords for Three Users
+## Update KNOWLEDGE.md with Budstacks/Genesis Template Context
 
-The three target emails are:
-- `maykendaal23@gmail.com` (Mayke Odendaal)
-- `scott.k1@outlook.com` (Scott Hickling)
-- `varseainc@gmail.com` (Benjamin Varcianna)
+Add three new sections to `.agent/KNOWLEDGE.md` that capture the strategic context, franchise model, and target architecture from the uploaded documentation.
 
-Currently only the admin account (`healingbudsglobal@gmail.com`) exists in auth. These three users exist as Dr. Green client records but don't have auth accounts yet.
+### Changes to `.agent/KNOWLEDGE.md`
 
-### Implementation
-Call the existing `admin-update-user` edge function three times with:
-```json
-{ "email": "<email>", "password": "12345678", "verify": true }
+**1. Rename and expand Section 1 (Project Identity)** to include a new subsection:
+
+**Add after line 22 (after Branding):**
+
+```markdown
+### Budstacks Ecosystem Context
+- **Budstacks.io** is the SaaS platform that controls all Dr. Green NFT franchise sales
+- **Dr. Green NFT** (ERC-721) is the "Digital Franchise License" — mandatory key for tenants to operate a storefront
+- **Healing Buds** is the "Genesis Template" — the flagship master codebase that future white-label tenants will clone
+- All storefronts are powered by the Budstacks engine, connecting to Dr. Green fulfillment and licensing backend
+- Future NFT holders receive a cloned version of this repository to launch their own branded stores
 ```
 
-This will **create** auth accounts for each (since they don't exist yet) with password `12345678` and email pre-verified. The `auto_link_drgreen_on_signup` trigger and `handle_new_user` trigger will automatically create profiles and link their client records.
+**2. Rewrite Section 2 (Deployment)** — remove all cPanel/GitHub Actions references (workflows are deleted), replace with:
 
-### Steps
-1. Invoke `admin-update-user` for `maykendaal23@gmail.com`
-2. Invoke `admin-update-user` for `scott.k1@outlook.com`
-3. Invoke `admin-update-user` for `varseainc@gmail.com`
+```markdown
+## 2. Deployment
 
-No code changes needed — just three edge function invocations.
+### Current State
+CI/CD workflows have been removed. Deployment infrastructure is pending redesign.
+
+### Target Architecture
+- Framework migration target: **Next.js** (App Router)
+- Proxy route: `/api/proxy` (replaces Supabase edge function proxy)
+- Compatible hosts: Vercel, AWS Amplify, or GitHub Actions to any Next.js host
+- Environment variables managed via `.env.local` (dev) and hosting provider secrets (prod)
+
+### Target Environment Variables
+| Variable | Purpose |
+|----------|---------|
+| `DRGREEN_API_KEY` | Base64 API key (provisioned per tenant via Budstacks) |
+| `DRGREEN_PRIVATE_KEY` | secp256k1 private key for request signing |
+| `DEFAULT_COUNTRY_CODE` | Alpha-3 country targeting (e.g., ZAF, PRT) |
+| `NEXT_PUBLIC_API_BASE_URL` | `/api/proxy` |
+
+### Current Stack (Pre-Migration)
+- React + Vite + Tailwind + TypeScript
+- Backend: Lovable Cloud (Supabase edge functions)
+- Proxy: `drgreen-proxy` edge function
+```
+
+**3. Add new Section 12 (Compliance & Error Handling)** after Section 11:
+
+```markdown
+## 12. Compliance & Error Handling
+
+### System-Driven Compliance
+- All regional compliance (e.g., South African 750g daily limits, address verification) is enforced by the Dr. Green API
+- The storefront renders product availability and quantity caps provided by the API — no client-side overrides
+- Country codes for product fetching use ISO 3166-1 alpha-3 (ZAF, PRT, GBR)
+
+### API Error State Handling
+- **Compliance blocks**: Display the exact error string returned by the API (e.g., weight-limit errors)
+- **Address rejection**: Show the system's "Invalid Delivery Location" prompt verbatim
+- **Auth failures (401/403)**: Immediate redirect to login or KYC verification flow
+```
+
+**4. Update the header metadata** (line 5) to reflect the broader context:
+
+```
+> **Stack:** React + Vite + Tailwind + TypeScript + Lovable Cloud (Supabase) → migrating to Next.js
+```
+
+**5. Update `mem://deployment/cpanel-automation`** to note workflows removed and deployment pending redesign.
+
+### Summary of sections after update
+1. Project Identity (+ Budstacks Ecosystem Context)
+2. Deployment (rewritten — target Next.js, current Vite)
+3–11. Unchanged
+12. Compliance & Error Handling (new)
 
