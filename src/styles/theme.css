@@ -197,8 +197,20 @@
 }
 
 /* Smooth theme transitions for the ambiance slider */
-*,
-*::before,
-*::after {
-  transition: background-color 0.3s ease, color 0.2s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+body,
+body * {
+  transition-property: background-color, color, border-color, box-shadow, fill, stroke;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
+
+/* Exclude interactive elements from transition to prevent drag/animation issues */
+input[type="range"],
+[role="slider"],
+[data-radix-collection-item],
+.toaster,
+[data-sonner-toaster],
+canvas,
+video {
+  transition: none !important;
 }
