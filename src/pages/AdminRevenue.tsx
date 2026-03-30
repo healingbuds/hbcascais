@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { format } from "date-fns";
 import { motion } from "framer-motion";
 import AdminLayout from "@/layout/AdminLayout";
 import { useDrGreenApi } from "@/hooks/useDrGreenApi";
@@ -21,6 +22,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import DateRangeFilter from "@/components/admin/DateRangeFilter";
 
 interface SalesSummary {
   totalSales: number;
@@ -105,14 +107,20 @@ const AdminRevenue = () => {
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [pipeline, setPipeline] = useState<PipelineData | null>(null);
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
-  const fetchAll = useCallback(async () => {
+  const fetchAll = useCallback(async (filterStart?: Date, filterEnd?: Date) => {
     setLoading(true);
     try {
+      const analyticsParams: Record<string, string> = {};
+      if (filterStart) analyticsParams.startDate = format(filterStart, "yyyy-MM-dd");
+      if (filterEnd) analyticsParams.endDate = format(filterEnd, "yyyy-MM-dd");
+
       const [salesRes, dashRes, analyticsRes, pipelineRes] = await Promise.allSettled([
         api.getSalesSummary(),
         api.getDashboardSummary(),
-        api.getDashboardAnalytics(),
+        api.getDashboardAnalytics(Object.keys(analyticsParams).length > 0 ? analyticsParams : undefined),
         api.getSalesSummaryNew(),
       ]);
 
@@ -138,6 +146,13 @@ const AdminRevenue = () => {
     fetchAll();
   }, [fetchAll]);
 
+  const handleApplyFilter = () => fetchAll(startDate, endDate);
+  const handleClearFilter = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+    fetchAll();
+  };
+
   const fmt = (v: number | undefined) => formatPrice(v ?? 0, "ZA");
 
   const pipelinePieData = pipeline
@@ -151,15 +166,26 @@ const AdminRevenue = () => {
   return (
     <AdminLayout title="Revenue & Sales" description="Financial overview and sales pipeline">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Revenue & Sales</h1>
-          <p className="text-sm text-muted-foreground mt-1">Financial overview and pipeline metrics</p>
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Revenue & Sales</h1>
+            <p className="text-sm text-muted-foreground mt-1">Financial overview and pipeline metrics</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => fetchAll(startDate, endDate)} disabled={loading}>
+            {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+            Refresh
+          </Button>
         </div>
-        <Button variant="outline" size="sm" onClick={fetchAll} disabled={loading}>
-          {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-          Refresh
-        </Button>
+        <DateRangeFilter
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          onApply={handleApplyFilter}
+          onClear={handleClearFilter}
+          loading={loading}
+        />
       </div>
 
       {/* Revenue KPIs */}
