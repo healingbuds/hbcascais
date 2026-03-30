@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
+import { useThemeSlider } from "@/context/ThemeSliderContext";
 
 interface ScrollAnimationProps {
   children: ReactNode;
