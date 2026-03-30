@@ -191,7 +191,7 @@ export function ThemeSliderProvider({ children }: { children: ReactNode }) {
 
   return (
     <ThemeSliderContext.Provider
-      value={{ value, setValue, isDark, resolvedTheme: isDark ? "dark" : "light", mode, setMode }}
+      value={{ value, setValue, isDark, resolvedTheme: isDark ? "dark" : "light", mode, setMode, reduceMotion, setReduceMotion }}
     >
       {children}
     </ThemeSliderContext.Provider>
