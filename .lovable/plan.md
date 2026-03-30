@@ -1,71 +1,70 @@
 
 
-## Part 1: Client Name in Desktop Header
+## Continuous Theme Slider — Replacing Binary Light/Dark Toggle
 
-**File: `src/layout/Header.tsx`** — Line 240
+### Concept
 
-Replace `truncatedEmail` with `drGreenClient?.full_name || truncatedEmail` in the dropdown trigger button. `drGreenClient` is already destructured from `useShop()` on line 59.
+Replace the binary light/dark toggle with a **continuous slider** (0–100). The left end is full dark mode, the right end is a warm light mode. As the user slides toward light, the theme gradually:
 
----
+- Lightens backgrounds and darkens text
+- **Reduces blue channel / shifts hue warmer** (adding a slight amber/cream warmth for eye comfort)
+- Transitions through a natural midpoint that feels like a comfortable "dusk" mode
 
-## Part 2: Branded Password Reset Email via Resend
+The value is persisted in `localStorage` and applied via CSS custom properties set on `document.documentElement`.
 
-The project already uses Resend (API key configured) with sender domain `send.healingbuds.co.za`. Password reset emails currently use the default system templates. We'll create a custom Edge Function that intercepts the password reset flow and sends a branded email through the existing Resend integration.
+### How It Works
 
-### Approach
+Instead of toggling a `.dark` class, we set CSS variables dynamically via JavaScript based on the slider position. The slider interpolates between the dark palette and the light palette, with the light end skewing warmer (lower blue, higher warmth).
 
-Create a new Edge Function `send-password-reset` that:
-- Accepts email + reset link
-- Renders a branded HTML email matching the Healing Buds aesthetic (teal `#0D9488` header, logo from storage, pharmaceutical tone)
-- Sends via Resend from `noreply@send.healingbuds.co.za` using the existing `RESEND_API_KEY`
+```text
+0 ──────────── 50 ──────────── 100
+DARK          DUSK           WARM LIGHT
+cool teal    neutral sage    warm cream-sage
+```
 
-Then update `src/pages/Auth.tsx` to:
-1. Call `supabase.auth.resetPasswordForEmail()` with `shouldCreateUser: false`
-2. Generate a custom token via a helper, OR use the simpler approach: after the default reset email is triggered, also send our branded version
+### Technical Approach
 
-**Simpler approach chosen**: Since Supabase Auth handles token generation and we can't easily intercept the built-in hook without the managed email system, we'll:
+1. **New Context: `ThemeSliderContext`** — stores the slider value (0–100), persists to localStorage, and applies interpolated CSS variables to `:root` on every change. Replaces `next-themes` usage.
 
-1. **Create `supabase/functions/send-password-reset/index.ts`** — a Resend-powered branded password reset email function that:
-   - Receives `{ email, resetLink }` 
-   - Uses the existing `RESEND_API_KEY` and `send.healingbuds.co.za` domain
-   - Renders branded HTML with: teal header + HB logo, "Reset Your Password" heading, reset button, support contact, footer
-   - Region-aware using the same `DOMAIN_CONFIG` pattern from `send-order-confirmation`
+2. **Interpolation logic** — a utility function that takes the slider value and computes each CSS variable by interpolating between dark and light HSL values. On the lighter end (70–100), the hue shifts slightly warmer (reduce saturation on blue-greens, add warmth to backgrounds) and lightness increases.
 
-2. **Update `src/pages/Auth.tsx`** password reset handler to:
-   - Call `supabase.auth.resetPasswordForEmail()` as before (generates the token/link)
-   - Then invoke `send-password-reset` Edge Function with the email and constructed reset URL
-   - The default system email still fires, but the branded one arrives too
+3. **Updated `ThemeToggle`** — the icon-only variant becomes a small inline slider with Sun/Moon icons at each end. The button variant (used in mobile nav) becomes a horizontal slider row with labels.
 
-**Better approach**: Actually, to avoid duplicate emails, we should use Supabase's `emailRedirectTo` and have the Edge Function generate the OTP link itself using the admin API. But that's complex.
+4. **Updated `ThemeProvider`** — drops `next-themes` dependency; wraps children in the new `ThemeSliderContext`.
 
-**Cleanest approach**: Use `supabase.auth.admin.generateLink()` in an Edge Function to get the reset link, then send only the branded email (suppressing the default). This requires the service role key (already available as `SUPABASE_SERVICE_ROLE_KEY`).
-
-### Final Plan
-
-1. **Create `supabase/functions/send-password-reset/index.ts`**:
-   - Accepts `{ email, redirectTo }` from authenticated or public request
-   - Uses service role to call `supabase.auth.admin.generateLink({ type: 'recovery', email, options: { redirectTo } })`
-   - Gets the action link from the response
-   - Sends branded HTML email via Resend from `noreply@send.healingbuds.co.za`
-   - HTML template: teal header with HB logo, "Reset Your Password" copy, CTA button, support footer
-   - Region-aware sender config (ZA/PT/GB/global)
-
-2. **Update `src/pages/Auth.tsx`**:
-   - Replace `supabase.auth.resetPasswordForEmail()` with `supabase.functions.invoke('send-password-reset', { body: { email, redirectTo } })`
-   - This ensures only the branded email is sent (no duplicate default email)
-
-3. **Deploy** the new Edge Function
-
-### Branded Email Design
-- Header: `#0D9488` teal background with white HB logo from `email-assets` bucket
-- Body: white background, dark text
-- CTA button: teal `#0D9488` with white text, rounded
-- Footer: light gray background, "Healing Buds" branding, support email
-- Tone: professional, medical/pharmaceutical ("Your account security is important to us")
-- Multi-language support via `region` parameter (EN default)
+5. **CSS changes** — the `.dark { }` block in `theme.css` remains as a reference but is no longer toggled via class. Instead, the context sets every `--background`, `--foreground`, `--card`, etc. variable directly based on interpolation.
 
 ### Files
-- `src/layout/Header.tsx` — show client name
-- `supabase/functions/send-password-reset/index.ts` — new Edge Function
-- `src/pages/Auth.tsx` — use new function for password reset
+
+| File | Change |
+|------|--------|
+| `src/context/ThemeSliderContext.tsx` | **New** — context with slider value, localStorage persistence, CSS variable interpolation engine |
+| `src/components/ThemeToggle.tsx` | Replace toggle buttons with a slider (Sun ← slider → Moon), keep cursor toggle separate |
+| `src/components/ThemeProvider.tsx` | Remove `next-themes`, use `ThemeSliderContext` |
+| `src/styles/theme.css` | Keep both palettes as reference; add transition on `*` for smooth color changes |
+| `src/layout/Header.tsx` | No import changes needed (ThemeToggle API stays the same) |
+| `src/layout/AdminLayout.tsx` | Same — no changes |
+| `src/components/NavigationOverlay.tsx` | ThemeToggle button variant now renders slider row |
+
+### Slider UI (icon variant — header)
+
+```text
+☀️ ═══════●══════ 🌙
+```
+
+A compact horizontal slider (~120px wide) with Sun on the left (warm light) and Moon on the right (dark). Uses the existing `Slider` component from `src/components/ui/slider.tsx`.
+
+### Slider UI (button variant — mobile nav)
+
+A full-width row: Sun icon, slider, Moon icon, with a label like "Ambiance" below.
+
+### Warmth Logic
+
+At slider positions 60–100 (lighter end):
+- Background hue shifts from sage-green (150°) toward warm cream (40–45°)
+- Background saturation drops slightly for a softer feel
+- Blue-tinted borders get warmer (reduced blue saturation)
+- Card backgrounds gain a slight warm tint
+
+This creates a natural "warm reading mode" at the lightest setting.
 
