@@ -1,0 +1,1 @@
+ALTER TABLE public.drgreen_orders ADD COLUMN invoice_number text;
