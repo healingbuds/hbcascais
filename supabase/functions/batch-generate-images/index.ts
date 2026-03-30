@@ -12,6 +12,8 @@ serve(async (req) => {
   }
 
   try {
+    const { forceRegenerate } = await req.json().catch(() => ({ forceRegenerate: false }));
+
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
