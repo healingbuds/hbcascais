@@ -7,6 +7,8 @@ interface ThemeSliderContextType {
   resolvedTheme: "dark" | "light";
   mode: "auto" | "manual";
   setMode: (m: "auto" | "manual") => void;
+  reduceMotion: boolean;
+  setReduceMotion: (v: boolean) => void;
 }
 
 const ThemeSliderContext = createContext<ThemeSliderContextType>({
