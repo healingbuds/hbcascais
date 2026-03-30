@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Skeleton } from './ui/skeleton';
 
 interface PageLoadingSkeletonProps {
-  variant?: 'default' | 'hero' | 'cards' | 'article';
+  variant?: 'default' | 'hero' | 'cards' | 'article' | 'admin';
 }
 
 const PageLoadingSkeleton = ({ variant = 'default' }: PageLoadingSkeletonProps) => {
