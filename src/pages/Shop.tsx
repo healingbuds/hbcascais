@@ -28,15 +28,11 @@ export default function Shop() {
   // NOTE: Country is determined by URL domain in ShopContext - no override needed here
 
   // Background polling for verification status (every 3 minutes)
+  // ShopContext already does an immediate background sync, so no initial call needed here
   useEffect(() => {
-    // Only poll if user has a client record but is not yet eligible
     if (!drGreenClient || isEligible) return;
 
-    // Initial sync
-    syncVerificationFromDrGreen();
-
-    // Set up interval for polling every 3 minutes
-    const POLL_INTERVAL = 3 * 60 * 1000; // 3 minutes
+    const POLL_INTERVAL = 3 * 60 * 1000;
     const intervalId = setInterval(() => {
       console.log('Background sync: checking verification status...');
       syncVerificationFromDrGreen();

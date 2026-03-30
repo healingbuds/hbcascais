@@ -258,9 +258,62 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     }
   }, [toast]);
 
+  // Background sync: fetch live status from Dr. Green API without blocking UI
+  const syncLiveStatus = useCallback(async (userId: string, localRecord: DrGreenClient) => {
+    if (!localRecord.drgreen_client_id || localRecord.drgreen_client_id.startsWith('local-') || localRecord.drgreen_client_id.startsWith('demo-')) return;
+    
+    try {
+      console.log('[ShopContext] Background: fetching live client status from Dr. Green API...');
+      const { data: apiResponse, error: apiError } = await supabase.functions.invoke('drgreen-proxy', {
+        body: {
+          action: 'get-client',
+          clientId: localRecord.drgreen_client_id,
+        },
+      });
+
+      const liveData = apiResponse?.data || apiResponse;
+      if (!apiError && liveData && (liveData.isKYCVerified !== undefined || liveData.adminApproval !== undefined)) {
+        const liveKyc = liveData.isKYCVerified ?? liveData.is_kyc_verified ?? false;
+        const liveApproval = liveData.adminApproval ?? liveData.admin_approval ?? 'PENDING';
+        const liveKycLink = liveData.kycLink ?? liveData.kyc_link ?? null;
+
+        // Update local cache if status changed (fire-and-forget)
+        if (
+          localRecord.is_kyc_verified !== liveKyc ||
+          localRecord.admin_approval !== liveApproval ||
+          localRecord.kyc_link !== liveKycLink
+        ) {
+          console.log('[ShopContext] Background: status changed, updating cache and state...');
+          supabase
+            .from('drgreen_clients')
+            .update({
+              is_kyc_verified: liveKyc,
+              admin_approval: liveApproval,
+              kyc_link: liveKycLink,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('user_id', userId)
+            .then(({ error: updateErr }) => {
+              if (updateErr) console.error('[ShopContext] Background cache update error:', updateErr);
+            });
+
+          // Silently update state with live data
+          setDrGreenClient({
+            ...localRecord,
+            is_kyc_verified: liveKyc,
+            admin_approval: liveApproval,
+            kyc_link: liveKycLink,
+          });
+        }
+      } else {
+        console.warn('[ShopContext] Background: could not fetch live status');
+      }
+    } catch (err) {
+      console.warn('[ShopContext] Background: API call failed:', err);
+    }
+  }, []);
+
   const fetchClient = useCallback(async () => {
-    // Use getSession first - it's synchronous from cache and avoids race conditions
-    // getUser() can fail during initial auth state recovery
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) {
       setDrGreenClient(null);
@@ -269,7 +322,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     }
     const user = session.user;
 
-    // Step 1: Check if we have a local mapping (user_id → drgreen_client_id)
+    // Phase 1: Read local DB record and set state immediately
     const { data: localRecord, error } = await supabase
       .from('drgreen_clients')
       .select('*')
@@ -280,13 +333,12 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       console.error('Error fetching client mapping:', error);
     }
 
-    // Step 2: If no local mapping, try auto-discovery from Dr. Green API
+    // No local mapping → try auto-discovery (this is the only blocking API call)
     if (!localRecord) {
       console.log('[ShopContext] No local client mapping, attempting auto-discovery...');
       const linked = await linkClientFromDrGreenByAuthEmail(user.id, true);
       
       if (linked) {
-        // Refetch the newly created mapping
         const { data: newRecord } = await supabase
           .from('drgreen_clients')
           .select('*')
@@ -301,67 +353,13 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Step 3: ALWAYS fetch live status from Dr. Green API for data integrity
-    // Skip for local-only clients (API registration failed)
-    if (localRecord.drgreen_client_id && !localRecord.drgreen_client_id.startsWith('local-') && !localRecord.drgreen_client_id.startsWith('demo-')) {
-      try {
-        console.log('[ShopContext] Fetching live client status from Dr. Green API...');
-        const { data: apiResponse, error: apiError } = await supabase.functions.invoke('drgreen-proxy', {
-          body: {
-            action: 'get-client',
-            clientId: localRecord.drgreen_client_id,
-          },
-        });
-
-        // Accept response with or without "success" wrapper
-        const liveData = apiResponse?.data || apiResponse;
-        if (!apiError && liveData && (liveData.isKYCVerified !== undefined || liveData.adminApproval !== undefined)) {
-          const liveKyc = liveData.isKYCVerified ?? liveData.is_kyc_verified ?? false;
-          const liveApproval = liveData.adminApproval ?? liveData.admin_approval ?? 'PENDING';
-          const liveKycLink = liveData.kycLink ?? liveData.kyc_link ?? null;
-
-          // Update local cache if status changed (fire-and-forget)
-          if (
-            localRecord.is_kyc_verified !== liveKyc ||
-            localRecord.admin_approval !== liveApproval ||
-            localRecord.kyc_link !== liveKycLink
-          ) {
-            console.log('[ShopContext] Status changed on Dr. Green, updating local cache...');
-            supabase
-              .from('drgreen_clients')
-              .update({
-                is_kyc_verified: liveKyc,
-                admin_approval: liveApproval,
-                kyc_link: liveKycLink,
-                updated_at: new Date().toISOString(),
-              })
-              .eq('user_id', user.id)
-              .then(({ error: updateErr }) => {
-                if (updateErr) console.error('[ShopContext] Cache update error:', updateErr);
-              });
-          }
-
-          // Always use live data for the UI state
-          setDrGreenClient({
-            ...localRecord,
-            is_kyc_verified: liveKyc,
-            admin_approval: liveApproval,
-            kyc_link: liveKycLink,
-          });
-          setIsLoading(false);
-          return;
-        } else {
-          console.warn('[ShopContext] Could not fetch live status, falling back to cached data');
-        }
-      } catch (err) {
-        console.warn('[ShopContext] API call failed, using cached data:', err);
-      }
-    }
-
-    // Fallback: use cached local data if API call fails
+    // Phase 1 complete: set cached data immediately → isLoading = false
     setDrGreenClient(localRecord);
     setIsLoading(false);
-  }, [linkClientFromDrGreenByAuthEmail]);
+
+    // Phase 2: Background sync with Dr. Green API (non-blocking)
+    syncLiveStatus(user.id, localRecord);
+  }, [linkClientFromDrGreenByAuthEmail, syncLiveStatus]);
 
   const refreshClient = useCallback(async () => {
     await fetchClient();
