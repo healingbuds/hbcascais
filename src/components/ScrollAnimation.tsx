@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
+import { useThemeSlider } from "@/context/ThemeSliderContext";
 
 interface ScrollAnimationProps {
   children: ReactNode;
@@ -43,6 +44,12 @@ const ScrollAnimation = ({
   variant = "fadeUp",
   duration = 0.6
 }: ScrollAnimationProps) => {
+  const { reduceMotion } = useThemeSlider();
+
+  if (reduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
   const selectedVariant = variants[variant];
   
   return (

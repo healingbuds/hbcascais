@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useThemeSlider, setAdminThemeDefault } from "@/context/ThemeSliderContext";
@@ -24,6 +25,7 @@ import {
   Moon,
   Monitor,
   Palette,
+  Accessibility,
 } from "lucide-react";
 
 interface EnvConfig {
@@ -68,7 +70,7 @@ interface EnvState {
 const AdminSettings = () => {
   const { environment, environmentLabel } = useApiEnvironment();
   const { toast } = useToast();
-  const { value: themeValue, setValue: setThemeValue, mode: themeMode, setMode: setThemeMode } = useThemeSlider();
+  const { value: themeValue, setValue: setThemeValue, mode: themeMode, setMode: setThemeMode, reduceMotion, setReduceMotion } = useThemeSlider();
 
   const [adminDefault, setAdminDefault] = useState<"light" | "dark" | "auto">(() => {
     return (localStorage.getItem("healing-buds-theme-admin-default") as any) || "auto";
@@ -294,6 +296,37 @@ const AdminSettings = () => {
                     Reset to Auto
                   </Button>
                 )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Reduce Motion */}
+          <Card>
+            <CardHeader className="pb-3">
+              <div>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Accessibility className="w-4 h-4" />
+                  Reduce Motion
+                </CardTitle>
+                <CardDescription>
+                  Disables hero video, particle effects, and scroll animations for visitors who prefer less motion.
+                  Auto-detects the visitor's OS setting when not overridden.
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="reduce-motion" className="text-sm font-medium cursor-pointer">
+                  Enable reduced motion site-wide
+                </Label>
+                <Switch
+                  id="reduce-motion"
+                  checked={reduceMotion}
+                  onCheckedChange={(checked) => {
+                    setReduceMotion(checked);
+                    toast({ title: checked ? "Reduced motion enabled" : "Animations restored", description: checked ? "Video, particles, and scroll animations are disabled." : "All animations are active again." });
+                  }}
+                />
               </div>
             </CardContent>
           </Card>

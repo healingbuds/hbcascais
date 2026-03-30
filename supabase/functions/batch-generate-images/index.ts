@@ -12,6 +12,8 @@ serve(async (req) => {
   }
 
   try {
+    const { forceRegenerate } = await req.json().catch(() => ({ forceRegenerate: false }));
+
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
@@ -40,6 +42,13 @@ serve(async (req) => {
     }
 
     console.log(`Found ${strains?.length || 0} strains to process`);
+
+    // If force regenerate, clear existing generated images first
+    if (forceRegenerate) {
+      console.log("Force regenerate: clearing cached images...");
+      const { error: deleteError } = await supabase.from("generated_product_images").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      if (deleteError) console.error("Error clearing cache:", deleteError);
+    }
 
     const results: { productId: string; productName: string; status: string; imageUrl?: string; error?: string }[] = [];
     

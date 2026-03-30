@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
+import { useThemeSlider } from '@/context/ThemeSliderContext';
 
 interface Particle {
   id: number;
@@ -19,9 +20,10 @@ interface ParticleFieldProps {
 const ParticleField = ({ particleCount = 30, className = '' }: ParticleFieldProps) => {
   const [particles, setParticles] = useState<Particle[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { reduceMotion } = useThemeSlider();
 
   useEffect(() => {
-    // Generate particles with random properties
+    if (reduceMotion) return;
     const newParticles: Particle[] = Array.from({ length: particleCount }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
@@ -31,9 +33,10 @@ const ParticleField = ({ particleCount = 30, className = '' }: ParticleFieldProp
       duration: Math.random() * 15 + 10,
       delay: Math.random() * 5,
     }));
-    
     setParticles(newParticles);
-  }, [particleCount]);
+  }, [particleCount, reduceMotion]);
+
+  if (reduceMotion) return null;
 
   return (
     <div 

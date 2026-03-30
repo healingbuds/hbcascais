@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Upload, Sparkles, Check, AlertCircle, Loader2 } from "lucide-react";
+import { Upload, Sparkles, Check, AlertCircle, Loader2, RefreshCw } from "lucide-react";
 
 // Import the jar template
 import jarTemplate from "@/assets/jar-template-reference.jpg";
@@ -64,16 +64,18 @@ export function BatchImageGenerator() {
     }
   };
 
-  const generateImages = async () => {
+  const generateImages = async (forceRegenerate = false) => {
     setIsGenerating(true);
     setResults([]);
     setSummary(null);
 
     try {
-      toast.info("Starting batch image generation. This may take a few minutes...");
+      toast.info(forceRegenerate
+        ? "Clearing cache and regenerating all images..."
+        : "Starting batch image generation. This may take a few minutes...");
 
       const { data, error } = await supabase.functions.invoke("batch-generate-images", {
-        body: {},
+        body: { forceRegenerate },
       });
 
       if (error) throw error;
@@ -146,7 +148,7 @@ export function BatchImageGenerator() {
             </p>
           </div>
           <Button
-            onClick={generateImages}
+            onClick={() => generateImages(false)}
             disabled={isGenerating}
           >
             {isGenerating ? (
@@ -155,6 +157,28 @@ export function BatchImageGenerator() {
               <Sparkles className="h-4 w-4 mr-2" />
             )}
             {isGenerating ? "Generating..." : "Generate All"}
+          </Button>
+        </div>
+
+        {/* Step 3: Regenerate All */}
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
+            <h4 className="font-medium">Step 3: Regenerate All (Force)</h4>
+            <p className="text-sm text-muted-foreground">
+              Clear cached images and regenerate with updated prompts & strain photos from the DApp
+            </p>
+          </div>
+          <Button
+            onClick={() => generateImages(true)}
+            disabled={isGenerating}
+            variant="destructive"
+          >
+            {isGenerating ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <RefreshCw className="h-4 w-4 mr-2" />
+            )}
+            {isGenerating ? "Regenerating..." : "Regenerate All"}
           </Button>
         </div>
 

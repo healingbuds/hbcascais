@@ -123,7 +123,7 @@ PHOTOGRAPHY STYLE:
 
     console.log("Calling Lovable AI for image generation...");
 
-    // Build the request based on whether we have a template
+    // Build message content array
     const messageContent: any[] = [
       {
         type: "text",
@@ -135,13 +135,25 @@ PHOTOGRAPHY STYLE:
     if (jarTemplateBase64) {
       messageContent.push({
         type: "image_url",
-        image_url: {
-          url: `data:image/jpeg;base64,${jarTemplateBase64}`,
-        },
+        image_url: { url: `data:image/jpeg;base64,${jarTemplateBase64}` },
       });
       console.log("Using jar template for image editing");
     } else {
       console.log("Generating image from scratch (no template found)");
+    }
+
+    // If we have the original dapp strain image, include it as reference
+    if (originalImageUrl && typeof originalImageUrl === "string" && originalImageUrl.startsWith("http")) {
+      messageContent[0] = {
+        type: "text",
+        text: (jarTemplateBase64 ? editPrompt : generatePrompt) +
+          "\n\nIMPORTANT: Use the attached strain photo as a visual reference for the bud appearance, color, and texture. Match the buds inside the jar to this reference image.",
+      };
+      messageContent.push({
+        type: "image_url",
+        image_url: { url: originalImageUrl },
+      });
+      console.log("Including dapp strain image as reference:", originalImageUrl);
     }
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -151,13 +163,8 @@ PHOTOGRAPHY STYLE:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image-preview",
-        messages: [
-          {
-            role: "user",
-            content: messageContent,
-          },
-        ],
+        model: "google/gemini-2.5-flash-image",
+        messages: [{ role: "user", content: messageContent }],
         modalities: ["image", "text"],
       }),
     });

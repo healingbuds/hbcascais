@@ -7,6 +7,8 @@ interface ThemeSliderContextType {
   resolvedTheme: "dark" | "light";
   mode: "auto" | "manual";
   setMode: (m: "auto" | "manual") => void;
+  reduceMotion: boolean;
+  setReduceMotion: (v: boolean) => void;
 }
 
 const ThemeSliderContext = createContext<ThemeSliderContextType>({
@@ -16,6 +18,8 @@ const ThemeSliderContext = createContext<ThemeSliderContextType>({
   resolvedTheme: "light",
   mode: "auto",
   setMode: () => {},
+  reduceMotion: false,
+  setReduceMotion: () => {},
 });
 
 export const useThemeSlider = () => useContext(ThemeSliderContext);
@@ -35,6 +39,7 @@ export const useTheme = () => {
 const STORAGE_KEY = "healing-buds-theme-slider";
 const MODE_KEY = "healing-buds-theme-mode"; // "auto" | "manual"
 const ADMIN_DEFAULT_KEY = "healing-buds-theme-admin-default"; // "light" | "dark" | "auto"
+const REDUCE_MOTION_KEY = "healing-buds-reduce-motion";
 
 // ── HSL helpers ──
 type HSL = [number, number, number];
@@ -128,6 +133,17 @@ export function ThemeSliderProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return "auto";
     return (localStorage.getItem(MODE_KEY) as "auto" | "manual") || "auto";
   });
+  const [reduceMotion, setReduceMotionState] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const stored = localStorage.getItem(REDUCE_MOTION_KEY);
+    if (stored !== null) return stored === "true";
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
+
+  const setReduceMotion = useCallback((v: boolean) => {
+    setReduceMotionState(v);
+    localStorage.setItem(REDUCE_MOTION_KEY, String(v));
+  }, []);
 
   const setValue = useCallback((v: number) => {
     const clamped = Math.max(0, Math.min(100, Math.round(v)));
@@ -175,7 +191,7 @@ export function ThemeSliderProvider({ children }: { children: ReactNode }) {
 
   return (
     <ThemeSliderContext.Provider
-      value={{ value, setValue, isDark, resolvedTheme: isDark ? "dark" : "light", mode, setMode }}
+      value={{ value, setValue, isDark, resolvedTheme: isDark ? "dark" : "light", mode, setMode, reduceMotion, setReduceMotion }}
     >
       {children}
     </ThemeSliderContext.Provider>
