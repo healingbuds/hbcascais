@@ -2278,6 +2278,15 @@ serve(async (req) => {
               hasKycLink: !!normalizedResponse.kycLink,
             });
             
+            // Log successful client creation to journey
+            const createdClientId = normalizedResponse.clientId || 'unknown';
+            logKycJourney(user.id, createdClientId, 'kyc.client_created', {
+              hasKycLink: !!normalizedResponse.kycLink,
+            });
+            if (normalizedResponse.kycLink) {
+              logKycJourney(user.id, createdClientId, 'kyc.link_generated', {});
+            }
+            
             // Return normalized response directly
             return new Response(JSON.stringify(normalizedResponse), {
               status: 200,
