@@ -274,7 +274,7 @@ const SalesPipelineTable = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      records.map((r) => (
+                      sortedRecords.map((r) => (
                         <TableRow
                           key={r.id}
                           className="cursor-pointer hover:bg-muted/50 transition-colors"
