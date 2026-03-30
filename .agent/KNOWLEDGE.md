@@ -184,6 +184,29 @@ The proxy includes normalization helpers to handle varying API response structur
 - **Order list endpoint returns empty `items[]`**: `GET /dapp/client/{id}/orders` returns `totalAmount` but no item details. The sync code must NOT overwrite locally-stored items with empty arrays. Orders created via checkout have correct items; only API-synced orders may have empty items.
 - **Legacy orders with `user_id = null`**: Orders synced by edge functions (sync-orders) may lack `user_id`. Admin hooks must guard against querying `drgreen_clients` with null `user_id` to prevent 400 errors.
 
+### 3.8 Order Lifecycle
+
+```text
+1. POST /dapp/clients           → create client
+2. GET  /dapp/clients/list      → confirm Active + KYC Verified
+3. GET  /strains                → fetch products for country
+4. POST /dapp/carts             → add items to cart
+5. POST /dapp/orders            → create order from cart
+6. GET  /dapp/orders/:orderId   → confirm order details
+7. Admin reviews                → PENDING → VERIFIED | REJECTED
+```
+
+**Pre-checkout validation:** Before step 5, the checkout re-verifies the client's KYC + admin approval status via the API (not just local DB).  
+**Post-order confirmation:** After step 5, the checkout fetches the created order (step 6) and uses the API-returned `totalAmount` as source of truth.
+
+### 3.9 Currency & Pricing
+
+- No currency or locale parameter on any endpoint
+- `price`, `totalAmount`, and `retailPrice` are raw numbers (USD-standardized)
+- `countryCode` filters product **availability**, not currency
+- The UI converts to local currency (e.g., ZAR) using exchange rates fetched from the `exchange-rates` edge function
+- Never display raw API prices to users without conversion
+
 ---
 
 ## 4. Authentication Systems
