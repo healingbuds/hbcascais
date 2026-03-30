@@ -57,6 +57,7 @@ const AdminOrders = lazy(() => import("./pages/AdminOrders"));
 const AdminWalletMappings = lazy(() => import("./pages/AdminWalletMappings"));
 const AdminTools = lazy(() => import("./pages/AdminTools"));
 const AdminSettings = lazy(() => import("./pages/AdminSettings"));
+const AdminRevenue = lazy(() => import("./pages/AdminRevenue"));
 const Research = lazy(() => import("./pages/Research"));
 const TheWire = lazy(() => import("./pages/TheWire"));
 const ArticleDetail = lazy(() => import("./pages/ArticleDetail"));
