@@ -221,6 +221,28 @@ The proxy includes normalization helpers to handle varying API response structur
 - The UI converts to local currency (e.g., ZAR) using exchange rates fetched from the `exchange-rates` edge function
 - Never display raw API prices to users without conversion
 
+### 3.10 Dashboard Response Shapes
+
+**`GET /dapp/dashboard/summary`** returns:
+- `totalRevenue`, `totalOrders`, `totalClients`, `totalNfts`
+- `commissionEarnings`, `transactionSummary`
+- All values are raw numbers — apply currency formatting in UI
+
+**`GET /dapp/dashboard/analytics`** returns time-series data:
+- Query: `startDate` (YYYY-MM-DD), `endDate`, `filterBy` (e.g. `Client`), `orderBy` (`asc`/`desc`)
+- Response: array of data points for charts
+
+**`GET /dapp/sales/summary`** returns:
+- `totalRevenue`, `totalOrders`, `averageOrderValue`
+
+**`GET /dapp/sales`** supports stage filtering:
+- Stages: `LEADS`, `ONGOING`, `CLOSED`
+- Query: `stage`, `take`, `page`, `orderBy`, `search`, `searchBy` (e.g. `clientName`)
+
+### 3.11 Per-Customer Revenue
+
+Per-customer sales totals are **computed client-side** by summing `totalAmount` across `GET /dapp/client/{clientId}/orders`. There is no dedicated per-customer revenue endpoint.
+
 ---
 
 ## 4. Authentication Systems
