@@ -202,99 +202,102 @@ const AdminSettings = () => {
           </CardContent>
         </Card>
 
-        {/* Theme & Appearance */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Palette className="w-4 h-4 text-primary" />
-              </div>
+        {/* ─── Accessibility Section ─── */}
+        <div className="pt-4">
+          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
+            <Palette className="w-5 h-5 text-primary" />
+            Accessibility
+          </h2>
+
+          {/* Theme & Appearance */}
+          <Card>
+            <CardHeader className="pb-3">
               <div>
                 <CardTitle className="text-lg">Theme & Appearance</CardTitle>
                 <CardDescription>
                   Control the default site theme for all visitors. Users can override with the ambiance slider.
                 </CardDescription>
               </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Default theme preset */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Default Theme for New Visitors</Label>
-              <div className="grid grid-cols-3 gap-3">
-                {([
-                  { key: "light" as const, label: "Light", icon: Sun, desc: "Warm, easy on the eyes" },
-                  { key: "dark" as const, label: "Dark", icon: Moon, desc: "Low-light optimised" },
-                  { key: "auto" as const, label: "Auto", icon: Monitor, desc: "Follows device setting" },
-                ]).map(({ key, label, icon: Icon, desc }) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => {
-                      setAdminDefault(key);
-                      setAdminThemeDefault(key);
-                      toast({ title: "Default theme updated", description: `New visitors will see ${label} mode.` });
-                    }}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
-                      adminDefault === key
-                        ? "border-primary bg-primary/5 shadow-sm"
-                        : "border-border hover:border-primary/30 hover:bg-muted/50"
-                    }`}
-                  >
-                    <Icon className={`w-5 h-5 ${adminDefault === key ? "text-primary" : "text-muted-foreground"}`} />
-                    <span className={`text-sm font-medium ${adminDefault === key ? "text-foreground" : "text-muted-foreground"}`}>
-                      {label}
-                    </span>
-                    <span className="text-xs text-muted-foreground text-center">{desc}</span>
-                  </button>
-                ))}
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Default theme preset */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Default Theme for New Visitors</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  {([
+                    { key: "light" as const, label: "Light", icon: Sun, desc: "Warm, easy on the eyes" },
+                    { key: "dark" as const, label: "Dark", icon: Moon, desc: "Low-light optimised" },
+                    { key: "auto" as const, label: "Auto", icon: Monitor, desc: "Follows device setting" },
+                  ]).map(({ key, label, icon: Icon, desc }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => {
+                        setAdminDefault(key);
+                        setAdminThemeDefault(key);
+                        toast({ title: "Default theme updated", description: `New visitors will see ${label} mode.` });
+                      }}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                        adminDefault === key
+                          ? "border-primary bg-primary/5 shadow-sm"
+                          : "border-border hover:border-primary/30 hover:bg-muted/50"
+                      }`}
+                    >
+                      <Icon className={`w-5 h-5 ${adminDefault === key ? "text-primary" : "text-muted-foreground"}`} />
+                      <span className={`text-sm font-medium ${adminDefault === key ? "text-foreground" : "text-muted-foreground"}`}>
+                        {label}
+                      </span>
+                      <span className="text-xs text-muted-foreground text-center">{desc}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Live preview slider */}
-            <div className="space-y-3 pt-2 border-t border-border">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Live Preview</Label>
-                <Badge variant="outline" className="text-xs">
-                  {themeMode === "auto" ? "Auto" : `Manual (${themeValue}%)`}
-                </Badge>
+              {/* Live preview slider */}
+              <div className="space-y-3 pt-2 border-t border-border">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Live Preview</Label>
+                  <Badge variant="outline" className="text-xs">
+                    {themeMode === "auto" ? "Auto" : `Manual (${themeValue}%)`}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Moon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <SliderPrimitive.Root
+                    value={[themeValue]}
+                    onValueChange={([v]) => setThemeValue(v)}
+                    min={0}
+                    max={100}
+                    step={1}
+                    className="relative flex w-full touch-none select-none items-center"
+                  >
+                    <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-muted">
+                      <SliderPrimitive.Range className="absolute h-full bg-gradient-to-r from-indigo-400/60 to-amber-300/60" />
+                    </SliderPrimitive.Track>
+                    <SliderPrimitive.Thumb className="block h-5 w-5 rounded-full border-2 border-primary bg-background shadow-md ring-0 outline-none cursor-grab active:cursor-grabbing" />
+                  </SliderPrimitive.Root>
+                  <Sun className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Dark</span>
+                  <span>Dusk</span>
+                  <span>Warm Light</span>
+                </div>
+                {themeMode === "manual" && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setThemeMode("auto")}
+                    className="text-xs"
+                  >
+                    <Monitor className="w-3 h-3 mr-1" />
+                    Reset to Auto
+                  </Button>
+                )}
               </div>
-              <div className="flex items-center gap-3">
-                <Moon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                <SliderPrimitive.Root
-                  value={[themeValue]}
-                  onValueChange={([v]) => setThemeValue(v)}
-                  min={0}
-                  max={100}
-                  step={1}
-                  className="relative flex w-full touch-none select-none items-center"
-                >
-                  <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-muted">
-                    <SliderPrimitive.Range className="absolute h-full bg-gradient-to-r from-indigo-400/60 to-amber-300/60" />
-                  </SliderPrimitive.Track>
-                  <SliderPrimitive.Thumb className="block h-5 w-5 rounded-full border-2 border-primary bg-background shadow-md ring-0 outline-none cursor-grab active:cursor-grabbing" />
-                </SliderPrimitive.Root>
-                <Sun className="w-4 h-4 text-amber-500 flex-shrink-0" />
-              </div>
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Dark</span>
-                <span>Dusk</span>
-                <span>Warm Light</span>
-              </div>
-              {themeMode === "manual" && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setThemeMode("auto")}
-                  className="text-xs"
-                >
-                  <Monitor className="w-3 h-3 mr-1" />
-                  Reset to Auto
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Environment Cards */}
         {environments.map((env) => {
