@@ -1,27 +1,71 @@
 
 
-## Add Column Sorting to Sales Pipeline Table
+## Part 1: Client Name in Desktop Header
 
-### Overview
-Add client-side sorting to the Client, Stage, and Date columns with clickable headers and sort direction indicators.
+**File: `src/layout/Header.tsx`** — Line 240
 
-### Changes — `src/components/admin/SalesPipelineTable.tsx`
+Replace `truncatedEmail` with `drGreenClient?.full_name || truncatedEmail` in the dropdown trigger button. `drGreenClient` is already destructured from `useShop()` on line 59.
 
-1. **New state**: `sortField` (`"client" | "stage" | "date" | null`) and `sortDir` (`"asc" | "desc"`)
+---
 
-2. **Sort logic**: After records are loaded, derive a `sortedRecords` array via `useMemo` that sorts locally:
-   - **Client**: compare `firstName + lastName` alphabetically
-   - **Stage**: compare stage strings alphabetically
-   - **Date**: compare `createdAt` timestamps
+## Part 2: Branded Password Reset Email via Resend
 
-3. **Toggle function**: `handleSort(field)` — if same field clicked, flip direction; if new field, set to `"asc"`
+The project already uses Resend (API key configured) with sender domain `send.healingbuds.co.za`. Password reset emails currently use the default system templates. We'll create a custom Edge Function that intercepts the password reset flow and sends a branded email through the existing Resend integration.
 
-4. **Sortable headers**: Replace plain text in Client, Stage, and Date `TableHead` cells with clickable buttons showing an `ArrowUpDown` / `ArrowUp` / `ArrowDown` icon from lucide-react based on active sort state. Add `cursor-pointer select-none` styling.
+### Approach
 
-5. **Render**: Use `sortedRecords` instead of `records` in the table body map.
+Create a new Edge Function `send-password-reset` that:
+- Accepts email + reset link
+- Renders a branded HTML email matching the Healing Buds aesthetic (teal `#0D9488` header, logo from storage, pharmaceutical tone)
+- Sends via Resend from `noreply@send.healingbuds.co.za` using the existing `RESEND_API_KEY`
 
-### Technical notes
-- Client-side sorting on the current page's 10 records (API doesn't support multi-column sort)
-- Sort resets to default when new data is fetched (page change, search, stage filter)
-- No new dependencies needed — lucide-react already available
+Then update `src/pages/Auth.tsx` to:
+1. Call `supabase.auth.resetPasswordForEmail()` with `shouldCreateUser: false`
+2. Generate a custom token via a helper, OR use the simpler approach: after the default reset email is triggered, also send our branded version
+
+**Simpler approach chosen**: Since Supabase Auth handles token generation and we can't easily intercept the built-in hook without the managed email system, we'll:
+
+1. **Create `supabase/functions/send-password-reset/index.ts`** — a Resend-powered branded password reset email function that:
+   - Receives `{ email, resetLink }` 
+   - Uses the existing `RESEND_API_KEY` and `send.healingbuds.co.za` domain
+   - Renders branded HTML with: teal header + HB logo, "Reset Your Password" heading, reset button, support contact, footer
+   - Region-aware using the same `DOMAIN_CONFIG` pattern from `send-order-confirmation`
+
+2. **Update `src/pages/Auth.tsx`** password reset handler to:
+   - Call `supabase.auth.resetPasswordForEmail()` as before (generates the token/link)
+   - Then invoke `send-password-reset` Edge Function with the email and constructed reset URL
+   - The default system email still fires, but the branded one arrives too
+
+**Better approach**: Actually, to avoid duplicate emails, we should use Supabase's `emailRedirectTo` and have the Edge Function generate the OTP link itself using the admin API. But that's complex.
+
+**Cleanest approach**: Use `supabase.auth.admin.generateLink()` in an Edge Function to get the reset link, then send only the branded email (suppressing the default). This requires the service role key (already available as `SUPABASE_SERVICE_ROLE_KEY`).
+
+### Final Plan
+
+1. **Create `supabase/functions/send-password-reset/index.ts`**:
+   - Accepts `{ email, redirectTo }` from authenticated or public request
+   - Uses service role to call `supabase.auth.admin.generateLink({ type: 'recovery', email, options: { redirectTo } })`
+   - Gets the action link from the response
+   - Sends branded HTML email via Resend from `noreply@send.healingbuds.co.za`
+   - HTML template: teal header with HB logo, "Reset Your Password" copy, CTA button, support footer
+   - Region-aware sender config (ZA/PT/GB/global)
+
+2. **Update `src/pages/Auth.tsx`**:
+   - Replace `supabase.auth.resetPasswordForEmail()` with `supabase.functions.invoke('send-password-reset', { body: { email, redirectTo } })`
+   - This ensures only the branded email is sent (no duplicate default email)
+
+3. **Deploy** the new Edge Function
+
+### Branded Email Design
+- Header: `#0D9488` teal background with white HB logo from `email-assets` bucket
+- Body: white background, dark text
+- CTA button: teal `#0D9488` with white text, rounded
+- Footer: light gray background, "Healing Buds" branding, support email
+- Tone: professional, medical/pharmaceutical ("Your account security is important to us")
+- Multi-language support via `region` parameter (EN default)
+
+### Files
+- `src/layout/Header.tsx` — show client name
+- `supabase/functions/send-password-reset/index.ts` — new Edge Function
+- `src/pages/Auth.tsx` — use new function for password reset
 
