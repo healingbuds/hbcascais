@@ -3,56 +3,53 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 interface ThemeSliderContextType {
   value: number; // 0 (dark) to 100 (warm light)
   setValue: (v: number) => void;
-  isDark: boolean; // convenience: value < 50
-  resolvedTheme: "dark" | "light"; // compat with old useTheme consumers
+  isDark: boolean;
+  resolvedTheme: "dark" | "light";
+  mode: "auto" | "manual";
+  setMode: (m: "auto" | "manual") => void;
 }
 
 const ThemeSliderContext = createContext<ThemeSliderContextType>({
-  value: 25,
+  value: 85,
   setValue: () => {},
-  isDark: true,
-  resolvedTheme: "dark",
+  isDark: false,
+  resolvedTheme: "light",
+  mode: "auto",
+  setMode: () => {},
 });
 
 export const useThemeSlider = () => useContext(ThemeSliderContext);
 
-// Compact compatibility hook so existing `useTheme()` call-sites keep working
+// Compat hook for existing useTheme() consumers
 export const useTheme = () => {
   const { value, setValue, resolvedTheme } = useThemeSlider();
   return {
     theme: resolvedTheme,
     resolvedTheme,
     setTheme: (t: string) => setValue(t === "dark" ? 0 : 100),
-    // extra
     sliderValue: value,
     setSliderValue: setValue,
   };
 };
 
 const STORAGE_KEY = "healing-buds-theme-slider";
+const MODE_KEY = "healing-buds-theme-mode"; // "auto" | "manual"
+const ADMIN_DEFAULT_KEY = "healing-buds-theme-admin-default"; // "light" | "dark" | "auto"
 
-// ── HSL triplet helpers ──
-type HSL = [number, number, number]; // h, s%, l%
+// ── HSL helpers ──
+type HSL = [number, number, number];
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
 }
 
 function interpHSL(dark: HSL, light: HSL, t: number): HSL {
-  return [
-    lerp(dark[0], light[0], t),
-    lerp(dark[1], light[1], t),
-    lerp(dark[2], light[2], t),
-  ];
+  return [lerp(dark[0], light[0], t), lerp(dark[1], light[1], t), lerp(dark[2], light[2], t)];
 }
 
 function hslString([h, s, l]: HSL) {
   return `${h.toFixed(1)} ${s.toFixed(1)}% ${l.toFixed(1)}%`;
 }
-
-// ── Palette endpoints ──
-// Index: [darkHSL, lightHSL]
-// Light end gets a warmth shift applied on top (handled in applyTheme)
 
 const PALETTE: Record<string, [HSL, HSL]> = {
   "--background":        [[180,  8,  7], [150, 12, 97]],
@@ -77,21 +74,17 @@ const PALETTE: Record<string, [HSL, HSL]> = {
 };
 
 function applyTheme(val: number) {
-  const t = val / 100; // 0 = dark, 1 = light
+  const t = val / 100;
   const root = document.documentElement;
-
-  // Warmth factor: above 60% slider, shift hues warmer & reduce blue-green saturation
-  const warmthFactor = Math.max(0, (t - 0.6) / 0.4); // 0 at ≤60, 1 at 100
+  const warmthFactor = Math.max(0, (t - 0.6) / 0.4);
 
   for (const [prop, [dark, light]] of Object.entries(PALETTE)) {
     const [h, s, l] = interpHSL(dark, light, t);
-
-    // Apply warmth: shift hue toward warm cream (reduce hue toward ~45° for backgrounds)
     let finalH = h;
     let finalS = s;
+
     if (warmthFactor > 0 && (prop.includes("background") || prop.includes("card") || prop.includes("muted") || prop.includes("input") || prop.includes("popover"))) {
-      // Only shift background-ish properties
-      if (warmthFactor > 0 && l > 50) {
+      if (l > 50) {
         finalH = lerp(h, Math.min(h, 42), warmthFactor * 0.6);
         finalS = lerp(s, Math.max(s * 0.5, 6), warmthFactor * 0.5);
       }
@@ -100,7 +93,6 @@ function applyTheme(val: number) {
     root.style.setProperty(prop, hslString([finalH, finalS, l]));
   }
 
-  // Toggle .dark class for components that rely on it (sonner, etc.)
   if (t < 0.5) {
     root.classList.add("dark");
   } else {
@@ -108,20 +100,73 @@ function applyTheme(val: number) {
   }
 }
 
+/** Determine initial slider value based on system preference and admin default */
+function getInitialValue(): number {
+  // If user has manually set a value, use it
+  const stored = localStorage.getItem(STORAGE_KEY);
+  const storedMode = localStorage.getItem(MODE_KEY);
+  if (stored !== null && storedMode === "manual") {
+    return Number(stored);
+  }
+
+  // Auto mode: check admin default first, then system preference
+  const adminDefault = localStorage.getItem(ADMIN_DEFAULT_KEY) || "auto";
+
+  if (adminDefault === "light") return 85;
+  if (adminDefault === "dark") return 15;
+
+  // "auto" — use system preference
+  if (typeof window !== "undefined" && window.matchMedia) {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? 15 : 85;
+  }
+  return 85; // fallback: light
+}
+
 export function ThemeSliderProvider({ children }: { children: ReactNode }) {
-  const [value, setValueState] = useState(() => {
-    if (typeof window === "undefined") return 25;
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored !== null ? Number(stored) : 25; // default dark-ish
+  const [value, setValueState] = useState(getInitialValue);
+  const [mode, setModeState] = useState<"auto" | "manual">(() => {
+    if (typeof window === "undefined") return "auto";
+    return (localStorage.getItem(MODE_KEY) as "auto" | "manual") || "auto";
   });
 
   const setValue = useCallback((v: number) => {
     const clamped = Math.max(0, Math.min(100, Math.round(v)));
     setValueState(clamped);
     localStorage.setItem(STORAGE_KEY, String(clamped));
+    // When user manually moves the slider, switch to manual mode
+    setModeState("manual");
+    localStorage.setItem(MODE_KEY, "manual");
   }, []);
 
-  // Apply on mount and on change
+  const setMode = useCallback((m: "auto" | "manual") => {
+    setModeState(m);
+    localStorage.setItem(MODE_KEY, m);
+    if (m === "auto") {
+      // Re-derive from system preference
+      localStorage.removeItem(STORAGE_KEY);
+      const adminDefault = localStorage.getItem(ADMIN_DEFAULT_KEY) || "auto";
+      let autoVal = 85;
+      if (adminDefault === "dark") autoVal = 15;
+      else if (adminDefault === "light") autoVal = 85;
+      else if (window.matchMedia("(prefers-color-scheme: dark)").matches) autoVal = 15;
+      setValueState(autoVal);
+    }
+  }, []);
+
+  // Listen for system theme changes in auto mode
+  useEffect(() => {
+    if (mode !== "auto") return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e: MediaQueryListEvent) => {
+      const adminDefault = localStorage.getItem(ADMIN_DEFAULT_KEY) || "auto";
+      if (adminDefault === "auto") {
+        setValueState(e.matches ? 15 : 85);
+      }
+    };
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, [mode]);
+
   useEffect(() => {
     applyTheme(value);
   }, [value]);
@@ -130,9 +175,14 @@ export function ThemeSliderProvider({ children }: { children: ReactNode }) {
 
   return (
     <ThemeSliderContext.Provider
-      value={{ value, setValue, isDark, resolvedTheme: isDark ? "dark" : "light" }}
+      value={{ value, setValue, isDark, resolvedTheme: isDark ? "dark" : "light", mode, setMode }}
     >
       {children}
     </ThemeSliderContext.Provider>
   );
+}
+
+/** Admin helper to set the site-wide default theme */
+export function setAdminThemeDefault(preset: "light" | "dark" | "auto") {
+  localStorage.setItem(ADMIN_DEFAULT_KEY, preset);
 }
