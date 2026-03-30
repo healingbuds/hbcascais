@@ -64,12 +64,19 @@ const ArticleDetail = lazy(() => import("./pages/ArticleDetail"));
 
 const queryClient = new QueryClient();
 
+const AdminSuspense = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<PageLoadingSkeleton variant="admin" />}>
+    {children}
+  </Suspense>
+);
+
 const AnimatedRoutes = () => {
   const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
   
   return (
     <AnimatePresence mode="wait" initial={false}>
-      <Suspense fallback={<PageLoadingSkeleton variant="hero" />}>
+      <Suspense fallback={<PageLoadingSkeleton variant={isAdminRoute ? "admin" : "hero"} />}>
         <Routes location={location} key={location.pathname}>
           {/* Core Pages */}
           <Route path="/" element={<Index />} />
@@ -110,7 +117,7 @@ const AnimatedRoutes = () => {
             </ComplianceGuard>
           } />
           
-          {/* Admin Routes - Protected by AdminLayout (which uses useUserRole) */}
+          {/* Admin Routes - Protected by ProtectedRoute + AdminLayout */}
           <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>} />
           <Route path="/admin/clients" element={<ProtectedRoute requiredRole="admin"><AdminClients /></ProtectedRoute>} />
           <Route path="/admin/orders" element={<ProtectedRoute requiredRole="admin"><AdminOrders /></ProtectedRoute>} />

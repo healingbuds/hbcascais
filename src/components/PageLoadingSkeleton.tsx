@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Skeleton } from './ui/skeleton';
 
 interface PageLoadingSkeletonProps {
-  variant?: 'default' | 'hero' | 'cards' | 'article';
+  variant?: 'default' | 'hero' | 'cards' | 'article' | 'admin';
 }
 
 const PageLoadingSkeleton = ({ variant = 'default' }: PageLoadingSkeletonProps) => {
@@ -24,6 +24,49 @@ const PageLoadingSkeleton = ({ variant = 'default' }: PageLoadingSkeletonProps) 
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
   };
+
+  if (variant === 'admin') {
+    return (
+      <motion.div
+        className="min-h-screen bg-background flex"
+        variants={containerVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+      >
+        {/* Sidebar skeleton */}
+        <motion.div variants={itemVariants} className="hidden lg:flex flex-col w-60 border-r border-border bg-card p-4">
+          <div className="flex items-center gap-2.5 mb-6">
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <Skeleton className="h-5 w-20 rounded-lg" />
+          </div>
+          <div className="space-y-2">
+            {[...Array(7)].map((_, i) => (
+              <Skeleton key={i} className="h-9 w-full rounded-lg" />
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Main content skeleton */}
+        <motion.div variants={itemVariants} className="flex-1 p-6 lg:p-8">
+          <Skeleton className="h-7 w-48 rounded-lg mb-2" />
+          <Skeleton className="h-4 w-64 rounded-lg mb-8" />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-28 rounded-lg" />
+            ))}
+          </div>
+          <Skeleton className="h-64 rounded-lg" />
+        </motion.div>
+
+        {/* Loading indicator */}
+        <div className="fixed bottom-4 right-4 flex items-center gap-2 bg-card border border-border rounded-lg px-4 py-2 shadow-lg">
+          <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
+          <span className="text-sm text-muted-foreground">Loading admin...</span>
+        </div>
+      </motion.div>
+    );
+  }
 
   if (variant === 'hero') {
     return (
