@@ -6,6 +6,7 @@ import { useShop } from '@/context/ShopContext';
 import { Product, DataSource } from '@/hooks/useProducts';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 import { useTranslation } from 'react-i18next';
 import { formatPrice } from '@/lib/currency';
 import { PriceBreakdownTooltip } from './PriceBreakdownTooltip';
