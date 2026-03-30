@@ -1,55 +1,52 @@
 
 
-## Plan: Add 3 Missing Proxy Handlers + Update KNOWLEDGE.md
+## Problem: Shipping Address Not Syncing from Dr Green API to Local DB
 
-### Part 1: Add 3 proxy handlers to `supabase/functions/drgreen-proxy/index.ts`
+### Root Cause
 
-Insert before the `default:` case (line 4328). Also update the action lists at the top.
+The `sync-clients` edge function fetches clients from the Dr Green API — which includes a `shippings[]` array with full address data — but **never writes it to the `shipping_address` column**. It only extracts `countryCode` from the first shipping entry and discards the rest.
 
-**1. `get-client-order-detail`** (Admin action)
-- Endpoint: `GET /dapp/clients/:clientId/orders/:orderId`
-- Validates both `clientId` and `orderId`
-- Add to `ADMIN_ACTIONS` array
+This means:
+- The Dr Green API has the address (e.g. Mayke's address)
+- The local `drgreen_clients.shipping_address` column is `null`
+- Checkout checks local DB first (line 152-163 of `Checkout.tsx`), finds `null`, then falls back to an API call
+- If the API call also fails (401 for non-admin keys), the user is prompted to enter their address again
 
-**2. `update-primary-nft`** (Admin action)
-- Endpoint: `PATCH /dapp/users/primary-nft`
-- Accepts `{ tokenId }` body
-- Add to `ADMIN_ACTIONS` array
+### Fix
 
-**3. `delete-cart-item`** (Ownership action)
-- Endpoint: `DELETE /dapp/carts/:cartId?strainId=:strainId`
-- Validates `cartId` and `strainId`
-- Add to `OWNERSHIP_ACTIONS` array (alongside existing `empty-cart`, `remove-from-cart`)
+**1. `supabase/functions/sync-clients/index.ts`** — Save shipping address during sync
 
-**Changes summary for the proxy file:**
-- Line 98: Add `'get-client-order-detail'`, `'update-primary-nft'` to `ADMIN_ACTIONS`
-- Line 104: Add `'delete-cart-item'` to `OWNERSHIP_ACTIONS`
-- Before line 4328: Insert 3 new `case` blocks
+In the upsert block (lines 225-235), add the `shipping_address` field by normalizing `client.shippings[0]` into the standard format:
 
-### Part 2: Update `.agent/KNOWLEDGE.md`
-
-Replace section **3.4 Key Endpoints** with the complete 23-endpoint list organized by folder (Dashboard, Clients, Sales, Products, Orders, NFTs, Profile, Carts).
-
-Add new section **3.8 Order Lifecycle** documenting the 7-step flow:
-```text
-1. POST /dapp/clients → create client
-2. GET /dapp/clients/list → confirm Active + KYC Verified
-3. GET /dapp/strains → fetch products for country
-4. Cart endpoints → add items
-5. POST /dapp/orders → create order from cart
-6. GET /dapp/orders/:orderId → confirm order
-7. Admin reviews → PENDING → VERIFIED | REJECTED
+```typescript
+const shipping = client.shippings?.[0] || null;
+const shippingAddress = shipping ? {
+  address1: shipping.address1 || '',
+  address2: shipping.address2 || '',
+  city: shipping.city || '',
+  state: shipping.state || shipping.city || '',
+  country: shipping.country || '',
+  countryCode: shipping.countryCode || '',
+  postalCode: shipping.postalCode || shipping.zipCode || '',
+  landmark: shipping.landmark || '',
+} : null;
 ```
 
-Add new section **3.9 Currency & Pricing** clarifying:
-- No currency/locale parameter on any endpoint
-- `price` and `totalAmount` are raw numbers (USD-standardized)
-- `countryCode` filters product availability, not currency
-- UI converts to local currency using exchange rates
+Then include `shipping_address: shippingAddress` in the upsert object. Use a conditional merge so we don't overwrite a locally-saved address with `null` if the API has no shipping data:
 
-Update the date header to `2026-03-30`.
+```typescript
+...(shippingAddress && { shipping_address: shippingAddress }),
+```
 
-### Files changed
-1. `supabase/functions/drgreen-proxy/index.ts` — 3 new case handlers + 2 action list updates
-2. `.agent/KNOWLEDGE.md` — Replace §3.4, add §3.8 and §3.9, update date
+**2. `supabase/functions/sync-clients/index.ts`** — Fix `countryCode` extraction
+
+Currently: `client.shippings?.[0]?.country` — this gets the country name ("Portugal"), not the code. Should also check `client.shippings?.[0]?.countryCode` and apply alpha-3 → alpha-2 conversion (same map used in `sync-orders`).
+
+### No other files need changes
+
+The checkout flow (`Checkout.tsx`) already correctly reads `shipping_address` from local DB as priority #1 (lines 152-163) and falls back to the API. Once `sync-clients` populates the field, addresses will be available immediately without API calls.
+
+### Summary
+
+One file change: `supabase/functions/sync-clients/index.ts` — add `shipping_address` to the upsert payload and fix `countryCode` extraction.
 
