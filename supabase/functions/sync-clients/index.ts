@@ -298,7 +298,7 @@ serve(async (req) => {
         // Fetch full client details (includes complete shipping address)
         let detailShipping: any = null;
         try {
-          const detailResp = await drGreenGetBody(`/dapp/clients/${client.id}`, { clientId: client.id });
+          const detailResp = await drGreenGetDetail(`/dapp/clients/${client.id}`);
           if (detailResp.ok) {
             const detailData = await detailResp.json();
             const detailClient = detailData?.data || detailData;
