@@ -4183,6 +4183,47 @@ serve(async (req) => {
         break;
       }
       
+      case "get-client-order-detail": {
+        // GET /dapp/clients/:clientId/orders/:orderId - Get specific order for a client
+        if (!validateClientId(body.clientId)) {
+          throw new Error("Invalid client ID format");
+        }
+        if (!validateStringLength(body.orderId, 100)) {
+          throw new Error("Invalid order ID format");
+        }
+        const orderDetailSignBody = { clientId: body.clientId, orderId: body.orderId };
+        response = await drGreenRequestBody(
+          `/dapp/clients/${body.clientId}/orders/${body.orderId}`,
+          "GET",
+          orderDetailSignBody,
+          false,
+          adminEnvConfig
+        );
+        break;
+      }
+
+      case "update-primary-nft": {
+        // PATCH /dapp/users/primary-nft - Update user's primary NFT
+        if (!body.tokenId && body.tokenId !== 0) {
+          throw new Error("tokenId is required");
+        }
+        response = await drGreenRequest("/dapp/users/primary-nft", "PATCH", { tokenId: body.tokenId }, adminEnvConfig);
+        break;
+      }
+
+      case "delete-cart-item": {
+        // DELETE /dapp/carts/:cartId?strainId=:strainId - Remove specific strain from cart
+        if (!validateStringLength(body.cartId, 100)) {
+          throw new Error("Invalid cart ID format");
+        }
+        if (!validateStringLength(body.strainId, 100)) {
+          throw new Error("Invalid strain ID format");
+        }
+        const deleteCartUrl = `/dapp/carts/${body.cartId}?strainId=${encodeURIComponent(body.strainId)}`;
+        response = await drGreenRequest(deleteCartUrl, "DELETE", undefined);
+        break;
+      }
+
       // Diagnostic endpoint to compare all key formats across environments
       case "debug-compare-keys": {
         const envResults: Record<string, unknown> = {};
