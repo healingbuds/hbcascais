@@ -33,40 +33,27 @@
 
 ## 2. Deployment
 
-### cPanel Deployment via GitHub Actions
+### Current State
+CI/CD workflows have been removed. Deployment infrastructure is pending redesign.
 
-| Setting | Value |
-|---------|-------|
-| SSH Host | `server712.brixly.uk` |
-| SSH Port | `21098` |
-| SSH User | `healingu` |
-| Remote Path (healingbuds.pt) | `~/public_html/` |
-| Remote Path (healingbuds.co.za) | `~/healingbuds.co.za/` |
+### Target Architecture
+- Framework migration target: **Next.js** (App Router)
+- Proxy route: `/api/proxy` (replaces Supabase edge function proxy)
+- Compatible hosts: Vercel, AWS Amplify, or GitHub Actions to any Next.js host
+- Environment variables managed via `.env.local` (dev) and hosting provider secrets (prod)
 
-**Workflow:** `.github/workflows/deploy_to_cpanel.yml`  
-**Trigger:** Push to `main` branch  
-**Process:** Checkout → Build → rsync via SSH to cPanel  
+### Target Environment Variables
+| Variable | Purpose |
+|----------|---------|
+| `DRGREEN_API_KEY` | Base64 API key (provisioned per tenant via Budstacks) |
+| `DRGREEN_PRIVATE_KEY` | secp256k1 private key for request signing |
+| `DEFAULT_COUNTRY_CODE` | Alpha-3 country targeting (e.g., ZAF, PRT) |
+| `NEXT_PUBLIC_API_BASE_URL` | `/api/proxy` |
 
-**GitHub Secrets (configured):**
-- `CPANEL_HOST`, `CPANEL_USER`, `CPANEL_SSH_KEY` (ED25519)
-
-### Vite Configuration (Critical)
-```typescript
-export default defineConfig({
-  base: "./", // REQUIRED — prevents white screen on cPanel
-});
-```
-
-### Troubleshooting
-- **White screen:** Check `base: "./"` in `vite.config.ts`, and search for merge conflict markers (`<<<<<<<`)
-- **403 Forbidden:** Run `chmod -R a+rX public_html` via SSH
-- **Deployment fails:** Check GitHub Actions logs, verify SSH key is authorized
-
-### Manual Deployment
-```bash
-npm run build
-# Upload contents of dist/ to public_html via cPanel File Manager
-```
+### Current Stack (Pre-Migration)
+- React + Vite + Tailwind + TypeScript
+- Backend: Lovable Cloud (Supabase edge functions)
+- Proxy: `drgreen-proxy` edge function
 
 ---
 
