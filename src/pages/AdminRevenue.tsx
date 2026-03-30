@@ -20,6 +20,7 @@ import {
   UserCheck,
   RefreshCw,
   Loader2,
+  Download,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DateRangeFilter from "@/components/admin/DateRangeFilter";
