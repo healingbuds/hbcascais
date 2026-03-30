@@ -343,13 +343,28 @@ const Checkout = () => {
         attempts++;
       }
 
+      // POST-ORDER CONFIRMATION: Fetch confirmed order from API (Step 6)
+      setPaymentStatus('Confirming order details...');
+      let confirmedTotal = cartTotal;
+      const orderConfirmation = await getOrder(createdOrderId);
+      if (orderConfirmation.data) {
+        const apiTotal = orderConfirmation.data.totalAmount;
+        if (apiTotal != null && apiTotal !== cartTotal) {
+          console.warn(`[Checkout] Total mismatch — client: ${cartTotal}, API: ${apiTotal}. Using API value.`);
+        }
+        confirmedTotal = apiTotal ?? cartTotal;
+        finalStatus = orderConfirmation.data.status || finalStatus;
+      } else {
+        console.warn('[Checkout] Could not fetch order confirmation, using client-side values:', orderConfirmation.error);
+      }
+
       // Save order locally with complete context snapshot for reliable admin sync
 const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
       await saveOrder({
         drgreen_order_id: createdOrderId,
         status: finalStatus,
         payment_status: finalPaymentStatus,
-        total_amount: cartTotal,
+        total_amount: confirmedTotal,
         items: cart.map(item => ({
           strain_id: item.strain_id,
           strain_name: item.strain_name,
