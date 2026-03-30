@@ -6,6 +6,7 @@ import { useShop } from '@/context/ShopContext';
 import { Product, DataSource } from '@/hooks/useProducts';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 import { useTranslation } from 'react-i18next';
 import { formatPrice } from '@/lib/currency';
 import { PriceBreakdownTooltip } from './PriceBreakdownTooltip';
@@ -49,7 +50,7 @@ const dataSourceConfig: Record<DataSource, { icon: typeof Database; label: strin
 };
 
 export function ProductCard({ product, onViewDetails, showDataSource = false }: ProductCardProps) {
-  const { addToCart, isEligible, drGreenClient, countryCode, convertFromEUR } = useShop();
+  const { addToCart, isEligible, drGreenClient, countryCode, convertFromEUR, setIsCartOpen } = useShop();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useTranslation('shop');
@@ -73,7 +74,15 @@ export function ProductCard({ product, onViewDetails, showDataSource = false }: 
       return;
     }
     addToCart({ strain_id: product.id, strain_name: product.name, quantity: selectedDenomination, unit_price: product.retailPrice });
-    toast({ title: "Added to cart", description: `${selectedDenomination}g of ${product.name} added to your cart.` });
+    toast({
+      title: "Added to cart",
+      description: `${selectedDenomination}g of ${product.name} added to your cart.`,
+      action: (
+        <ToastAction altText="View Cart" onClick={() => setIsCartOpen(true)}>
+          View Cart
+        </ToastAction>
+      ),
+    });
   };
 
   const handleMouseEnter = () => {

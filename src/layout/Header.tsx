@@ -27,6 +27,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import NavigationMenu from "@/components/NavigationMenu";
 import NavigationOverlay from "@/components/NavigationOverlay";
 import AnimatedMenuButton from "@/components/AnimatedMenuButton";
+import { CartButton } from "@/components/shop/CartButton";
 
 import { KYCStatusBadge } from "@/components/KYCStatusBadge";
 import {
@@ -59,6 +60,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
   const headerRef = useRef<HTMLElement>(null);
   
   const isDark = resolvedTheme === 'dark';
+  const isShopRoute = location.pathname.startsWith('/shop');
   
   
   // Logo switches based on scroll: white when solid teal BG, teal when scrolled/faded
@@ -198,6 +200,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
               
               {/* Right Actions - Desktop */}
               <div className="hidden xl:flex items-center gap-2 flex-shrink-0">
+                {isShopRoute && <CartButton />}
                 <LanguageSwitcher scrolled={scrolled} />
                 <ThemeToggle isDark={isDark} />
 
