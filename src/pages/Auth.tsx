@@ -85,25 +85,27 @@ const Auth = () => {
   
   useEffect(() => {
     if (isSettingNewPassword) return;
-    if (user && !roleLoading && !clientLoading) {
-      // Check for ?redirect= param first
-      const params = new URLSearchParams(window.location.search);
-      const redirectPath = params.get('redirect');
-      
-      if (isAdmin) {
-        navigate(redirectPath || "/admin", { replace: true });
-        return;
-      }
+    if (!user) return;
+    
+    const params = new URLSearchParams(window.location.search);
+    const redirectPath = params.get('redirect');
+    
+    // Admins redirect immediately — don't wait for client data
+    if (!roleLoading && isAdmin) {
+      navigate(redirectPath || "/admin", { replace: true });
+      return;
+    }
+    
+    // Non-admin users: wait for both role and client data
+    if (!roleLoading && !clientLoading) {
       if (isEligible) {
         navigate(redirectPath || "/shop", { replace: true });
         return;
       }
-      // User has a client record but not yet verified → show status
       if (drGreenClient) {
         navigate(redirectPath || "/dashboard/status", { replace: true });
         return;
       }
-      // Brand new user with no client record → go to dashboard (not shop/register, which breaks for admins)
       navigate(redirectPath || "/dashboard/status", { replace: true });
     }
   }, [user, isAdmin, roleLoading, isEligible, clientLoading, drGreenClient, navigate, isSettingNewPassword]);
