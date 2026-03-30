@@ -213,7 +213,14 @@ const NavigationOverlay = ({
               {/* Portal link for logged-in users */}
               {user && (
                 <div className="mt-4 px-1">
-                  <div className="h-px bg-white/10 mb-4" />
+                  <div className="h-px bg-white/10 mb-3" />
+                  {/* User greeting */}
+                  <div className="px-3 mb-3">
+                    <p className="text-white/50 text-[11px] uppercase tracking-wider">Signed in as</p>
+                    <p className="text-white font-medium text-sm truncate">
+                      {drGreenClient?.full_name || user.email?.split('@')[0] || 'Patient'}
+                    </p>
+                  </div>
                   {isAdmin && !roleLoading ? (
                     <Link
                       to="/admin"

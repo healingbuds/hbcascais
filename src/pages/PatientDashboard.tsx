@@ -192,7 +192,7 @@ const PatientDashboard = () => {
             {/* Welcome Section */}
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-foreground mb-2">
-                Welcome back{profile?.full_name ? `, ${profile.full_name}` : ''}
+                Welcome back{drGreenClient?.full_name ? `, ${drGreenClient.full_name}` : profile?.full_name ? `, ${profile.full_name}` : ''}
               </h1>
               <p className="text-muted-foreground">
                 Manage your medical cannabis prescriptions and orders
