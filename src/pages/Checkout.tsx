@@ -162,20 +162,35 @@ const Checkout = () => {
         return;
       }
 
-      // Fallback: try Dr. Green API
+      // Fallback: try Dr. Green API and persist locally
       try {
         const result = await getClientDetails(drGreenClient.drgreen_client_id);
         
         if (result.error) {
           console.warn('Could not fetch client details from API:', result.error);
-          // Graceful fallback: prompt for address confirmation
           setNeedsShippingAddress(true);
         } else if (result.data?.shipping && result.data.shipping.address1) {
           const addr = result.data.shipping;
           setSavedAddress(addr);
-          setShippingAddress(addr); // Use saved by default
+          setShippingAddress(addr);
           setNeedsShippingAddress(false);
           setAddressMode('saved');
+
+          // Persist API shipping address to local DB so future loads are instant
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            supabase
+              .from('drgreen_clients')
+              .update({
+                shipping_address: addr,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('user_id', user.id)
+              .then(({ error: updateErr }) => {
+                if (updateErr) console.warn('[Checkout] Failed to cache shipping address locally:', updateErr);
+                else console.log('[Checkout] Cached shipping address from API to local DB');
+              });
+          }
         } else {
           setNeedsShippingAddress(true);
         }
