@@ -198,6 +198,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
               
               {/* Right Actions - Desktop */}
               <div className="hidden xl:flex items-center gap-2 flex-shrink-0">
+                {isShopRoute && <CartButton />}
                 <LanguageSwitcher scrolled={scrolled} />
                 <ThemeToggle isDark={isDark} />
 
