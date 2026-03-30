@@ -44,6 +44,12 @@ const ScrollAnimation = ({
   variant = "fadeUp",
   duration = 0.6
 }: ScrollAnimationProps) => {
+  const { reduceMotion } = useThemeSlider();
+
+  if (reduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
   const selectedVariant = variants[variant];
   
   return (

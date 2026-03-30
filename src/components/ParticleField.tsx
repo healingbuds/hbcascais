@@ -20,6 +20,9 @@ interface ParticleFieldProps {
 const ParticleField = ({ particleCount = 30, className = '' }: ParticleFieldProps) => {
   const [particles, setParticles] = useState<Particle[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { reduceMotion } = useThemeSlider();
+
+  if (reduceMotion) return null;
 
   useEffect(() => {
     // Generate particles with random properties
