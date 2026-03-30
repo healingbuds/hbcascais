@@ -1,41 +1,26 @@
 
 
-## Fix Medical Verification Flash and Speed Up Loading
+## Update Passwords for Three Users
 
-### Problem
-1. **Flash of medical verification UI on login** — When an admin (or any user) logs in, `ShopContext.isLoading` stays `true` while it calls the Dr. Green API through an edge function. During this window, components like `EligibilityGate`, `ComplianceGuard`, and `VerificationProgress` briefly render their "pending" states before the role/client data resolves.
-2. **Slow sync** — `fetchClient` in ShopContext blocks on a round-trip to the Dr. Green API via `drgreen-proxy` edge function on every auth event. Shop.tsx also fires an immediate `syncVerificationFromDrGreen()` on mount, doubling the delay.
+The three target emails are:
+- `maykendaal23@gmail.com` (Mayke Odendaal)
+- `scott.k1@outlook.com` (Scott Hickling)
+- `varseainc@gmail.com` (Benjamin Varcianna)
 
-### Changes
+Currently only the admin account (`healingbudsglobal@gmail.com`) exists in auth. These three users exist as Dr. Green client records but don't have auth accounts yet.
 
-**1. ShopContext — Show cached data immediately, sync API in background** (`src/context/ShopContext.tsx`)
-- Split `fetchClient` into two phases:
-  - **Phase 1 (instant)**: Read the local `drgreen_clients` row from the database. Set `drGreenClient` and `isLoading = false` immediately with this cached data.
-  - **Phase 2 (background)**: Fire the Dr. Green API call to get live status. When it returns, silently update `drGreenClient` state and the local cache. No loading spinner during this phase.
-- This eliminates the long pause — users see their cached status instantly.
-
-**2. Auth.tsx — Don't wait for client data if user is admin** (`src/pages/Auth.tsx`)
-- In the redirect `useEffect`, check `isAdmin` first. If admin and `!roleLoading`, redirect to `/admin` immediately — don't wait for `clientLoading` to finish. Admins don't need client data.
-
-**3. Shop.tsx — Remove redundant immediate sync** (`src/pages/Shop.tsx`)
-- Remove the `syncVerificationFromDrGreen()` call on mount (line 36). ShopContext already fetches live data in Phase 2. Keep only the 3-minute polling interval for non-eligible users.
-
-**4. EligibilityGate — Skip flash for loading states** (`src/components/shop/EligibilityGate.tsx`)
-- Already handles `isLoading` with a spinner, but the spinner itself is the flash. Since ShopContext will now resolve `isLoading` instantly from cache, the spinner will be near-zero duration.
-
-### Technical detail
-
-The key architectural change is in `fetchClient`:
-
-```text
-Current flow:
-  auth event → query local DB → call edge function → call Dr Green API → set state → isLoading=false
-  (total: 2-5 seconds)
-
-New flow:
-  auth event → query local DB → set state → isLoading=false  (< 200ms)
-                              ↘ call edge function in background → update state silently
+### Implementation
+Call the existing `admin-update-user` edge function three times with:
+```json
+{ "email": "<email>", "password": "12345678", "verify": true }
 ```
 
-No database migrations needed. No edge function changes.
+This will **create** auth accounts for each (since they don't exist yet) with password `12345678` and email pre-verified. The `auto_link_drgreen_on_signup` trigger and `handle_new_user` trigger will automatically create profiles and link their client records.
+
+### Steps
+1. Invoke `admin-update-user` for `maykendaal23@gmail.com`
+2. Invoke `admin-update-user` for `scott.k1@outlook.com`
+3. Invoke `admin-update-user` for `varseainc@gmail.com`
+
+No code changes needed — just three edge function invocations.
 
