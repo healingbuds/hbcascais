@@ -116,10 +116,10 @@ const AdminRevenue = () => {
         api.getSalesSummaryNew(),
       ]);
 
-      if (salesRes.status === "fulfilled") setSales(salesRes.value);
-      if (dashRes.status === "fulfilled") setDashboard(dashRes.value);
-      if (analyticsRes.status === "fulfilled") setAnalytics(analyticsRes.value);
-      if (pipelineRes.status === "fulfilled") setPipeline(pipelineRes.value);
+      if (salesRes.status === "fulfilled" && salesRes.value.data) setSales(salesRes.value.data);
+      if (dashRes.status === "fulfilled" && dashRes.value.data) setDashboard(dashRes.value.data);
+      if (analyticsRes.status === "fulfilled" && analyticsRes.value.data) setAnalytics(analyticsRes.value.data);
+      if (pipelineRes.status === "fulfilled" && pipelineRes.value.data) setPipeline(pipelineRes.value.data);
 
       const failures = [salesRes, dashRes, analyticsRes, pipelineRes].filter((r) => r.status === "rejected");
       if (failures.length > 0) {
