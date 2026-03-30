@@ -2593,6 +2593,11 @@ serve(async (req) => {
         
         // Per API guide: GET /dapp/clients/{id} signs a JSON signBody (not sent in request)
         response = await drGreenRequestBody(`/dapp/clients/${clientId}`, "GET", { clientId }, false, adminEnvConfig);
+        
+        // Log sync event to journey
+        logKycJourney(user.id, clientId, 'kyc.synced', {
+          syncedVia: 'sync-client-status',
+        });
         break;
       }
       
