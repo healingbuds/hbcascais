@@ -68,7 +68,11 @@ interface EnvState {
 const AdminSettings = () => {
   const { environment, environmentLabel } = useApiEnvironment();
   const { toast } = useToast();
+  const { value: themeValue, setValue: setThemeValue, mode: themeMode, setMode: setThemeMode } = useThemeSlider();
 
+  const [adminDefault, setAdminDefault] = useState<"light" | "dark" | "auto">(() => {
+    return (localStorage.getItem("healing-buds-theme-admin-default") as any) || "auto";
+  });
   const [envStates, setEnvStates] = useState<Record<ApiEnvironment, EnvState>>({
     production: {
       apiUrl: "https://api.drgreennft.com",
