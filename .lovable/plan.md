@@ -1,52 +1,33 @@
 
 
-## Problem: Shipping Address Not Syncing from Dr Green API to Local DB
+## Plan: Fetch Full Shipping Addresses via Admin Detail Endpoint
 
-### Root Cause
+### Problem
+The `sync-clients` edge function calls `/dapp/clients` (list endpoint), which returns a `shippings[]` array with only `country` — no street, city, or postal code. The individual client endpoint `/dapp/clients/{id}` (admin-level) returns full address data, but `sync-clients` never calls it.
 
-The `sync-clients` edge function fetches clients from the Dr Green API — which includes a `shippings[]` array with full address data — but **never writes it to the `shipping_address` column**. It only extracts `countryCode` from the first shipping entry and discards the rest.
+### Solution
+Enhance `sync-clients/index.ts` to make a second pass: after fetching all clients from the list endpoint, iterate and call `/dapp/clients/{clientId}` for each client to retrieve full shipping details, then merge that into the upsert.
 
-This means:
-- The Dr Green API has the address (e.g. Mayke's address)
-- The local `drgreen_clients.shipping_address` column is `null`
-- Checkout checks local DB first (line 152-163 of `Checkout.tsx`), finds `null`, then falls back to an API call
-- If the API call also fails (401 for non-admin keys), the user is prompted to enter their address again
+### Changes — Single file: `supabase/functions/sync-clients/index.ts`
 
-### Fix
+**Step 1: Add a `drGreenGetWithBody` function** for the detail endpoint, which signs a JSON body (matching how `dapp-client-details` works in the proxy — `drGreenRequestBody` pattern):
+- `GET /dapp/clients/{id}` with `{ clientId }` as the sign body
 
-**1. `supabase/functions/sync-clients/index.ts`** — Save shipping address during sync
+**Step 2: In the client loop, fetch individual details**
+- For each client, call `GET /dapp/clients/{client.id}` using admin credentials
+- Extract `shippings[0]` from the detail response (which contains full address fields: `address1`, `city`, `postalCode`, etc.)
+- Fall back to the list-level shipping data if the detail call fails
+- Add a small delay between calls to avoid rate limiting
 
-In the upsert block (lines 225-235), add the `shipping_address` field by normalizing `client.shippings[0]` into the standard format:
+**Step 3: Merge full address into the upsert**
+- Use the detail-level shipping data (with actual street/city/postal) instead of the list-level data
+- Keep the existing `resolveCountryCode` logic and `shippingAddress` normalization
 
-```typescript
-const shipping = client.shippings?.[0] || null;
-const shippingAddress = shipping ? {
-  address1: shipping.address1 || '',
-  address2: shipping.address2 || '',
-  city: shipping.city || '',
-  state: shipping.state || shipping.city || '',
-  country: shipping.country || '',
-  countryCode: shipping.countryCode || '',
-  postalCode: shipping.postalCode || shipping.zipCode || '',
-  landmark: shipping.landmark || '',
-} : null;
-```
+### Rate Limiting Consideration
+- 13 clients × 1 detail call each = 13 extra API calls
+- Add 200ms delay between calls to be respectful of the API
+- The page cap (20 pages) keeps this bounded
 
-Then include `shipping_address: shippingAddress` in the upsert object. Use a conditional merge so we don't overwrite a locally-saved address with `null` if the API has no shipping data:
-
-```typescript
-...(shippingAddress && { shipping_address: shippingAddress }),
-```
-
-**2. `supabase/functions/sync-clients/index.ts`** — Fix `countryCode` extraction
-
-Currently: `client.shippings?.[0]?.country` — this gets the country name ("Portugal"), not the code. Should also check `client.shippings?.[0]?.countryCode` and apply alpha-3 → alpha-2 conversion (same map used in `sync-orders`).
-
-### No other files need changes
-
-The checkout flow (`Checkout.tsx`) already correctly reads `shipping_address` from local DB as priority #1 (lines 152-163) and falls back to the API. Once `sync-clients` populates the field, addresses will be available immediately without API calls.
-
-### Summary
-
-One file change: `supabase/functions/sync-clients/index.ts` — add `shipping_address` to the upsert payload and fix `countryCode` extraction.
+### No other files change
+Checkout already reads `shipping_address` from local DB. Once populated with full address data, it will work without API fallback.
 
