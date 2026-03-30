@@ -200,6 +200,13 @@ serve(async (req) => {
     }
 
     console.log(`Fetched ${allOrders.length} orders from Dr Green API`);
+    
+    // Debug: log first order shape to diagnose missing fields
+    if (allOrders.length > 0) {
+      const sample = allOrders[0];
+      console.log('[sync-orders] Sample order keys:', Object.keys(sample));
+      console.log('[sync-orders] Sample order:', JSON.stringify(sample).substring(0, 2000));
+    }
 
     let synced = 0;
     const errors: string[] = [];
