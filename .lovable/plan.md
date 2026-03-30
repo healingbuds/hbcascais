@@ -1,40 +1,35 @@
 
 
-## Fix KYC Journey Logs: Add Server-Side Logging + Show Customer Names
+## Fix Cart UX: Toast Overlap + Cart Discoverability
 
-Two issues to address: (1) the proxy doesn't log events so the journey is incomplete, and (2) the viewer doesn't show who each log belongs to.
+### Problems
+1. **Toast covers cart button** — "Added to cart" toast appears bottom-right, overlapping the floating cart button at `bottom-6 right-6`
+2. **Cart hard to find** — floating button blends in, no persistent header cart icon on shop pages
 
-### Part 1: Show Customer Name in KYC Journey Viewer
+### Solution
 
-**File: `src/components/admin/KYCJourneyViewer.tsx`**
+#### 1. Move toast position to top-right
+**File: `src/components/ui/sonner.tsx`**
+- Add `position="top-right"` to the Sonner component so toasts no longer overlap the floating cart button
 
-- After fetching journey logs, cross-reference `user_id` values against the `profiles` table (or `drgreen_clients` table which has `full_name` and `email`) to resolve names
-- Join approach: fetch `drgreen_clients` records for all unique `user_id` values in the log set, build a lookup map `user_id → full_name / email`
-- Display the customer name prominently in each log row (above or beside the `client_id`)
-- Also make the search filter work against customer names
-- Add name to the `JourneyLog` interface display (resolved client-side from the lookup)
+#### 2. Improve floating cart button visibility
+**File: `src/components/shop/FloatingCartButton.tsx`**
+- Add a subtle pulse animation when items are in the cart (attracts attention)
+- Increase size slightly and add a stronger shadow for better visibility
+- On mobile: position it above the bottom actions bar (`bottom-20` instead of `bottom-6`) so it doesn't get hidden
 
-### Part 2: Add Journey Logging to `drgreen-proxy`
+#### 3. Add cart icon to shop header
+**File: `src/layout/Header.tsx`**
+- When on a `/shop` route, render the `CartButton` component in the header bar (desktop and mobile) for persistent cart access
+- This gives users a second, always-visible way to open the cart
 
-**File: `supabase/functions/drgreen-proxy/index.ts`**
+#### 4. Make "Added to cart" toast actionable
+**File: `src/components/shop/ProductCard.tsx`**
+- Replace the plain toast with one that includes a "View Cart" action button, so users can jump straight to their cart after adding an item
 
-Add a `logKycJourney` helper (non-blocking, fire-and-forget) that inserts into `kyc_journey_logs` using the existing `supabaseClient` (service role). Log at these points:
-
-| Location | Event Type | Data |
-|----------|-----------|------|
-| `create-client-legacy` success (~line 2221) | `kyc.client_created` | clientId, hasKycLink |
-| `create-client-legacy` KYC link present (~line 2233) | `kyc.link_generated` | clientId |
-| `create-client-legacy` API error (~line 2202) | `registration.api_error` | status, error snippet |
-| `dapp-verify-client` approve/reject | `client.approved` / `client.rejected` | clientId |
-| `sync-client-status` / `sync-client-by-email` | `kyc.synced` | clientId, kycStatus |
-
-The helper needs `supabaseClient`, `userId`, `clientId`, `eventType`, and `eventData`. Source will be `'drgreen-proxy'`.
-
-### Part 3: Add RLS Policy for Service Role Inserts
-
-**Database migration**: Add an INSERT policy on `kyc_journey_logs` for service role (or adjust existing). The current INSERT policy requires `auth.uid() = user_id`, but the proxy uses service role which bypasses RLS — so no migration needed.
-
-### Files Changed
-1. `src/components/admin/KYCJourneyViewer.tsx` — resolve and display customer names from `drgreen_clients`
-2. `supabase/functions/drgreen-proxy/index.ts` — add `logKycJourney` helper + ~5 logging calls
+### Files changed
+1. `src/components/ui/sonner.tsx` — add `position="top-right"`
+2. `src/components/shop/FloatingCartButton.tsx` — pulse animation, mobile positioning
+3. `src/layout/Header.tsx` — add CartButton on shop routes
+4. `src/components/shop/ProductCard.tsx` — add "View Cart" action to toast
 
