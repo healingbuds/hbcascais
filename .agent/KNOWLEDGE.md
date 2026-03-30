@@ -21,6 +21,14 @@
 - **No Lovable references** in production builds
 - Remove `componentTagger` from `vite.config.ts` and Lovable `<meta>` tags from `index.html`
 
+### Budstacks Ecosystem Context
+- **Budstacks.io** is the SaaS platform that controls all Dr. Green NFT franchise sales
+- **Dr. Green NFT** (ERC-721) is the "Digital Franchise License" — mandatory key for tenants to operate a storefront
+- **Healing Buds** is the "Genesis Template" — the flagship master codebase that future white-label tenants will clone
+- All storefronts are powered by the Budstacks engine, connecting to Dr. Green fulfillment and licensing backend
+- Future NFT holders receive a cloned version of this repository to launch their own branded stores
+- Remove `componentTagger` from `vite.config.ts` and Lovable `<meta>` tags from `index.html`
+
 ---
 
 ## 2. Deployment
