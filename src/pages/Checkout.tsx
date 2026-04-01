@@ -392,17 +392,21 @@ const Checkout = () => {
                         <CheckCircle2 className="w-10 h-10 text-primary" />
                       </div>
                       <h1 className="text-3xl font-bold text-foreground mb-4">
-                        Order Confirmed!
+                        Order Received!
                       </h1>
                       <p className="text-muted-foreground mb-2">
-                        Thank you for your order. Your order ID is:
+                        Thank you for your order. Your order reference is:
                       </p>
-                      <p className="text-xl font-mono text-primary mb-8">
+                      <p className="text-xl font-mono text-primary mb-4">
                         {orderId}
                       </p>
-                      <p className="text-sm text-muted-foreground mb-8">
-                        You will receive an email confirmation shortly with tracking information.
-                      </p>
+                      <Alert className="text-left mb-8">
+                        <Clock className="h-4 w-4" />
+                        <AlertTitle>What happens next?</AlertTitle>
+                        <AlertDescription>
+                          Our team will review your order and send you a secure payment link via email once approved.
+                        </AlertDescription>
+                      </Alert>
                     </>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button variant="outline" onClick={() => navigate('/shop')}>
