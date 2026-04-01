@@ -278,7 +278,7 @@ export default function OrderDetail() {
                             <div>
                               <p className="font-medium text-foreground">{displayName}</p>
                               <p className="text-sm text-muted-foreground">
-                                Qty: {item.quantity} × {formatPrice(effectivePrice, cc)}
+                                {item.quantity} {item.quantity === 1 ? 'pack' : 'packs'} × {formatPrice(effectivePrice, cc)}
                               </p>
                             </div>
                             <p className="font-semibold text-foreground">
