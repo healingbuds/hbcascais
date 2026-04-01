@@ -115,7 +115,7 @@ const PUBLIC_ACTIONS: string[] = [];
 
 // Country-gated actions: open countries (ZA, TH) don't require auth, restricted (GB, PT) do
 const COUNTRY_GATED_ACTIONS = [
-  'get-strains', 'get-all-strains', 'get-strains-legacy', 'get-strain'
+  'get-strains', 'get-all-strains', 'get-strains-legacy', 'get-strain', 'dapp-strain-detail'
 ];
 
 // Open countries where unauthenticated users can browse products
