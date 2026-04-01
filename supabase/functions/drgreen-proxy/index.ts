@@ -3353,19 +3353,7 @@ serve(async (req) => {
         break;
       }
       
-      case "create-payment": {
-        response = await drGreenRequest("/dapp/payments", "POST", body.data);
-        break;
-      }
-      
-      case "get-payment": {
-        if (!validateStringLength(body.paymentId, 100)) {
-          throw new Error("Invalid payment ID format");
-        }
-        // Per API guide: GET /dapp/payments/{id} signs {"paymentId": "..."} as signBody
-        response = await drGreenRequestBody(`/dapp/payments/${body.paymentId}`, "GET", { paymentId: body.paymentId });
-        break;
-      }
+      // create-payment and get-payment removed — Dr. Green handles payments manually
       
       // ==========================================
       // NEW ENDPOINTS FROM POSTMAN COLLECTION
