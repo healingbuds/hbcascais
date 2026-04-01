@@ -210,6 +210,24 @@ export function useProducts(countryCode: string = 'PT') {
             parseFloat(strain.CBD) ||
             0;
 
+          // Extract native local pricing from strainLocations matching user's country
+          let localRetailPrice: number | undefined;
+          let localCurrency: string | undefined;
+          if (Array.isArray(strain.strainLocations)) {
+            const matchedLocation = strain.strainLocations.find((loc: any) => {
+              const locCountry = loc.location?.countryCode || loc.location?.country || '';
+              const locAlpha2 = alpha3ToAlpha2[locCountry] || locCountry;
+              return locAlpha2 === countryCode || locCountry === alpha3Code;
+            });
+            if (matchedLocation && matchedLocation.retailPrice != null) {
+              const price = parseFloat(matchedLocation.retailPrice);
+              if (price > 0) {
+                localRetailPrice = price;
+                localCurrency = matchedLocation.location?.currency || undefined;
+              }
+            }
+          }
+
           return {
             id: strain.id || strain._id,
             name: strain.name,
@@ -224,6 +242,8 @@ export function useProducts(countryCode: string = 'PT') {
             terpenes,
             category: strain.category || strain.type || 'Hybrid',
             dataSource: 'api' as DataSource,
+            localRetailPrice,
+            localCurrency,
           };
         });
         
