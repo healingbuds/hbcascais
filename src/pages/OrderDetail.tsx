@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/currency";
+import { resolveOrderItemPrice, isOrderTotalLocal } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 import InvoicePrintView from "@/components/shop/InvoicePrintView";
 import { toast } from "sonner";
@@ -403,14 +404,20 @@ export default function OrderDetail() {
                           const derivedUnitPrice = allZeroPrice && totalQty > 0 && order.total_amount > 0
                             ? order.total_amount / totalQty
                             : null;
+                          // Check if total_amount is already in local currency
+                          const totalIsLocal = isOrderTotalLocal(order.items, order.total_amount);
 
                           return order.items.map((item, i) => {
                             const displayName = item.strain_name && item.strain_name !== 'Unknown'
                               ? item.strain_name
                               : 'Product';
-                            const effectivePrice = (Number(item.unit_price) || 0) > 0
+                            const rawPrice = (Number(item.unit_price) || 0) > 0
                               ? Number(item.unit_price)
                               : derivedUnitPrice ?? 0;
+                            // Convert USD unit price to local currency for display
+                            const effectivePrice = allZeroPrice && derivedUnitPrice
+                              ? derivedUnitPrice // already derived from local total
+                              : resolveOrderItemPrice(rawPrice, cc);
                             const lineTotal = item.quantity * effectivePrice;
 
                             return (

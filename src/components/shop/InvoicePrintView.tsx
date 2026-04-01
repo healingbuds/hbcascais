@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { formatPrice } from "@/lib/currency";
 import { calculateVatBreakdown } from "@/lib/tax";
+import { resolveOrderItemPrice } from "@/lib/pricing";
 import hbLogo from "@/assets/hb-logo-teal.png";
 
 interface OrderItem {
@@ -143,9 +144,13 @@ export default function InvoicePrintView({ order }: InvoicePrintViewProps) {
           <tbody>
             {order.items.map((item, i) => {
               const displayName = item.strain_name && item.strain_name !== "Unknown" ? item.strain_name : "Product";
-              const effectivePrice = (Number(item.unit_price) || 0) > 0
+              const rawPrice = (Number(item.unit_price) || 0) > 0
                 ? Number(item.unit_price)
                 : derivedUnitPrice ?? 0;
+              // Convert USD unit price to local currency
+              const effectivePrice = allZeroPrice && derivedUnitPrice
+                ? derivedUnitPrice // already derived from local total
+                : resolveOrderItemPrice(rawPrice, cc);
               const lineTotal = item.quantity * effectivePrice;
 
               return (
