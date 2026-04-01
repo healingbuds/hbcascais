@@ -1,6 +1,8 @@
 import { format } from "date-fns";
 import { formatPrice } from "@/lib/currency";
 import { calculateVatBreakdown } from "@/lib/tax";
+import { resolveOrderItemPrice } from "@/lib/pricing";
+import hbLogo from "@/assets/hb-logo-teal.png";
 import hbLogo from "@/assets/hb-logo-teal.png";
 
 interface OrderItem {
