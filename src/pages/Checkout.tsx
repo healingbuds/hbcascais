@@ -24,7 +24,7 @@ import { supabase } from '@/integrations/supabase/client';
 async function retryOperation<T>(
   operation: () => Promise<{ data: T | null; error: string | null }>,
   operationName: string,
-  maxRetries: number = 3
+  maxRetries: number = 2
 ): Promise<{ data: T | null; error: string | null }> {
   let lastError: string | null = null;
   

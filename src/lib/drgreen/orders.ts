@@ -36,27 +36,6 @@ export const createOrder = async (orderData: {
   };
 };
 
-export const createPayment = async (paymentData: {
-  orderId: string;
-  amount: number;
-  currency: string;
-  clientId: string;
-}) => {
-  return callProxy<{
-    paymentId: string;
-    status: string;
-    paymentUrl?: string;
-  }>('create-payment', { data: paymentData });
-};
-
-export const getPayment = async (paymentId: string) => {
-  return callProxy<{
-    paymentId: string;
-    status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED';
-    amount: number;
-    orderId: string;
-  }>('get-payment', { paymentId });
-};
 
 export const getOrder = async (orderId: string) => {
   return callProxy<{
