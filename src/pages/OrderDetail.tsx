@@ -233,7 +233,16 @@ export default function OrderDetail() {
                       onClick={() => window.print()}
                     >
                       <Printer className="w-4 h-4 mr-1.5" />
-                      Print Invoice
+                      Print
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-xl"
+                      onClick={handleDownloadPdf}
+                    >
+                      <Download className="w-4 h-4 mr-1.5" />
+                      Download PDF
                     </Button>
                   </div>
                 </div>
