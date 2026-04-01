@@ -270,9 +270,6 @@ serve(async (req) => {
         const data = await response.json();
         const orderDetail = data?.data || data;
 
-        // Log the full response to understand structure
-        console.log(`[backfill] ${order.drgreen_order_id}: Full response:`, JSON.stringify(orderDetail).slice(0, 1000));
-
         const enrichedItems = extractOrderLines(orderDetail);
 
         if (enrichedItems.length === 0) {
