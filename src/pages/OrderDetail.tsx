@@ -431,6 +431,9 @@ export default function OrderDetail() {
                     support@healingbuds.co.za
                   </a>
                 </div>
+
+                {/* Print-only invoice */}
+                <InvoicePrintView order={order} />
               </motion.div>
             )}
           </div>
