@@ -265,11 +265,13 @@ export default function StrainDetail() {
                   </p>
                 </div>
 
-                {/* Price - converted from EUR to user's currency */}
+                {/* Price - use native local pricing when available, else convert from USD */}
                 <div className="flex items-baseline gap-3">
                   <PriceBreakdownTooltip>
                     <span className="text-4xl font-bold text-primary">
-                      {formatPrice(convertFromEUR(product.retailPrice), countryCode)}
+                      {product.localRetailPrice && product.localCurrency
+                        ? formatPrice(product.localRetailPrice, countryCode)
+                        : formatPrice(convertFromEUR(product.retailPrice), countryCode)}
                     </span>
                   </PriceBreakdownTooltip>
                   <span className="text-lg text-muted-foreground">per gram</span>
