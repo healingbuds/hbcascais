@@ -204,9 +204,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (request.clientId) {
       try {
-        const userId = claimsData.claims.sub;
         await supabase.from("kyc_journey_logs").insert({
-          user_id: userId,
+          user_id: user.id,
           client_id: request.clientId,
           event_type: "email.requested",
           event_source: "server",
