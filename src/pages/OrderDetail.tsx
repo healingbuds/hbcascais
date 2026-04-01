@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import InvoicePrintView from "@/components/shop/InvoicePrintView";
+import { toast } from "sonner";
 
 interface OrderItem {
   strain_id: string;
