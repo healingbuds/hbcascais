@@ -126,6 +126,49 @@ export default function OrderDetail() {
   const cc = order?.country_code || "ZA";
   const timelineIdx = order ? getTimelineIndex(order.status, order.payment_status) : 0;
 
+  const handleDownloadPdf = async () => {
+    const el = document.getElementById("invoice-print-content");
+    if (!el) return;
+
+    toast.loading("Generating PDF…", { id: "pdf-gen" });
+    // Temporarily show the hidden invoice for capture
+    el.classList.remove("hidden");
+    el.classList.add("block");
+    el.style.position = "absolute";
+    el.style.left = "-9999px";
+    el.style.top = "0";
+    el.style.width = "794px"; // A4 width at 96 DPI
+
+    try {
+      const html2canvas = (await import("html2canvas-pro")).default;
+      const { jsPDF } = await import("jspdf");
+
+      const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+
+      const fileName = order
+        ? `Invoice-${order.invoice_number || order.drgreen_order_id.slice(0, 8).toUpperCase()}.pdf`
+        : "invoice.pdf";
+      pdf.save(fileName);
+      toast.success("PDF downloaded", { id: "pdf-gen" });
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      toast.error("Could not generate PDF", { id: "pdf-gen" });
+    } finally {
+      el.classList.add("hidden");
+      el.classList.remove("block");
+      el.style.position = "";
+      el.style.left = "";
+      el.style.top = "";
+      el.style.width = "";
+    }
+  };
+
   return (
     <>
       <SEOHead title="Order Details | Healing Buds" description="View your order details" />
