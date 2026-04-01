@@ -1,65 +1,52 @@
 
-Goal: reduce real app-generated console noise, stop wallet errors in preview, and ignore platform/extension noise that is not caused by this app.
 
-1. Separate “real app issues” from preview noise
-- Treat these as real and worth fixing:
-  - Wallet/Reown allowlist + 403 errors from `src/providers/WalletProvider.tsx`
-  - Missing `/manifest.json`
-  - Radix dialog accessibility warning: missing `DialogDescription` / `aria-describedby`
-- Treat these as external/preview noise unless still reproducible after cleanup:
-  - `rs.lovable.dev` timeouts, TikTok/GA/Bing/LinkedIn analytics failures
-  - `api.lovable.dev`, Firestore, WebSocket, `postMessage` origin mismatch
-  - SES / Exodus provider / browser extension warnings
-  - image proxy timeout/reset errors in the preview shell
+# Fix Order Details, Checkout Speed, Sign-in Glitch, Admin Client Filtering & Email Review
 
-2. Fix wallet initialization strategy
-Files: `src/App.tsx`, `src/providers/WalletProvider.tsx`, `src/context/WalletContext.tsx`
-- Add a small preview-host detector for `lovable.app`, `lovable.dev`, and `lovableproject.com`.
-- Stop initializing WalletConnect/Reown globally for every page load in preview.
-- Preferred approach:
-  - Move wallet providers off the app root and only mount them around admin / NFT-gated areas that actually use wallet state.
-- Safe fallback if route-scoping is too invasive:
-  - Keep the provider boundary, but return a preview-safe/no-op wallet setup so the preview does not attempt Reown initialization.
-- Result:
-  - No `Origin not found on Allowlist` / `pulse.walletconnect.org 403` spam on normal preview pages.
-  - Wallet still works where it is intentionally needed.
+## Problems Identified
 
-3. Add a real web manifest
-Files: `index.html`, `public/manifest.json`
-- Add `<link rel="manifest" href="/manifest.json">` in `index.html`.
-- Create `public/manifest.json` using existing favicon/icon assets from `public/`.
-- Result:
-  - `/manifest.json` 404 disappears.
+1. **Order details page** — already improved in last pass; user wants all relevant data visible (strains, delivery, order info). Current implementation looks solid but can be tightened.
 
-4. Fix Radix dialog accessibility warnings
-Files likely needing updates:
-- `src/pages/AdminPrescriptions.tsx`
-- `src/components/dashboard/PrescriptionManager.tsx`
-- `src/components/dashboard/DosageTracker.tsx`
-- `src/pages/PatientDashboard.tsx`
-- audit other `DialogContent` usages the same way
-- For each dialog:
-  - add a `DialogDescription`, or
-  - explicitly set `aria-describedby={undefined}` when no description is intended
-- Result:
-  - remove `Missing Description or aria-describedby={undefined} for {DialogContent}` warnings.
+2. **`create-payment` error** — The proxy still has a `create-payment` action (line 3356) that calls `/dapp/payments`. This endpoint doesn't exist or returns errors because Dr. Green handles payments manually. The `Checkout.tsx` no longer calls it (fixed previously), but the dead code remains in both `orders.ts` and the proxy. Should be cleaned up.
 
-5. Do a light tooltip audit
-Files to check first:
-- `src/layout/AdminLayout.tsx`
-- `src/components/ui/sidebar.tsx`
-- `src/components/SectionNavigation.tsx`
-- I did not find an obvious app-side controlled/uncontrolled tooltip bug from the current search, so this should be treated as secondary.
-- Only change tooltip state handling if the warning is still reproducible after wallet/preview cleanup.
+3. **Order page takes too long after checkout** — After order submission, the success screen shows immediately (no payment polling anymore). If users still see delays, it's likely the `retryOperation` wrapper retrying on transient errors during `createOrder`. The retry delays (1s, 2s, 4s) add up. We should reduce max retries from 3 to 2 for the order creation step.
 
-Technical details
-- Root cause of the loudest app-side errors: `getDefaultConfig(...)` runs at module load in `src/providers/WalletProvider.tsx`, and `WalletProvider` wraps the entire app in `src/App.tsx`, so wallet tooling initializes even on pages that do not need it.
-- `public/` currently has favicons but no manifest file.
-- Several dialogs have a title/header only, which matches the Radix accessibility warning pattern.
+4. **Sign-in loading glitch** — On login, Auth.tsx waits for both `roleLoading` and `clientLoading` from ShopContext before redirecting (line 100). ShopContext's `isLoading` stays true while it fetches client data + does background Dr. Green API calls. The user sees a blank/glitchy state. Fix: redirect admin users immediately (already done at line 94), but for regular users add a brief loading indicator on the Auth page while waiting for client resolution.
 
-Verification checklist
-- Open a normal public page in preview: no WalletConnect/Reown allowlist errors.
-- Request `/manifest.json`: returns 200 instead of 404.
-- Open the affected dialogs: no missing description warning.
-- Confirm admin wallet flow still works where intended.
-- Re-check console after that; any remaining Lovable/analytics/WebSocket noise can be safely deprioritized unless it maps to user-facing breakage.
+5. **Admin sees customer signup details (admin is not a customer)** — The `AdminClientManager` fetches ALL clients from Dr. Green's DApp API (`getDappClients`). This is correct — admins should see customer records. However, the admin's own account (`healingbudsglobal@gmail.com`) may appear in the client list if it was registered as a Dr. Green client. We should filter out admin emails from the displayed client list.
+
+6. **Email hooks review** — All email edge functions (`send-order-confirmation`, `send-onboarding-email`, `send-client-email`, `send-dispatch-email`, `send-password-reset`) are confirmed working. The `send-order-confirmation` log shows successful sends. No code changes needed for emails.
+
+## Plan
+
+### Step 1: Clean up dead payment code
+**Files:** `src/lib/drgreen/orders.ts`, `supabase/functions/drgreen-proxy/index.ts`
+- Remove `createPayment`, `getPayment` exports from `orders.ts`
+- Remove `create-payment` and `get-payment` cases from the proxy switch statement
+- This eliminates confusion and prevents accidental future usage
+
+### Step 2: Reduce checkout retry delay
+**File:** `src/pages/Checkout.tsx`
+- Change `retryOperation` `maxRetries` from 3 to 2 for the `createOrder` call (line 275)
+- This reduces worst-case delay from ~7s to ~3s
+
+### Step 3: Fix sign-in loading glitch
+**File:** `src/pages/Auth.tsx`
+- Add a loading spinner/state on the Auth page while `roleLoading || clientLoading` is true and user is authenticated
+- Show "Signing you in..." overlay so the user doesn't see a flash of the login form
+- This covers the gap between auth completing and redirect firing
+
+### Step 4: Filter admin accounts from client list
+**File:** `src/components/admin/AdminClientManager.tsx`
+- After fetching clients from the API, filter out any client whose email matches known admin emails
+- Query `user_roles` table to get admin user emails, or hardcode filter for `healingbudsglobal@gmail.com` (matching the `auto_assign_admin_role` trigger)
+- Better approach: fetch admin emails from `user_roles` joined with local data, then exclude them from the displayed list
+
+### Step 5: Deploy updated proxy
+- Deploy `drgreen-proxy` after removing dead payment actions
+
+## Technical Details
+
+- The `create-payment` proxy action uses `drGreenRequest` (not `drGreenRequestBody`), which may explain the non-2xx error — but it's moot since payments are handled by Dr. Green manually
+- Auth.tsx redirect logic is sound but the visual gap between `session` being set and `roleLoading`/`clientLoading` resolving causes a flash of the login form
+- The `AdminClientManager` pulls from the Dr. Green DApp API which returns ALL registered clients including any admin test accounts
+
