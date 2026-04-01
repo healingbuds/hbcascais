@@ -2514,14 +2514,15 @@ serve(async (req) => {
         
         // If we have API data, normalize and return it
         if (apiData) {
+          // Unwrap nested data envelope: API returns { data: { ... }, success, statusCode }
+          // Frontend expects the inner object directly
+          const innerData = (apiData.data as Record<string, unknown>) || apiData;
+          
           // Normalize shippings array to shipping object (API returns shippings[], frontend expects shipping{})
-          const innerData = apiData.data as Record<string, unknown> | undefined;
-          if (innerData && Array.isArray(innerData.shippings) && (innerData.shippings as unknown[]).length > 0) {
+          if (Array.isArray(innerData.shippings) && (innerData.shippings as unknown[]).length > 0) {
             innerData.shipping = normalizeShippingObject((innerData.shippings as Record<string, unknown>[])[0]);
-          } else if (Array.isArray(apiData.shippings) && (apiData.shippings as unknown[]).length > 0) {
-            apiData.shipping = normalizeShippingObject((apiData.shippings as Record<string, unknown>[])[0]);
           }
-          return new Response(JSON.stringify(apiData), {
+          return new Response(JSON.stringify(innerData), {
             status: 200,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
