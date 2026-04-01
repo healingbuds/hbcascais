@@ -90,6 +90,15 @@ const countryCodeMap: Record<string, string> = {
   GB: 'GBR',
 };
 
+// Reverse map: Alpha-3 → Alpha-2
+const alpha3ToAlpha2: Record<string, string> = {
+  PRT: 'PT',
+  ZAF: 'ZA',
+  THA: 'TH',
+  GBR: 'GB',
+  USA: 'US',
+};
+
 // Supported countries for product display
 const SUPPORTED_COUNTRIES = ['PT', 'GB', 'ZA', 'TH'];
 
