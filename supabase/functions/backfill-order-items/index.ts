@@ -248,7 +248,7 @@ serve(async (req) => {
 
     for (const order of needsBackfill) {
       try {
-        const response = await drGreenGet(`/dapp/orders/${order.drgreen_order_id}`, {});
+        const response = await drGreenGetWithBody(`/dapp/orders/${order.drgreen_order_id}`, { orderId: order.drgreen_order_id });
         if (!response.ok) {
           const errText = await response.text();
           errors.push(`${order.drgreen_order_id}: API ${response.status} - ${errText}`);
