@@ -20,8 +20,7 @@ import CookieConsentBanner from "@/components/CookieConsentBanner";
 
 import { ShopProvider } from "@/context/ShopContext";
 import { CursorProvider } from "@/context/CursorContext";
-import { WalletProvider } from "@/providers/WalletProvider";
-import { WalletContextProvider } from "@/context/WalletContext";
+import { LazyWalletBoundary } from "@/providers/LazyWalletBoundary";
 import { TenantProvider } from "@/context/TenantContext";
 import { ApiEnvironmentProvider } from "@/context/ApiEnvironmentContext";
 
