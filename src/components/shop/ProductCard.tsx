@@ -173,7 +173,9 @@ export function ProductCard({ product, onViewDetails, showDataSource = false }: 
             <div className="flex flex-col items-end shrink-0">
               <PriceBreakdownTooltip>
                 <span className="text-xl font-bold text-primary">
-                  {formatPrice(convertFromEUR(product.retailPrice), countryCode)}
+                  {product.localRetailPrice && product.localCurrency
+                    ? formatPrice(product.localRetailPrice, countryCode)
+                    : formatPrice(convertFromEUR(product.retailPrice), countryCode)}
                 </span>
               </PriceBreakdownTooltip>
               <span className="text-[10px] text-muted-foreground uppercase tracking-wide">per gram</span>

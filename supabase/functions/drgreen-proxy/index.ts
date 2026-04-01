@@ -115,7 +115,7 @@ const PUBLIC_ACTIONS: string[] = [];
 
 // Country-gated actions: open countries (ZA, TH) don't require auth, restricted (GB, PT) do
 const COUNTRY_GATED_ACTIONS = [
-  'get-strains', 'get-all-strains', 'get-strains-legacy', 'get-strain'
+  'get-strains', 'get-all-strains', 'get-strains-legacy', 'get-strain', 'dapp-strain-detail'
 ];
 
 // Open countries where unauthenticated users can browse products
@@ -2861,6 +2861,16 @@ serve(async (req) => {
         const signBody = { strainId: body.strainId };
         logInfo(`Fetching strain ${body.strainId}, env: ${envConfig.name}`);
         response = await drGreenRequestBody(`/strains/${body.strainId}`, "GET", signBody, false, envConfig);
+        break;
+      }
+
+      // GET /dapp/strains/{strainId} — returns strainLocations with local pricing
+      case "dapp-strain-detail": {
+        if (!validateStringLength(body.strainId, 100)) {
+          throw new Error("Invalid strain ID format");
+        }
+        logInfo(`Fetching dapp strain detail ${body.strainId}, env: ${envConfig.name}`);
+        response = await drGreenRequestQuery(`/dapp/strains/${body.strainId}`, {}, false, envConfig);
         break;
       }
       
