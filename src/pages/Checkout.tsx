@@ -390,7 +390,7 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
 
       setOrderId(createdOrderId);
       setOrderComplete(true);
-      clearCart();
+      await clearCart();
 
       // Send confirmation email (fire-and-forget)
       sendOrderConfirmationEmail({
