@@ -1,39 +1,54 @@
 
 
-# Export: Full Migration File + Data Dump
+# Plan: Database Export + End-to-End Testing
 
-## What You Get
+## Part 1: Full Database Export
 
-Two downloadable SQL files for your offline PostgreSQL setup:
+Export all table data as downloadable files to `/mnt/documents/`.
 
-### File 1: `001_schema.sql` — Complete Schema Migration
-A single consolidated migration file combining all 28 migrations into one clean, idempotent script. Adapted for plain PostgreSQL (no Supabase-specific extensions like `pg_cron`, `pg_net`, `supabase_vault`, or `auth.users` references).
+### Approach
+Run `psql` queries to export each table as CSV, plus a combined SQL INSERT dump for seeding.
 
-Changes from Supabase version:
-- Remove Supabase-only extensions (`pg_cron`, `pg_graphql`, `pg_net`, `supabase_vault`)
-- Remove all `auth.users` foreign key references (replace with plain `uuid` columns)
-- Remove all RLS policies (not applicable without Supabase)
-- Remove triggers on `auth.users` (profile creation, admin assignment, drgreen linking)
-- Keep all tables, indexes, functions, and data-layer triggers (`updated_at`, `normalize_wallet_address`)
-- Include the `app_role` enum, `has_role()` function, and all table constraints
-- Make `drgreen_clients.user_id` nullable (matches current live schema)
-- Include `invoice_number` on `drgreen_orders`, `source_url` on `articles`
-- Include unique constraint on `drgreen_orders.drgreen_order_id`
+**Tables to export (17 total):**
+`profiles`, `user_roles`, `drgreen_clients`, `drgreen_orders`, `drgreen_cart`, `strains`, `strain_knowledge`, `generated_product_images`, `articles`, `email_templates`, `email_logs`, `dosage_logs`, `prescription_documents`, `kyc_journey_logs`, `launch_interest`, `wallet_email_mappings`, `wallet_auth_nonces`
 
-### File 2: `002_data.sql` — Full Data Export
-Export all rows from every table as `INSERT` statements:
-- `profiles`, `user_roles`, `drgreen_clients`, `drgreen_orders`, `drgreen_cart`
-- `strains`, `strain_knowledge`, `generated_product_images`
-- `articles`, `email_templates`, `email_logs`
-- `dosage_logs`, `prescription_documents`, `kyc_journey_logs`
-- `launch_interest`, `wallet_email_mappings`, `wallet_auth_nonces`
+**Deliverables:**
+- Individual CSV files per table in `/mnt/documents/db-export/`
+- One consolidated `seed_data.sql` file with INSERT statements for all tables
+- A `001_schema.sql` consolidated migration file (Supabase-free, plain PostgreSQL)
 
-Both files output to `/mnt/documents/` for immediate download.
+## Part 2: End-to-End Testing
 
-## Steps
+Browser-based testing of the live preview across these areas:
 
-1. Generate `001_schema.sql` — consolidated, Supabase-free schema
-2. Query each table via `psql` and generate `002_data.sql` with INSERT statements
-3. QA both files for syntax correctness
-4. Deliver as downloadable artifacts
+### 2a. Public Site
+- Homepage loads, navigation works, responsive at mobile/tablet/desktop
+- Footer, language switcher, cookie consent
+
+### 2b. User Auth Flow
+- Sign up / Sign in page renders correctly
+- Form validation (empty fields, invalid email, short password)
+- Password visibility toggle
+- Forgot password flow UI
+
+### 2c. Patient Journey
+- Post-login redirect based on verification status
+- Dashboard status page for unverified users
+- Shop access for verified users (ComplianceGuard behavior)
+
+### 2d. Admin Portal
+- Admin login and redirect to admin dashboard
+- All admin pages load: Dashboard, Orders, Clients, Strains, Tools, Settings, Roles, Wallet Mappings
+- Admin layout sidebar navigation
+- Tables render with data, filters work
+- Responsive behavior at mobile widths
+
+### 2e. Responsiveness Checks
+- Test at 375px (mobile), 768px (tablet), 1280px (desktop)
+- Navigation overlay on mobile
+- Admin sidebar collapse behavior
+- Cart/shop layout stacking
+
+### Testing Output
+A summary report of findings: bugs, layout issues, broken flows, and recommendations.
 
