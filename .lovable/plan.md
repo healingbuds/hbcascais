@@ -1,52 +1,82 @@
 
 
-# Fix Order Details, Checkout Speed, Sign-in Glitch, Admin Client Filtering & Email Review
+# API Pricing Analysis & Branded Invoice Generation
 
-## Problems Identified
+## API Findings
 
-1. **Order details page** — already improved in last pass; user wants all relevant data visible (strains, delivery, order info). Current implementation looks solid but can be tightened.
+The Dr. Green API response for ZAF **does NOT include** `localRetailPrice` or `localCurrency` fields. The response only contains a base `retailPrice` (e.g., `10` USD). The WordPress document's local pricing approach relies on fields that don't exist in this API version.
 
-2. **`create-payment` error** — The proxy still has a `create-payment` action (line 3356) that calls `/dapp/payments`. This endpoint doesn't exist or returns errors because Dr. Green handles payments manually. The `Checkout.tsx` no longer calls it (fixed previously), but the dead code remains in both `orders.ts` and the proxy. Should be cleaned up.
+**Current system is correct**: prices come as USD, and `formatPrice` + `convertPrice` in `src/lib/currency.ts` handle conversion to local currencies (ZAR for SA clients) using exchange rates. No pricing changes needed.
 
-3. **Order page takes too long after checkout** — After order submission, the success screen shows immediately (no payment polling anymore). If users still see delays, it's likely the `retryOperation` wrapper retrying on transient errors during `createOrder`. The retry delays (1s, 2s, 4s) add up. We should reduce max retries from 3 to 2 for the order creation step.
+---
 
-4. **Sign-in loading glitch** — On login, Auth.tsx waits for both `roleLoading` and `clientLoading` from ShopContext before redirecting (line 100). ShopContext's `isLoading` stays true while it fetches client data + does background Dr. Green API calls. The user sees a blank/glitchy state. Fix: redirect admin users immediately (already done at line 94), but for regular users add a brief loading indicator on the Auth page while waiting for client resolution.
+## Branded Invoice — Print Feature
 
-5. **Admin sees customer signup details (admin is not a customer)** — The `AdminClientManager` fetches ALL clients from Dr. Green's DApp API (`getDappClients`). This is correct — admins should see customer records. However, the admin's own account (`healingbudsglobal@gmail.com`) may appear in the client list if it was registered as a Dr. Green client. We should filter out admin emails from the displayed client list.
+The current "Print Invoice" button calls `window.print()`, which dumps the raw page. The user wants a professional, standardised invoice.
 
-6. **Email hooks review** — All email edge functions (`send-order-confirmation`, `send-onboarding-email`, `send-client-email`, `send-dispatch-email`, `send-password-reset`) are confirmed working. The `send-order-confirmation` log shows successful sends. No code changes needed for emails.
+### Approach
 
-## Plan
+Create a dedicated `InvoicePrintView` component rendered in a hidden `div` that becomes visible only during print (via `@media print`). This avoids a separate route or PDF generation dependency.
 
-### Step 1: Clean up dead payment code
-**Files:** `src/lib/drgreen/orders.ts`, `supabase/functions/drgreen-proxy/index.ts`
-- Remove `createPayment`, `getPayment` exports from `orders.ts`
-- Remove `create-payment` and `get-payment` cases from the proxy switch statement
-- This eliminates confusion and prevents accidental future usage
+### Step 1: Create `src/components/shop/InvoicePrintView.tsx`
+- **Hidden on screen**, visible only via `@media print`
+- **Layout**: Standard commercial invoice format
+  - **Header**: Healing Buds logo (top-right), company name + address (top-left)
+  - **Invoice meta**: Invoice number (or order ID), date, due date
+  - **Bill To**: Customer name, email, shipping address
+  - **Items table**: Product name, quantity, unit price, line total — with proper borders and alignment
+  - **Totals section**: Subtotal, tax line (if applicable), total in local currency
+  - **Footer**: Support email, company registration info, "Thank you for your order"
+- Uses the existing `Order` interface and `formatPrice` for currency
+- Logo imported from `src/assets/hb-logo-teal.png` (or white variant for contrast)
 
-### Step 2: Reduce checkout retry delay
-**File:** `src/pages/Checkout.tsx`
-- Change `retryOperation` `maxRetries` from 3 to 2 for the `createOrder` call (line 275)
-- This reduces worst-case delay from ~7s to ~3s
+### Step 2: Update `src/pages/OrderDetail.tsx`
+- Import `InvoicePrintView` and render it with the order data
+- Add print-specific CSS: hide the header, footer, navigation, and main order view during print; show only the invoice
+- Keep the existing "Print Invoice" button (`window.print()`)
 
-### Step 3: Fix sign-in loading glitch
-**File:** `src/pages/Auth.tsx`
-- Add a loading spinner/state on the Auth page while `roleLoading || clientLoading` is true and user is authenticated
-- Show "Signing you in..." overlay so the user doesn't see a flash of the login form
-- This covers the gap between auth completing and redirect firing
+### Step 3: Add print styles to `src/index.css`
+```css
+@media print {
+  body * { visibility: hidden; }
+  .invoice-print, .invoice-print * { visibility: visible; }
+  .invoice-print { position: absolute; top: 0; left: 0; width: 100%; }
+}
+```
 
-### Step 4: Filter admin accounts from client list
-**File:** `src/components/admin/AdminClientManager.tsx`
-- After fetching clients from the API, filter out any client whose email matches known admin emails
-- Query `user_roles` table to get admin user emails, or hardcode filter for `healingbudsglobal@gmail.com` (matching the `auto_assign_admin_role` trigger)
-- Better approach: fetch admin emails from `user_roles` joined with local data, then exclude them from the displayed list
+### Invoice Layout (reference)
+```text
+┌─────────────────────────────────────────────┐
+│  HEALING BUDS                    [HB LOGO]  │
+│  Cascais, Portugal                          │
+│  support@healingbuds.co.za                  │
+├─────────────────────────────────────────────┤
+│  INVOICE                                    │
+│  Invoice #: HB-xxxxxxxx                    │
+│  Date: 01 Apr 2026                         │
+│                                             │
+│  Bill To:                                   │
+│  Customer Name                              │
+│  customer@email.com                         │
+│  123 Street, City, Country                  │
+├──────────┬──────┬──────────┬───────────────┤
+│ Product  │ Qty  │ Price    │ Total         │
+├──────────┼──────┼──────────┼───────────────┤
+│ Strain A │  2   │ R180.00  │ R360.00       │
+│ Strain B │  1   │ R160.00  │ R160.00       │
+├──────────┴──────┴──────────┼───────────────┤
+│                   Subtotal │ R520.00       │
+│                      Total │ R520.00       │
+├─────────────────────────────────────────────┤
+│  Thank you for your order.                  │
+│  Questions? support@healingbuds.co.za       │
+└─────────────────────────────────────────────┘
+```
 
-### Step 5: Deploy updated proxy
-- Deploy `drgreen-proxy` after removing dead payment actions
-
-## Technical Details
-
-- The `create-payment` proxy action uses `drGreenRequest` (not `drGreenRequestBody`), which may explain the non-2xx error — but it's moot since payments are handled by Dr. Green manually
-- Auth.tsx redirect logic is sound but the visual gap between `session` being set and `roleLoading`/`clientLoading` resolving causes a flash of the login form
-- The `AdminClientManager` pulls from the Dr. Green DApp API which returns ALL registered clients including any admin test accounts
+### Technical Details
+- No external PDF library needed — pure CSS print stylesheet
+- Logo uses the existing `hb-logo-teal.png` asset (already in `src/assets/`)
+- Currency formatting uses the existing `formatPrice(amount, countryCode)` from `src/lib/currency.ts`
+- The invoice component receives the `Order` object as a prop — no additional data fetching
+- Print margins set via `@page { margin: 20mm; }` for proper paper output
 
