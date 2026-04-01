@@ -1,40 +1,37 @@
 
 
-# Fix Order Items Displaying R 0,00 and Missing Strain Names
+# Backfill Corrupted Order Items from Dr. Green API
 
 ## Problem
-The order detail page shows "Qty: 2 × R 0,00" with no product name, even though the total (R 330,00) is correct. The root cause is the background order sync overwriting locally-saved item data with incomplete API data.
+Existing orders in `drgreen_orders` have items with `unit_price: 0` and missing `strain_name` because the bulk sync endpoint (`/dapp/orders`) doesn't return line-item details. The detail endpoint (`/dapp/orders/{id}`) does.
 
-## Root Cause
+## Approach
+Create a new edge function `backfill-order-items` that:
 
-When an order is placed at checkout, items are saved correctly with `unit_price` and `strain_name`. However, the 60-second background sync (`syncFromDrGreen` in `useOrderTracking.ts`) fetches orders from the Dr. Green API, which returns items **without price or name data** in the list endpoint. The sync then overwrites the good local items with normalized items where `unit_price` defaults to `0` and `strain_name` defaults to `"Unknown"` or empty.
+1. Queries all `drgreen_orders` where items have zero prices or missing strain names
+2. For each, calls the Dr. Green API detail endpoint (`/dapp/orders/{id}`) to get full order line data (strain names, unit prices, quantities)
+3. Updates the `items` JSONB column with the enriched data
+4. Also update the `sync-orders` function to fetch individual order details for item enrichment during regular syncs
 
-**The overwrite path** (lines 181-196 of `useOrderTracking.ts`):
-```
-hasNewItems = normalizedItems.length > 0  // true, even if data is incomplete
-→ overwrites local items that had correct prices/names
-```
+## Technical Details
 
-## Fix
+### New Edge Function: `supabase/functions/backfill-order-items/index.ts`
+- Reuse the same signature/auth pattern from `sync-orders`
+- Query `drgreen_orders` for rows where items contain zero `unit_price` or empty `strain_name`
+- For each order, call `GET /dapp/orders/{orderId}` (same as `dapp-order-details` in proxy) to get `orderLines` with strain details
+- Map `orderLines` to `{ strain_id, strain_name, quantity, unit_price }` format
+- Upsert enriched items back to `drgreen_orders`
+- Add rate limiting (small delay between API calls) to avoid hitting API limits
+- Return summary of how many orders were backfilled
 
-### File: `src/hooks/useOrderTracking.ts`
+### Update: `supabase/functions/sync-orders/index.ts`
+- After the bulk fetch loop, identify orders where `orderLines` data is missing (the list endpoint doesn't include it)
+- For each such order, fetch individual details via `/dapp/orders/{id}` to get line items with strain names and prices
+- Build proper items array: `{ strain_id, strain_name, quantity, unit_price }` from `orderLines`
+- This prevents future orders from being saved with corrupted item data
 
-**Change the item comparison logic** to treat API items as "complete" only when they contain meaningful price data. If the API items have all-zero prices but the local items have real prices, preserve the local items.
-
-Specifically in the sync update block (~line 181):
-- Add a check: if ALL normalized items have `unit_price === 0` AND local items have non-zero prices, skip the item overwrite
-- Similarly, if normalized items have no `strain_name` (or all "Unknown"), preserve local strain names
-- This ensures the sync updates status/payment fields without destroying checkout-captured item details
-
-### File: `src/pages/OrderDetail.tsx`
-
-**Fallback for missing item data** (~line 263):
-- If `strain_name` is empty, show "Product" as fallback
-- If `unit_price` is 0 but total_amount > 0, show a note like "See total" instead of R 0,00
-- Calculate per-item price from total when individual prices are missing (total / sum of quantities)
-
-## Steps
-
-1. **Protect items during sync** — In `useOrderTracking.ts`, add guard logic so API items with no price data don't overwrite locally-saved items that have correct prices
-2. **Improve OrderDetail display** — Add fallback rendering for missing strain names and zero unit prices, including deriving unit price from total when possible
+### Steps
+1. Create `backfill-order-items` edge function — one-time repair of existing corrupted orders
+2. Update `sync-orders` to fetch order details for line-item enrichment during regular syncs
+3. Invoke the backfill function to fix existing data
 
