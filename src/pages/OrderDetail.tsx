@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { ArrowLeft, Package, CreditCard, MapPin, RefreshCw, Printer, User, Mail, Globe, Receipt, Clock, Truck } from "lucide-react";
+import { ArrowLeft, Package, CreditCard, MapPin, RefreshCw, Printer, User, Mail, Globe, Receipt, Clock, Truck, Download } from "lucide-react";
 import { motion } from "framer-motion";
 
 import Header from "@/layout/Header";
