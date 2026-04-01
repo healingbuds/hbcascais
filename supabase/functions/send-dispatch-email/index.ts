@@ -159,9 +159,8 @@ const handler = async (req: Request): Promise<Response> => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
@@ -205,9 +204,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (request.clientId) {
       try {
-        const userId = claimsData.claims.sub;
         await supabase.from("kyc_journey_logs").insert({
-          user_id: userId,
+          user_id: user.id,
           client_id: request.clientId,
           event_type: "email.requested",
           event_source: "server",

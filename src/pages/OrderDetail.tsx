@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { ArrowLeft, Package, CreditCard, MapPin, RefreshCw, Printer } from "lucide-react";
+import { ArrowLeft, Package, CreditCard, MapPin, RefreshCw, Printer, User, Mail, Globe, Receipt, Clock, Truck } from "lucide-react";
 import { motion } from "framer-motion";
 
 import Header from "@/layout/Header";
@@ -37,6 +37,8 @@ interface Order {
   currency: string | null;
   customer_name: string | null;
   customer_email: string | null;
+  invoice_number: string | null;
+  client_id: string | null;
   shipping_address: Record<string, string> | null;
 }
 
@@ -47,6 +49,7 @@ function getStatusColor(status: string): string {
     case "delivered":
       return "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30";
     case "processing":
+    case "shipped":
       return "bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30";
     case "pending":
     case "pending_sync":
@@ -70,16 +73,30 @@ const TIMELINE_STEPS = [
   { key: "placed", label: "Order Placed", icon: Package },
   { key: "processing", label: "Processing", icon: RefreshCw },
   { key: "paid", label: "Payment Confirmed", icon: CreditCard },
-  { key: "delivered", label: "Delivered", icon: MapPin },
+  { key: "delivered", label: "Delivered", icon: Truck },
 ];
 
 function getTimelineIndex(status: string, paymentStatus: string): number {
   const s = status.toLowerCase();
   const p = paymentStatus.toLowerCase();
   if (s === "delivered" || s === "completed") return 3;
+  if (s === "shipped") return 2;
   if (p === "paid" || p === "completed") return 2;
   if (s === "processing") return 1;
   return 0;
+}
+
+function InfoRow({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string | null | undefined }) {
+  if (!value) return null;
+  return (
+    <div className="flex items-start gap-3 py-2">
+      <Icon className="w-4 h-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+      <div className="min-w-0">
+        <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+        <p className="text-sm text-foreground font-medium break-all">{value}</p>
+      </div>
+    </div>
+  );
 }
 
 export default function OrderDetail() {
@@ -114,7 +131,6 @@ export default function OrderDetail() {
         <Header />
         <main className="pt-24 pb-24 lg:pb-16">
           <div className="container max-w-3xl mx-auto px-4">
-            {/* Back */}
             <button
               onClick={() => navigate("/orders")}
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors font-medium mb-6"
@@ -181,29 +197,45 @@ export default function OrderDetail() {
                 {(() => {
                   const s = order.status.toLowerCase();
                   const p = order.payment_status.toLowerCase();
-                  const isLocal = order.drgreen_order_id.startsWith("LOCAL-");
-                  const isPending = s === "pending_sync" || s === "awaiting_processing" || p === "awaiting_processing" || isLocal;
                   const isPaid = p === "paid" || p === "completed";
                   const isProcessing = s === "processing";
+                  const isShipped = s === "shipped" || s === "dispatched";
+                  const isDelivered = s === "delivered" || s === "completed";
 
                   let bannerClass = "bg-amber-500/15 border-amber-500/30 text-amber-700 dark:text-amber-300";
-                  let bannerIcon = <Package className="w-5 h-5" />;
+                  let bannerIcon = <Clock className="w-5 h-5" />;
                   let bannerText = "Order Queued for Processing";
+                  let bannerSub = "Our team will review your order and send a payment link via email.";
 
-                  if (isPaid && !isPending) {
+                  if (isDelivered) {
+                    bannerClass = "bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-300";
+                    bannerIcon = <Package className="w-5 h-5" />;
+                    bannerText = "Order Delivered";
+                    bannerSub = "";
+                  } else if (isShipped) {
+                    bannerClass = "bg-blue-500/15 border-blue-500/30 text-blue-700 dark:text-blue-300";
+                    bannerIcon = <Truck className="w-5 h-5" />;
+                    bannerText = "Order Shipped";
+                    bannerSub = "Your order is on its way!";
+                  } else if (isPaid) {
                     bannerClass = "bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-300";
                     bannerIcon = <CreditCard className="w-5 h-5" />;
-                    bannerText = "Order Confirmed — Payment Received";
+                    bannerText = "Payment Confirmed — Preparing Shipment";
+                    bannerSub = "";
                   } else if (isProcessing) {
                     bannerClass = "bg-blue-500/15 border-blue-500/30 text-blue-700 dark:text-blue-300";
                     bannerIcon = <RefreshCw className="w-5 h-5 animate-spin" />;
                     bannerText = "Order Being Processed";
+                    bannerSub = "";
                   }
 
                   return (
-                    <div className={cn("flex items-center gap-3 p-4 rounded-2xl border", bannerClass)}>
-                      {bannerIcon}
-                      <span className="font-semibold">{bannerText}</span>
+                    <div className={cn("flex items-start gap-3 p-4 rounded-2xl border", bannerClass)}>
+                      <div className="mt-0.5">{bannerIcon}</div>
+                      <div>
+                        <span className="font-semibold block">{bannerText}</span>
+                        {bannerSub && <span className="text-sm opacity-80">{bannerSub}</span>}
+                      </div>
                     </div>
                   );
                 })()}
@@ -215,7 +247,6 @@ export default function OrderDetail() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center justify-between relative">
-                      {/* Line */}
                       <div className="absolute top-5 left-0 right-0 h-0.5 bg-border" />
                       <div
                         className="absolute top-5 left-0 h-0.5 bg-primary transition-all duration-500"
@@ -251,63 +282,127 @@ export default function OrderDetail() {
                   </CardContent>
                 </Card>
 
-                {/* Items */}
-                <Card className="rounded-2xl border-border/50">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Items</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {(() => {
-                      // Derive unit price from total if individual prices are missing
-                      const totalQty = order.items.reduce((sum, i) => sum + (i.quantity || 0), 0);
-                      const allZeroPrice = order.items.every(i => !i.unit_price || Number(i.unit_price) === 0);
-                      const derivedUnitPrice = allZeroPrice && totalQty > 0 && order.total_amount > 0
-                        ? order.total_amount / totalQty
-                        : null;
-
-                      return order.items.map((item, i) => {
-                        const displayName = item.strain_name && item.strain_name !== 'Unknown'
-                          ? item.strain_name
-                          : 'Product';
-                        const effectivePrice = (Number(item.unit_price) || 0) > 0
-                          ? Number(item.unit_price)
-                          : derivedUnitPrice ?? 0;
-
-                        return (
-                          <div key={i} className="flex items-center justify-between">
-                            <div>
-                              <p className="font-medium text-foreground">{displayName}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {item.quantity} {item.quantity === 1 ? 'pack' : 'packs'} × {formatPrice(effectivePrice, cc)}
-                              </p>
-                            </div>
-                            <p className="font-semibold text-foreground">
-                              {formatPrice(item.quantity * effectivePrice, cc)}
-                            </p>
-                          </div>
-                        );
-                      });
-                    })()}
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-foreground">Total</span>
-                      <span className="text-lg font-bold text-foreground">
-                        {formatPrice(order.total_amount, cc)}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Shipping */}
-                {order.shipping_address && (
+                {/* Order Summary + Customer Info grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Order Summary */}
                   <Card className="rounded-2xl border-border/50">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base flex items-center gap-2">
-                        <MapPin className="w-4 h-4" /> Shipping Address
+                        <Receipt className="w-4 h-4" /> Order Summary
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-1">
+                      <InfoRow icon={Package} label="Order ID" value={order.drgreen_order_id} />
+                      {order.invoice_number && (
+                        <InfoRow icon={Receipt} label="Invoice" value={order.invoice_number} />
+                      )}
+                      <InfoRow icon={Clock} label="Placed" value={format(new Date(order.created_at), "dd MMM yyyy, HH:mm")} />
+                      {order.updated_at !== order.created_at && (
+                        <InfoRow icon={RefreshCw} label="Last Updated" value={format(new Date(order.updated_at), "dd MMM yyyy, HH:mm")} />
+                      )}
+                      <InfoRow icon={Globe} label="Currency" value={order.currency?.toUpperCase()} />
+                    </CardContent>
+                  </Card>
+
+                  {/* Customer Info */}
+                  <Card className="rounded-2xl border-border/50">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <User className="w-4 h-4" /> Customer Info
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-1">
+                      <InfoRow icon={User} label="Name" value={order.customer_name} />
+                      <InfoRow icon={Mail} label="Email" value={order.customer_email} />
+                      <InfoRow icon={Globe} label="Region" value={order.country_code?.toUpperCase()} />
+                      {!order.customer_name && !order.customer_email && (
+                        <p className="text-sm text-muted-foreground italic py-2">No customer details recorded.</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Items */}
+                <Card className="rounded-2xl border-border/50">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Package className="w-4 h-4" /> Items ({order.items.length})
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {order.items.length === 0 ? (
+                      <p className="text-sm text-muted-foreground italic py-4 text-center">
+                        No item details available for this order.
+                      </p>
+                    ) : (
+                      <div className="space-y-0">
+                        {/* Table header */}
+                        <div className="grid grid-cols-12 gap-2 pb-2 border-b border-border/50 text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+                          <span className="col-span-6">Product</span>
+                          <span className="col-span-2 text-center">Qty</span>
+                          <span className="col-span-2 text-right">Price</span>
+                          <span className="col-span-2 text-right">Total</span>
+                        </div>
+                        {(() => {
+                          const totalQty = order.items.reduce((sum, i) => sum + (i.quantity || 0), 0);
+                          const allZeroPrice = order.items.every(i => !i.unit_price || Number(i.unit_price) === 0);
+                          const derivedUnitPrice = allZeroPrice && totalQty > 0 && order.total_amount > 0
+                            ? order.total_amount / totalQty
+                            : null;
+
+                          return order.items.map((item, i) => {
+                            const displayName = item.strain_name && item.strain_name !== 'Unknown'
+                              ? item.strain_name
+                              : 'Product';
+                            const effectivePrice = (Number(item.unit_price) || 0) > 0
+                              ? Number(item.unit_price)
+                              : derivedUnitPrice ?? 0;
+                            const lineTotal = item.quantity * effectivePrice;
+
+                            return (
+                              <div key={i} className="grid grid-cols-12 gap-2 py-3 border-b border-border/30 last:border-0 items-center">
+                                <div className="col-span-6">
+                                  <p className="font-medium text-foreground text-sm">{displayName}</p>
+                                  {item.strain_id && (
+                                    <p className="text-xs text-muted-foreground truncate">{item.strain_id}</p>
+                                  )}
+                                </div>
+                                <p className="col-span-2 text-center text-sm text-muted-foreground">
+                                  {item.quantity}
+                                </p>
+                                <p className="col-span-2 text-right text-sm text-muted-foreground">
+                                  {formatPrice(effectivePrice, cc)}
+                                </p>
+                                <p className="col-span-2 text-right text-sm font-semibold text-foreground">
+                                  {formatPrice(lineTotal, cc)}
+                                </p>
+                              </div>
+                            );
+                          });
+                        })()}
+                        <div className="flex items-center justify-between pt-4">
+                          <span className="font-semibold text-foreground">Total</span>
+                          <span className="text-lg font-bold text-foreground">
+                            {formatPrice(order.total_amount, cc)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Shipping Address */}
+                {order.shipping_address && Object.keys(order.shipping_address).length > 0 && (
+                  <Card className="rounded-2xl border-border/50">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <MapPin className="w-4 h-4" /> Delivery Details
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="text-sm text-muted-foreground space-y-1">
-                      {order.customer_name && <p className="font-medium text-foreground">{order.customer_name}</p>}
+                      {order.customer_name && (
+                        <p className="font-medium text-foreground">{order.customer_name}</p>
+                      )}
                       {order.shipping_address.address1 && <p>{order.shipping_address.address1}</p>}
                       {order.shipping_address.address2 && <p>{order.shipping_address.address2}</p>}
                       {(order.shipping_address.city || order.shipping_address.state) && (
@@ -318,10 +413,23 @@ export default function OrderDetail() {
                         </p>
                       )}
                       {order.shipping_address.postalCode && <p>{order.shipping_address.postalCode}</p>}
-                      {order.shipping_address.country && <p>{order.shipping_address.country}</p>}
+                      {order.shipping_address.country && (
+                        <p className="font-medium">{order.shipping_address.country}</p>
+                      )}
+                      {order.shipping_address.countryCode && !order.shipping_address.country && (
+                        <p className="font-medium">{order.shipping_address.countryCode}</p>
+                      )}
                     </CardContent>
                   </Card>
                 )}
+
+                {/* Help notice */}
+                <div className="text-center text-sm text-muted-foreground py-2">
+                  Questions about this order? Contact{" "}
+                  <a href="mailto:support@healingbuds.co.za" className="text-primary hover:underline font-medium">
+                    support@healingbuds.co.za
+                  </a>
+                </div>
               </motion.div>
             )}
           </div>
