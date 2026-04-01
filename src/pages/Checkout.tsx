@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingBag, CreditCard, CheckCircle2, AlertCircle, Loader2, MapPin, Home, Building2, Clock, Info } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, CheckCircle2, AlertCircle, Loader2, MapPin, Home, Building2, Clock, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
