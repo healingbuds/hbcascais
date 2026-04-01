@@ -331,7 +331,9 @@ export default function StrainDetail() {
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">Total:</span>
                     <span className="text-3xl font-bold text-primary">
-                      {formatPrice(convertFromEUR(product.retailPrice * selectedDenomination), countryCode)}
+                      {product.localRetailPrice && product.localCurrency
+                        ? formatPrice(product.localRetailPrice * selectedDenomination, countryCode)
+                        : formatPrice(convertFromEUR(product.retailPrice * selectedDenomination), countryCode)}
                     </span>
                   </div>
 
