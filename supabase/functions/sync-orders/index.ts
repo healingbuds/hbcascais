@@ -223,7 +223,8 @@ serve(async (req) => {
 
     // Helper to extract order line items from detail endpoint response
     function extractOrderLines(orderDetail: any): any[] {
-      const orderLines = orderDetail?.orderLines || orderDetail?.order_lines || [];
+      const details = orderDetail?.orderDetails || orderDetail;
+      const orderLines = details?.orderLines || details?.order_lines || [];
       if (!Array.isArray(orderLines) || orderLines.length === 0) return [];
       return orderLines.map((line: any) => ({
         strain_id: line.strain?.id || line.strainId || line.strain_id || '',
