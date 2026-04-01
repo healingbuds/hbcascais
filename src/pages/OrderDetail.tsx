@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/currency";
+import { resolveOrderItemPrice, isOrderTotalLocal } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 import InvoicePrintView from "@/components/shop/InvoicePrintView";
 import { toast } from "sonner";
