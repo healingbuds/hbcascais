@@ -204,13 +204,21 @@ function extractOrderLines(orderDetail: Record<string, unknown>): OrderLineItem[
   const orderLines = (details.orderLines || details.order_lines || []) as Record<string, unknown>[];
   if (!Array.isArray(orderLines) || orderLines.length === 0) return [];
 
+  // Calculate unit price from total if per-line price isn't available
+  const totalAmount = (details.totalAmount || 0) as number;
+  const totalQty = orderLines.reduce((sum, l) => sum + ((l.quantity || l.grams || 0) as number), 0);
+
   return orderLines.map((line: Record<string, unknown>) => {
     const strain = line.strain as Record<string, unknown> | undefined;
+    const qty = (line.quantity || line.grams || 0) as number;
+    const linePrice = (line.unitPrice || line.unit_price || line.price || 0) as number;
+    // If no per-line price, derive from total proportionally
+    const derivedPrice = linePrice > 0 ? linePrice : (totalQty > 0 ? (totalAmount / totalQty) * qty : 0);
     return {
       strain_id: (strain?.id || line.strainId || line.strain_id || '') as string,
       strain_name: (strain?.name || line.strainName || line.strain_name || '') as string,
-      quantity: (line.quantity || line.grams || 0) as number,
-      unit_price: (line.unitPrice || line.unit_price || line.price || 0) as number,
+      quantity: qty,
+      unit_price: derivedPrice,
     };
   });
 }
