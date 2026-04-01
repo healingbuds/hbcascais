@@ -370,6 +370,7 @@ const Auth = () => {
                       <Input
                         id="newPassword"
                         type="password"
+                        autoComplete="new-password"
                         placeholder="••••••••"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
@@ -389,6 +390,7 @@ const Auth = () => {
                       <Input
                         id="confirmNewPassword"
                         type="password"
+                        autoComplete="new-password"
                         placeholder="••••••••"
                         value={confirmNewPassword}
                         onChange={(e) => setConfirmNewPassword(e.target.value)}
@@ -447,6 +449,7 @@ const Auth = () => {
                           <Input
                             id="resetEmail"
                             type="email"
+                            autoComplete="email"
                             placeholder={t('emailPlaceholder')}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -498,6 +501,7 @@ const Auth = () => {
                         <Input
                           id="fullName"
                           type="text"
+                          autoComplete="name"
                           placeholder={t('fullNamePlaceholder')}
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
@@ -552,6 +556,7 @@ const Auth = () => {
                       <Input
                         id="password"
                         type="password"
+                        autoComplete="current-password"
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -572,6 +577,7 @@ const Auth = () => {
                         <Input
                           id="confirmPassword"
                           type="password"
+                          autoComplete="new-password"
                           placeholder="••••••••"
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}

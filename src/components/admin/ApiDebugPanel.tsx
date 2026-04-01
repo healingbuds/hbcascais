@@ -499,6 +499,7 @@ export function ApiDebugPanel() {
                     <Input
                       id="debug-key"
                       type="password"
+                      autoComplete="off"
                       value={debugKey}
                       onChange={(e) => setDebugKey(e.target.value)}
                       placeholder="Enter debug key..."

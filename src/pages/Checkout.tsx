@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { useToast } from '@/hooks/use-toast';
 import { useDrGreenApi } from '@/hooks/useDrGreenApi';
 import { useOrderTracking } from '@/hooks/useOrderTracking';
+import { useUserRole } from '@/hooks/useUserRole';
 import { formatPrice, getCurrencyForCountry } from '@/lib/currency';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -120,6 +121,7 @@ const Checkout = () => {
   const { toast } = useToast();
   const { createPayment, getPayment, createOrder, getClientDetails, getOrder } = useDrGreenApi();
   const { saveOrder } = useOrderTracking();
+  const { isAdmin } = useUserRole();
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -255,11 +257,14 @@ const Checkout = () => {
       if (preflight.error) {
         throw new Error('Could not verify your account status. Please try again.');
       }
-      if (preflight.data && preflight.data.adminApproval !== 'VERIFIED') {
-        throw new Error('Your account is not yet approved. Please wait for admin verification before placing an order.');
-      }
-      if (preflight.data && !preflight.data.isKYCVerified) {
-        throw new Error('Your KYC verification is not complete. Please complete verification before placing an order.');
+      // Admin bypass: skip account verification checks if user has admin role
+      if (!isAdmin) {
+        if (preflight.data && preflight.data.adminApproval !== 'VERIFIED') {
+          throw new Error('Your account is not yet approved. Please wait for admin verification before placing an order.');
+        }
+        if (preflight.data && !preflight.data.isKYCVerified) {
+          throw new Error('Your KYC verification is not complete. Please complete verification before placing an order.');
+        }
       }
       console.log('[Checkout] Pre-flight passed: client is VERIFIED + KYC done');
 
