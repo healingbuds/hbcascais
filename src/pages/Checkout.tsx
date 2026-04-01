@@ -300,70 +300,18 @@ const Checkout = () => {
       const createdOrderId = orderResult.data.orderId;
       console.log('[Checkout] Order created:', createdOrderId);
 
-      setPaymentStatus('Initiating payment...');
+      // Dr. Green handles payment manually — they approve the order
+      // and send a payment link to the customer directly.
+      // We save immediately with PENDING status so items are never lost.
+      setPaymentStatus('Saving order...');
 
-      // Create payment via Dr Green API
-      const clientCountry = drGreenClient.country_code || countryCode || 'PT';
-      const paymentResult = await retryOperation(
-        () => createPayment({
-          orderId: createdOrderId,
-          amount: cartTotal,
-          currency: 'USD',
-          clientId: drGreenClient.drgreen_client_id,
-        }),
-        'Create payment'
-      );
+      const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
+      const confirmedTotal = orderResult.data.totalAmount || cartTotal;
 
-      if (paymentResult.error || !paymentResult.data) {
-        throw new Error(paymentResult.error || 'Failed to initiate payment');
-      }
-
-      const paymentId = paymentResult.data.paymentId;
-      setPaymentStatus('Processing payment...');
-
-      // Poll for payment status (simplified - in production would use webhooks)
-      let attempts = 0;
-      const maxAttempts = 10;
-      let finalStatus = 'PENDING';
-      let finalPaymentStatus = 'PENDING';
-      
-      while (attempts < maxAttempts) {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        
-        const statusResult = await getPayment(paymentId);
-        
-        if (statusResult.data?.status === 'PAID') {
-          finalStatus = 'CONFIRMED';
-          finalPaymentStatus = 'PAID';
-          break;
-        } else if (statusResult.data?.status === 'FAILED' || statusResult.data?.status === 'CANCELLED') {
-          throw new Error('Payment was not successful');
-        }
-        
-        attempts++;
-      }
-
-      // POST-ORDER CONFIRMATION: Fetch confirmed order from API (Step 6)
-      setPaymentStatus('Confirming order details...');
-      let confirmedTotal = cartTotal;
-      const orderConfirmation = await getOrder(createdOrderId);
-      if (orderConfirmation.data) {
-        const apiTotal = orderConfirmation.data.totalAmount;
-        if (apiTotal != null && apiTotal !== cartTotal) {
-          console.warn(`[Checkout] Total mismatch — client: ${cartTotal}, API: ${apiTotal}. Using API value.`);
-        }
-        confirmedTotal = apiTotal ?? cartTotal;
-        finalStatus = orderConfirmation.data.status || finalStatus;
-      } else {
-        console.warn('[Checkout] Could not fetch order confirmation, using client-side values:', orderConfirmation.error);
-      }
-
-      // Save order locally with complete context snapshot for reliable admin sync
-const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
       await saveOrder({
         drgreen_order_id: createdOrderId,
-        status: finalStatus,
-        payment_status: finalPaymentStatus,
+        status: 'PENDING',
+        payment_status: 'PENDING',
         total_amount: confirmedTotal,
         items: cart.map(item => ({
           strain_id: item.strain_id,
@@ -371,7 +319,6 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
           quantity: item.quantity,
           unit_price: item.unit_price,
         })),
-        // Capture order context at checkout time
         client_id: drGreenClient.drgreen_client_id,
         shipping_address: {
           address1: shippingAddress.address1,
@@ -392,7 +339,7 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
       setOrderComplete(true);
       await clearCart();
 
-      // Send confirmation email (fire-and-forget)
+      // Send "order received / queued" email (fire-and-forget)
       sendOrderConfirmationEmail({
         email: drGreenClient.email || '',
         customerName: drGreenClient.full_name || '',
@@ -401,13 +348,13 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
         totalAmount: confirmedTotal,
         currency: getCurrencyForCountry(clientCountryCode),
         shippingAddress,
-        isLocalOrder: false,
+        isLocalOrder: true, // Order is queued — Dr. Green will approve + send payment link
         region: clientCountryCode,
       });
       
       toast({
-        title: finalPaymentStatus === 'PAID' ? 'Order Placed Successfully' : 'Order Submitted',
-        description: `Your order ${createdOrderId} has been ${finalPaymentStatus === 'PAID' ? 'confirmed' : 'submitted for processing'}.`,
+        title: 'Order Submitted',
+        description: `Your order ${createdOrderId} has been submitted. Our team will review and send you a payment link.`,
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
