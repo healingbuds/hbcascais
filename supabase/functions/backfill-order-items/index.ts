@@ -260,6 +260,13 @@ serve(async (req) => {
         const data = await response.json();
         const orderDetail = data?.data || data;
 
+        // Log the response structure to understand what fields are available
+        const keys = Object.keys(orderDetail || {});
+        console.log(`[backfill] ${order.drgreen_order_id}: Response keys: ${keys.join(', ')}`);
+        if (orderDetail?.orderLines) {
+          console.log(`[backfill] orderLines sample:`, JSON.stringify(orderDetail.orderLines[0]).slice(0, 300));
+        }
+
         const enrichedItems = extractOrderLines(orderDetail);
 
         if (enrichedItems.length === 0) {
