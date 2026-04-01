@@ -265,10 +265,26 @@ serve(async (req) => {
         // user_id from local client record
         const userId = local?.user_id ?? null;
 
-        // Build items array from orderLines count
-        const itemCount = order._count?.orderLines || 0;
-        const items = itemCount > 0
-          ? [{ quantity: order.totalQuantity || itemCount, totalPrice: order.totalPrice || 0 }]
+        // Fetch individual order details for line items
+        let items: any[] = [];
+        try {
+          const detailResp = await drGreenGet(`/dapp/orders/${order.id}`, {});
+          if (detailResp.ok) {
+            const detailData = await detailResp.json();
+            const detail = detailData?.data || detailData;
+            items = extractOrderLines(detail);
+          } else {
+            await detailResp.text(); // consume body
+          }
+        } catch (detailErr) {
+          console.log(`[sync-orders] Could not fetch detail for ${order.id}: ${detailErr}`);
+        }
+
+        // Fallback if detail endpoint returned no line items
+        if (items.length === 0) {
+          const itemCount = order._count?.orderLines || 0;
+          items = itemCount > 0
+            ? [{ quantity: order.totalQuantity || itemCount, totalPrice: order.totalPrice || 0 }]
           : [];
 
         // Use localPrice for proper currency amount, fallback to totalAmount
