@@ -201,6 +201,18 @@ serve(async (req) => {
 
     console.log(`Fetched ${allOrders.length} orders from Dr Green API`);
 
+    // Helper to extract order line items from detail endpoint response
+    function extractOrderLines(orderDetail: any): any[] {
+      const orderLines = orderDetail?.orderLines || orderDetail?.order_lines || [];
+      if (!Array.isArray(orderLines) || orderLines.length === 0) return [];
+      return orderLines.map((line: any) => ({
+        strain_id: line.strain?.id || line.strainId || line.strain_id || '',
+        strain_name: line.strain?.name || line.strainName || line.strain_name || '',
+        quantity: line.quantity || line.grams || 0,
+        unit_price: line.unitPrice || line.unit_price || line.price || 0,
+      }));
+    }
+
     // Build lookup map from local drgreen_clients for enrichment
     const clientIds = new Set<string>();
     for (const order of allOrders) {
