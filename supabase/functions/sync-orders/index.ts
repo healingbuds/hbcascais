@@ -288,7 +288,7 @@ serve(async (req) => {
         // Fetch individual order details for line items
         let items: any[] = [];
         try {
-          const detailResp = await drGreenGet(`/dapp/orders/${order.id}`, {});
+          const detailResp = await drGreenGetWithBody(`/dapp/orders/${order.id}`, { orderId: order.id });
           if (detailResp.ok) {
             const detailData = await detailResp.json();
             const detail = detailData?.data || detailData;
