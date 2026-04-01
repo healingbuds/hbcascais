@@ -1,37 +1,65 @@
 
+Goal: reduce real app-generated console noise, stop wallet errors in preview, and ignore platform/extension noise that is not caused by this app.
 
-# Backfill Corrupted Order Items from Dr. Green API
+1. Separate “real app issues” from preview noise
+- Treat these as real and worth fixing:
+  - Wallet/Reown allowlist + 403 errors from `src/providers/WalletProvider.tsx`
+  - Missing `/manifest.json`
+  - Radix dialog accessibility warning: missing `DialogDescription` / `aria-describedby`
+- Treat these as external/preview noise unless still reproducible after cleanup:
+  - `rs.lovable.dev` timeouts, TikTok/GA/Bing/LinkedIn analytics failures
+  - `api.lovable.dev`, Firestore, WebSocket, `postMessage` origin mismatch
+  - SES / Exodus provider / browser extension warnings
+  - image proxy timeout/reset errors in the preview shell
 
-## Problem
-Existing orders in `drgreen_orders` have items with `unit_price: 0` and missing `strain_name` because the bulk sync endpoint (`/dapp/orders`) doesn't return line-item details. The detail endpoint (`/dapp/orders/{id}`) does.
+2. Fix wallet initialization strategy
+Files: `src/App.tsx`, `src/providers/WalletProvider.tsx`, `src/context/WalletContext.tsx`
+- Add a small preview-host detector for `lovable.app`, `lovable.dev`, and `lovableproject.com`.
+- Stop initializing WalletConnect/Reown globally for every page load in preview.
+- Preferred approach:
+  - Move wallet providers off the app root and only mount them around admin / NFT-gated areas that actually use wallet state.
+- Safe fallback if route-scoping is too invasive:
+  - Keep the provider boundary, but return a preview-safe/no-op wallet setup so the preview does not attempt Reown initialization.
+- Result:
+  - No `Origin not found on Allowlist` / `pulse.walletconnect.org 403` spam on normal preview pages.
+  - Wallet still works where it is intentionally needed.
 
-## Approach
-Create a new edge function `backfill-order-items` that:
+3. Add a real web manifest
+Files: `index.html`, `public/manifest.json`
+- Add `<link rel="manifest" href="/manifest.json">` in `index.html`.
+- Create `public/manifest.json` using existing favicon/icon assets from `public/`.
+- Result:
+  - `/manifest.json` 404 disappears.
 
-1. Queries all `drgreen_orders` where items have zero prices or missing strain names
-2. For each, calls the Dr. Green API detail endpoint (`/dapp/orders/{id}`) to get full order line data (strain names, unit prices, quantities)
-3. Updates the `items` JSONB column with the enriched data
-4. Also update the `sync-orders` function to fetch individual order details for item enrichment during regular syncs
+4. Fix Radix dialog accessibility warnings
+Files likely needing updates:
+- `src/pages/AdminPrescriptions.tsx`
+- `src/components/dashboard/PrescriptionManager.tsx`
+- `src/components/dashboard/DosageTracker.tsx`
+- `src/pages/PatientDashboard.tsx`
+- audit other `DialogContent` usages the same way
+- For each dialog:
+  - add a `DialogDescription`, or
+  - explicitly set `aria-describedby={undefined}` when no description is intended
+- Result:
+  - remove `Missing Description or aria-describedby={undefined} for {DialogContent}` warnings.
 
-## Technical Details
+5. Do a light tooltip audit
+Files to check first:
+- `src/layout/AdminLayout.tsx`
+- `src/components/ui/sidebar.tsx`
+- `src/components/SectionNavigation.tsx`
+- I did not find an obvious app-side controlled/uncontrolled tooltip bug from the current search, so this should be treated as secondary.
+- Only change tooltip state handling if the warning is still reproducible after wallet/preview cleanup.
 
-### New Edge Function: `supabase/functions/backfill-order-items/index.ts`
-- Reuse the same signature/auth pattern from `sync-orders`
-- Query `drgreen_orders` for rows where items contain zero `unit_price` or empty `strain_name`
-- For each order, call `GET /dapp/orders/{orderId}` (same as `dapp-order-details` in proxy) to get `orderLines` with strain details
-- Map `orderLines` to `{ strain_id, strain_name, quantity, unit_price }` format
-- Upsert enriched items back to `drgreen_orders`
-- Add rate limiting (small delay between API calls) to avoid hitting API limits
-- Return summary of how many orders were backfilled
+Technical details
+- Root cause of the loudest app-side errors: `getDefaultConfig(...)` runs at module load in `src/providers/WalletProvider.tsx`, and `WalletProvider` wraps the entire app in `src/App.tsx`, so wallet tooling initializes even on pages that do not need it.
+- `public/` currently has favicons but no manifest file.
+- Several dialogs have a title/header only, which matches the Radix accessibility warning pattern.
 
-### Update: `supabase/functions/sync-orders/index.ts`
-- After the bulk fetch loop, identify orders where `orderLines` data is missing (the list endpoint doesn't include it)
-- For each such order, fetch individual details via `/dapp/orders/{id}` to get line items with strain names and prices
-- Build proper items array: `{ strain_id, strain_name, quantity, unit_price }` from `orderLines`
-- This prevents future orders from being saved with corrupted item data
-
-### Steps
-1. Create `backfill-order-items` edge function — one-time repair of existing corrupted orders
-2. Update `sync-orders` to fetch order details for line-item enrichment during regular syncs
-3. Invoke the backfill function to fix existing data
-
+Verification checklist
+- Open a normal public page in preview: no WalletConnect/Reown allowlist errors.
+- Request `/manifest.json`: returns 200 instead of 404.
+- Open the affected dialogs: no missing description warning.
+- Confirm admin wallet flow still works where intended.
+- Re-check console after that; any remaining Lovable/analytics/WebSocket noise can be safely deprioritized unless it maps to user-facing breakage.
