@@ -106,7 +106,7 @@ export function StrainQuickView({ product, onClose }: StrainQuickViewProps) {
 
   return (
     <Dialog open={!!product} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden bg-card/98 backdrop-blur-2xl border-white/10 shadow-2xl">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden bg-card/98 backdrop-blur-2xl border-white/10 shadow-2xl" aria-describedby={undefined}>
         <AnimatePresence>
           {product && (
             <motion.div
