@@ -633,12 +633,12 @@ const Checkout = () => {
                         </CardContent>
                       </Card>
 
-                      {/* Payment Card */}
+                      {/* Order Submission Card */}
                       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
                         <CardHeader>
                           <CardTitle className="flex items-center gap-2">
-                            <CreditCard className="h-5 w-5" />
-                            Payment
+                            <ShoppingBag className="h-5 w-5" />
+                            Submit Order
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -655,9 +655,9 @@ const Checkout = () => {
 
                           {/* Notice */}
                           <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/10 border border-primary/20">
-                            <AlertCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                            <Clock className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                             <p className="text-sm text-muted-foreground">
-                              Payment will be processed securely through our payment provider.
+                              Your order will be reviewed by our team. Once approved, a secure payment link will be sent to your email.
                             </p>
                           </div>
 
@@ -674,14 +674,14 @@ const Checkout = () => {
                               </>
                             ) : (
                               <>
-                                <CreditCard className="mr-2 h-4 w-4" />
-                                Place Order - {formatPrice(cartTotalConverted, countryCode)}
+                                <ShoppingBag className="mr-2 h-4 w-4" />
+                                Submit Order — {formatPrice(cartTotalConverted, countryCode)}
                               </>
                             )}
                           </Button>
 
                           <p className="text-xs text-center text-muted-foreground">
-                            By placing this order, you agree to our terms of service and confirm that you are a verified medical patient.
+                            By submitting this order, you agree to our terms of service and confirm that you are a verified medical patient.
                           </p>
                         </CardContent>
                       </Card>
