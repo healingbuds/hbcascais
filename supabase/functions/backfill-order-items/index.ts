@@ -199,7 +199,9 @@ interface OrderLineItem {
 }
 
 function extractOrderLines(orderDetail: Record<string, unknown>): OrderLineItem[] {
-  const orderLines = (orderDetail.orderLines || orderDetail.order_lines || []) as Record<string, unknown>[];
+  // API returns { orderDetails: { orderLines: [...] } } or { orderLines: [...] }
+  const details = (orderDetail.orderDetails || orderDetail) as Record<string, unknown>;
+  const orderLines = (details.orderLines || details.order_lines || []) as Record<string, unknown>[];
   if (!Array.isArray(orderLines) || orderLines.length === 0) return [];
 
   return orderLines.map((line: Record<string, unknown>) => {
