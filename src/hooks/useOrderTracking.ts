@@ -177,11 +177,23 @@ export function useOrderTracking() {
 
         if (local) {
           // Compare and update if changed
-          // Don't overwrite existing items with empty arrays from the API list endpoint
-          const hasNewItems = normalizedItems.length > 0;
           const existingItems = (local.items as unknown as OrderItem[]) || [];
-          const effectiveItems = hasNewItems ? normalizedItems : existingItems;
-          const itemsChanged = hasNewItems && calculateItemsHash(existingItems) !== calculateItemsHash(normalizedItems);
+
+          // Determine if incoming items carry real data (prices/names)
+          const incomingHasRealData = normalizedItems.length > 0 &&
+            normalizedItems.some((i: OrderItem) =>
+              (Number(i.unit_price) || 0) > 0 || (i.strain_name && i.strain_name !== 'Unknown' && i.strain_name !== '')
+            );
+          const localHasRealData = existingItems.length > 0 &&
+            existingItems.some((i: OrderItem) =>
+              (Number(i.unit_price) || 0) > 0 || (i.strain_name && i.strain_name !== 'Unknown' && i.strain_name !== '')
+            );
+
+          // Only overwrite items if incoming data is higher fidelity than local
+          const shouldUpdateItems = incomingHasRealData || !localHasRealData;
+          const itemsChanged = shouldUpdateItems &&
+            normalizedItems.length > 0 &&
+            calculateItemsHash(existingItems) !== calculateItemsHash(normalizedItems);
           
           if (local.status !== liveStatus || local.payment_status !== livePayment || itemsChanged) {
             const updatePayload: Record<string, unknown> = {
@@ -191,8 +203,8 @@ export function useOrderTracking() {
               sync_status: 'synced',
             };
             
-            // Only update items if we actually have new item data
-            if (hasNewItems) {
+            // Only update items if incoming data is better than what we have locally
+            if (shouldUpdateItems && normalizedItems.length > 0) {
               updatePayload.items = JSON.parse(JSON.stringify(normalizedItems));
             }
             

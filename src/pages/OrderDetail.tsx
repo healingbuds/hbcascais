@@ -257,19 +257,37 @@ export default function OrderDetail() {
                     <CardTitle className="text-base">Items</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {order.items.map((item, i) => (
-                      <div key={i} className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium text-foreground">{item.strain_name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Qty: {item.quantity} × {formatPrice(item.unit_price, cc)}
-                          </p>
-                        </div>
-                        <p className="font-semibold text-foreground">
-                          {formatPrice(item.quantity * item.unit_price, cc)}
-                        </p>
-                      </div>
-                    ))}
+                    {(() => {
+                      // Derive unit price from total if individual prices are missing
+                      const totalQty = order.items.reduce((sum, i) => sum + (i.quantity || 0), 0);
+                      const allZeroPrice = order.items.every(i => !i.unit_price || Number(i.unit_price) === 0);
+                      const derivedUnitPrice = allZeroPrice && totalQty > 0 && order.total_amount > 0
+                        ? order.total_amount / totalQty
+                        : null;
+
+                      return order.items.map((item, i) => {
+                        const displayName = item.strain_name && item.strain_name !== 'Unknown'
+                          ? item.strain_name
+                          : 'Product';
+                        const effectivePrice = (Number(item.unit_price) || 0) > 0
+                          ? Number(item.unit_price)
+                          : derivedUnitPrice ?? 0;
+
+                        return (
+                          <div key={i} className="flex items-center justify-between">
+                            <div>
+                              <p className="font-medium text-foreground">{displayName}</p>
+                              <p className="text-sm text-muted-foreground">
+                                Qty: {item.quantity} × {formatPrice(effectivePrice, cc)}
+                              </p>
+                            </div>
+                            <p className="font-semibold text-foreground">
+                              {formatPrice(item.quantity * effectivePrice, cc)}
+                            </p>
+                          </div>
+                        );
+                      });
+                    })()}
                     <Separator />
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-foreground">Total</span>
