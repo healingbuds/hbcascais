@@ -18,35 +18,24 @@ export const createOrder = async (orderData: {
   };
   notes?: string;
 }) => {
-  return callProxy<{
-    orderId: string;
-    orderNumber?: string;
-    status: string;
-    totalAmount: number;
-  }>('create-order', { data: orderData });
+  const result = await callProxy<Record<string, unknown>>('create-order', { data: orderData });
+  if (result.error || !result.data) return result as { data: null; error: string };
+
+  // Normalize: API returns { success, data: { id, orderStatus, ... } }
+  const raw = result.data;
+  const inner = (raw.data || raw) as Record<string, unknown>;
+  const orderId = (inner.id || inner.orderId || raw.id || raw.orderId) as string;
+
+  return {
+    data: {
+      orderId,
+      status: (inner.orderStatus || inner.status || 'PENDING') as string,
+      totalAmount: (inner.totalAmount || 0) as number,
+    },
+    error: null,
+  };
 };
 
-export const createPayment = async (paymentData: {
-  orderId: string;
-  amount: number;
-  currency: string;
-  clientId: string;
-}) => {
-  return callProxy<{
-    paymentId: string;
-    status: string;
-    paymentUrl?: string;
-  }>('create-payment', { data: paymentData });
-};
-
-export const getPayment = async (paymentId: string) => {
-  return callProxy<{
-    paymentId: string;
-    status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED';
-    amount: number;
-    orderId: string;
-  }>('get-payment', { paymentId });
-};
 
 export const getOrder = async (orderId: string) => {
   return callProxy<{

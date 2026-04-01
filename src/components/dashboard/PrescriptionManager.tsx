@@ -287,7 +287,7 @@ const PrescriptionManager = () => {
               Upload
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent aria-describedby={undefined}>
             <DialogHeader>
               <DialogTitle>Upload Medical Document</DialogTitle>
             </DialogHeader>

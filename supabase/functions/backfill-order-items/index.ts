@@ -155,7 +155,7 @@ async function drGreenGet(endpoint: string, queryParams: Record<string, string |
 
   const signature = await generateSignature(queryString, privateKey);
   const url = `${DRGREEN_API_URL}${endpoint}?${queryString}`;
-  console.log(`[sync-orders] GET ${url}`);
+  console.log(`[backfill] GET ${url}`);
 
   return fetch(url, {
     method: "GET",
@@ -175,7 +175,7 @@ async function drGreenGetWithBody(endpoint: string, signBody: object): Promise<R
   const payload = JSON.stringify(signBody);
   const signature = await generateSignature(payload, privateKey);
   const url = `${DRGREEN_API_URL}${endpoint}`;
-  console.log(`[sync-orders] GET (body-signed) ${url}`);
+  console.log(`[backfill] GET (body-signed) ${url}`);
 
   return fetch(url, {
     method: "GET",
@@ -187,6 +187,42 @@ async function drGreenGetWithBody(endpoint: string, signBody: object): Promise<R
   });
 }
 
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+interface OrderLineItem {
+  strain_id: string;
+  strain_name: string;
+  quantity: number;
+  unit_price: number;
+}
+
+function extractOrderLines(orderDetail: Record<string, unknown>): OrderLineItem[] {
+  // API returns { orderDetails: { orderLines: [...] } } or { orderLines: [...] }
+  const details = (orderDetail.orderDetails || orderDetail) as Record<string, unknown>;
+  const orderLines = (details.orderLines || details.order_lines || []) as Record<string, unknown>[];
+  if (!Array.isArray(orderLines) || orderLines.length === 0) return [];
+
+  // Calculate unit price from total if per-line price isn't available
+  const totalAmount = (details.totalAmount || 0) as number;
+  const totalQty = orderLines.reduce((sum, l) => sum + ((l.quantity || l.grams || 0) as number), 0);
+
+  return orderLines.map((line: Record<string, unknown>) => {
+    const strain = line.strain as Record<string, unknown> | undefined;
+    const qty = (line.quantity || line.grams || 0) as number;
+    const linePrice = (line.unitPrice || line.unit_price || line.price || 0) as number;
+    // If no per-line price, derive from total proportionally
+    const derivedPrice = linePrice > 0 ? linePrice : (totalQty > 0 ? (totalAmount / totalQty) * qty : 0);
+    return {
+      strain_id: (strain?.id || line.strainId || line.strain_id || '') as string,
+      strain_name: (strain?.name || line.strainName || line.strain_name || '') as string,
+      quantity: qty,
+      unit_price: derivedPrice,
+    };
+  });
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -195,173 +231,87 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log("Starting order sync from Dr Green API...");
+    console.log("[backfill] Starting order items backfill...");
 
-    let allOrders: any[] = [];
-    let page = 1;
-    const take = 50;
-    let hasMore = true;
+    // Fetch all orders — we'll filter in code since JSONB filtering is complex
+    const { data: allOrders, error: fetchErr } = await supabase
+      .from('drgreen_orders')
+      .select('id, drgreen_order_id, items, total_amount')
+      .order('created_at', { ascending: false });
 
-    while (hasMore) {
-      const response = await drGreenGet("/dapp/orders", { orderBy: 'desc', take, page });
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`API error: ${response.status} - ${errorText}`);
-      }
+    if (fetchErr) throw new Error(`DB fetch error: ${fetchErr.message}`);
 
-      const data = await response.json();
-      const orders = data?.data?.orders || [];
-      const total = data?.data?.pageMetaDto?.totalCount || data?.data?.total || 0;
+    // Filter orders needing backfill: items empty, or items have zero unit_price or missing strain_name
+    const needsBackfill = (allOrders || []).filter((order: Record<string, unknown>) => {
+      const items = order.items as Record<string, unknown>[];
+      if (!Array.isArray(items) || items.length === 0) return true;
+      return items.some((item: Record<string, unknown>) =>
+        !item.unit_price || (item.unit_price as number) === 0 || !item.strain_name || item.strain_name === ''
+      );
+    });
 
-      allOrders = [...allOrders, ...orders];
-      hasMore = allOrders.length < total && orders.length > 0;
-      page++;
-      if (page > 20) break;
-    }
+    console.log(`[backfill] Found ${needsBackfill.length} orders needing backfill out of ${(allOrders || []).length} total`);
 
-    console.log(`Fetched ${allOrders.length} orders from Dr Green API`);
-
-    // Helper to extract order line items from detail endpoint response
-    function extractOrderLines(orderDetail: any): any[] {
-      const details = orderDetail?.orderDetails || orderDetail;
-      const orderLines = details?.orderLines || details?.order_lines || [];
-      if (!Array.isArray(orderLines) || orderLines.length === 0) return [];
-      const totalAmount = details?.totalAmount || 0;
-      const totalQty = orderLines.reduce((sum: number, l: any) => sum + (l.quantity || l.grams || 0), 0);
-      return orderLines.map((line: any) => {
-        const qty = line.quantity || line.grams || 0;
-        const linePrice = line.unitPrice || line.unit_price || line.price || 0;
-        const derivedPrice = linePrice > 0 ? linePrice : (totalQty > 0 ? (totalAmount / totalQty) * qty : 0);
-        return {
-          strain_id: line.strain?.id || line.strainId || line.strain_id || '',
-          strain_name: line.strain?.name || line.strainName || line.strain_name || '',
-          quantity: qty,
-          unit_price: derivedPrice,
-        };
-      });
-    }
-
-    // Build lookup map from local drgreen_clients for enrichment
-    const clientIds = new Set<string>();
-    for (const order of allOrders) {
-      const cid = order.client?.id || order.clientId;
-      if (cid) clientIds.add(cid);
-    }
-
-    const clientLookup: Record<string, any> = {};
-    if (clientIds.size > 0) {
-      const { data: localClients } = await supabase
-        .from('drgreen_clients')
-        .select('drgreen_client_id, email, full_name, user_id, country_code, shipping_address')
-        .in('drgreen_client_id', Array.from(clientIds));
-
-      if (localClients) {
-        for (const c of localClients) {
-          clientLookup[c.drgreen_client_id] = c;
-        }
-      }
-      console.log(`[sync-orders] Loaded ${Object.keys(clientLookup).length} local client records for enrichment`);
-    }
-
-    let synced = 0;
+    let backfilled = 0;
+    let failed = 0;
     const errors: string[] = [];
 
-    const alpha3to2: Record<string, string> = { ZAF: 'ZA', PRT: 'PT', GBR: 'GB', THA: 'TH', USA: 'US', DEU: 'DE', FRA: 'FR', ESP: 'ES', ITA: 'IT', NLD: 'NL', BEL: 'BE', AUT: 'AT', CHE: 'CH', BRA: 'BR', MOZ: 'MZ', AGO: 'AO' };
-
-    for (const order of allOrders) {
+    for (const order of needsBackfill) {
       try {
-        const ordClientId = order.client?.id || order.clientId || null;
-        const local = ordClientId ? clientLookup[ordClientId] : null;
-
-        // Customer name: API first, then local client
-        const apiName = order.client
-          ? [order.client.firstName, order.client.lastName].filter(Boolean).join(' ')
-          : order.customerName || null;
-        const customerName = apiName || (local?.full_name ?? null);
-
-        // Customer email: API first, then local client
-        const customerEmail = order.client?.email || order.customerEmail || (local?.email ?? null);
-
-        // Country code with alpha-3 → alpha-2 conversion
-        const rawCountryCode = order.shipping?.countryCode || order.client?.shippings?.[0]?.countryCode || null;
-        const apiCountryCode = rawCountryCode ? (alpha3to2[rawCountryCode] || rawCountryCode) : null;
-        const countryCode = apiCountryCode || (local?.country_code ?? null);
-
-        // Shipping address: API first, then local client
-        const shippingAddress = order.shipping || (local?.shipping_address ?? null);
-
-        // user_id from local client record
-        const userId = local?.user_id ?? null;
-
-        // Fetch individual order details for line items
-        let items: any[] = [];
-        try {
-          const detailResp = await drGreenGetWithBody(`/dapp/orders/${order.id}`, { orderId: order.id });
-          if (detailResp.ok) {
-            const detailData = await detailResp.json();
-            const detail = detailData?.data || detailData;
-            items = extractOrderLines(detail);
-          } else {
-            await detailResp.text(); // consume body
-          }
-        } catch (detailErr) {
-          console.log(`[sync-orders] Could not fetch detail for ${order.id}: ${detailErr}`);
+        const response = await drGreenGetWithBody(`/dapp/orders/${order.drgreen_order_id}`, { orderId: order.drgreen_order_id });
+        if (!response.ok) {
+          const errText = await response.text();
+          errors.push(`${order.drgreen_order_id}: API ${response.status} - ${errText}`);
+          failed++;
+          await delay(500);
+          continue;
         }
 
-        // Fallback if detail endpoint returned no line items
-        if (items.length === 0) {
-          const itemCount = order._count?.orderLines || 0;
-          items = itemCount > 0
-            ? [{ quantity: order.totalQuantity || itemCount, totalPrice: order.totalPrice || 0 }]
-            : [];
+        const data = await response.json();
+        const orderDetail = data?.data || data;
+
+        const enrichedItems = extractOrderLines(orderDetail);
+
+        if (enrichedItems.length === 0) {
+          // If API also has no line items, build fallback from existing data
+          console.log(`[backfill] ${order.drgreen_order_id}: No orderLines in detail response, skipping`);
+          await delay(300);
+          continue;
         }
 
-        // Use localPrice for proper currency amount, fallback to totalAmount
-        const rawTotal = order.localPrice?.totalAmount ?? order.totalAmount ?? 0;
-        const totalAmount = typeof rawTotal === 'number' ? rawTotal : (parseFloat(rawTotal) || 0);
-        const currency = order.localPrice?.currency || order.shipping?.currency || order.currency || 'ZAR';
-
-        const { error: upsertError } = await supabase
+        const { error: updateErr } = await supabase
           .from('drgreen_orders')
-          .upsert({
-            drgreen_order_id: order.id,
-            invoice_number: order.invoiceNumber || null,
-            status: order.orderStatus || order.status || 'PENDING',
-            payment_status: order.paymentStatus || 'PENDING',
-            total_amount: totalAmount,
-            items: items,
-            customer_name: customerName,
-            customer_email: customerEmail,
-            client_id: ordClientId,
-            country_code: countryCode,
-            currency: currency,
-            shipping_address: shippingAddress,
-            user_id: userId,
-            sync_status: 'synced',
-            synced_at: new Date().toISOString(),
-            created_at: order.createdAt || new Date().toISOString(),
+          .update({
+            items: enrichedItems,
             updated_at: new Date().toISOString(),
-          }, { onConflict: 'drgreen_order_id' });
+          })
+          .eq('id', order.id);
 
-        if (upsertError) {
-          errors.push(`${order.id}: ${upsertError.message}`);
+        if (updateErr) {
+          errors.push(`${order.drgreen_order_id}: DB update - ${updateErr.message}`);
+          failed++;
         } else {
-          synced++;
+          backfilled++;
+          console.log(`[backfill] ${order.drgreen_order_id}: Updated with ${enrichedItems.length} line items`);
         }
+
+        // Rate limit: 300ms between calls
+        await delay(300);
       } catch (err) {
-        errors.push(`${order.id}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        errors.push(`${order.drgreen_order_id}: ${err instanceof Error ? err.message : 'Unknown'}`);
+        failed++;
       }
     }
 
-    console.log(`Sync complete: ${synced} synced, ${errors.length} errors`);
+    console.log(`[backfill] Complete: ${backfilled} backfilled, ${failed} failed`);
 
     return new Response(
-      JSON.stringify({ success: true, synced, errors, total: allOrders.length }),
+      JSON.stringify({ success: true, backfilled, failed, total: needsBackfill.length, errors }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error("Sync orders error:", error);
+    console.error("[backfill] Error:", error);
     return new Response(
       JSON.stringify({ success: false, error: message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

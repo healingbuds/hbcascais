@@ -31,3 +31,31 @@ export const getDappStrains = async (params?: {
     }>;
   }>('dapp-strains', params);
 };
+
+export interface StrainLocation {
+  retailPrice: number;
+  location: {
+    currency: string;
+    countryCode?: string;
+    name?: string;
+  };
+  isAvailable?: boolean;
+  stockQuantity?: number;
+}
+
+export interface StrainDetail {
+  id: string;
+  name: string;
+  description?: string;
+  thcContent?: number;
+  cbdContent?: number;
+  retailPrice?: number;
+  availability?: boolean;
+  strainLocations?: StrainLocation[];
+  [key: string]: unknown;
+}
+
+/** Fetch a single strain with location-based pricing via GET /dapp/strains/{strainId} */
+export const getStrainDetail = async (strainId: string) => {
+  return callProxy<StrainDetail>('dapp-strain-detail', { strainId });
+};

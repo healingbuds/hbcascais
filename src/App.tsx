@@ -20,8 +20,7 @@ import CookieConsentBanner from "@/components/CookieConsentBanner";
 
 import { ShopProvider } from "@/context/ShopContext";
 import { CursorProvider } from "@/context/CursorContext";
-import { WalletProvider } from "@/providers/WalletProvider";
-import { WalletContextProvider } from "@/context/WalletContext";
+import { LazyWalletBoundary } from "@/providers/LazyWalletBoundary";
 import { TenantProvider } from "@/context/TenantContext";
 import { ApiEnvironmentProvider } from "@/context/ApiEnvironmentContext";
 
@@ -147,37 +146,35 @@ const AnimatedRoutes = () => {
 
 const App = () => (
   <ErrorBoundary>
-    <WalletProvider>
-      <ThemeProvider defaultTheme="light" storageKey="healing-buds-theme">
-        <CursorProvider>
-          <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
-              <WalletContextProvider>
-                <ApiEnvironmentProvider>
-                  <ShopProvider>
-                    <CursorFollower>
-                      <Toaster />
-                      <Sonner />
-                      <BrowserRouter>
-                        <TenantProvider>
-                          <SkipLinks />
-                          <ScrollToTop />
-                          <RouteProgress />
-                          <main id="main-content" tabIndex={-1}>
-                            <AnimatedRoutes />
-                          </main>
-                          <CookieConsentBanner />
-                        </TenantProvider>
-                      </BrowserRouter>
-                    </CursorFollower>
-                  </ShopProvider>
-                </ApiEnvironmentProvider>
-              </WalletContextProvider>
-            </TooltipProvider>
-          </QueryClientProvider>
-        </CursorProvider>
-      </ThemeProvider>
-    </WalletProvider>
+    <ThemeProvider defaultTheme="light" storageKey="healing-buds-theme">
+      <CursorProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <ApiEnvironmentProvider>
+              <ShopProvider>
+                <CursorFollower>
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <TenantProvider>
+                      <LazyWalletBoundary>
+                        <SkipLinks />
+                        <ScrollToTop />
+                        <RouteProgress />
+                        <main id="main-content" tabIndex={-1}>
+                          <AnimatedRoutes />
+                        </main>
+                        <CookieConsentBanner />
+                      </LazyWalletBoundary>
+                    </TenantProvider>
+                  </BrowserRouter>
+                </CursorFollower>
+              </ShopProvider>
+            </ApiEnvironmentProvider>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </CursorProvider>
+    </ThemeProvider>
   </ErrorBoundary>
 );
 

@@ -314,7 +314,7 @@ const AdminPrescriptions = () => {
 
       {/* Review Dialog */}
       <Dialog open={!!selectedDoc} onOpenChange={() => setSelectedDoc(null)}>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>Review Document</DialogTitle>
           </DialogHeader>

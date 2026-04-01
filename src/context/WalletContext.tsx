@@ -65,10 +65,22 @@ export function WalletContextProvider({ children }: WalletContextProviderProps) 
   );
 }
 
+const defaultWalletValue: WalletContextValue = {
+  isConnected: false,
+  address: undefined,
+  hasDigitalKey: false,
+  isCheckingNFT: false,
+  openWalletModal: () => {},
+  closeWalletModal: () => {},
+  isWalletModalOpen: false,
+  isHydrated: false,
+};
+
 export function useWallet() {
   const context = useContext(WalletContext);
+  // Return safe defaults when outside WalletContextProvider (non-admin pages)
   if (context === undefined) {
-    throw new Error('useWallet must be used within a WalletContextProvider');
+    return defaultWalletValue;
   }
   return context;
 }

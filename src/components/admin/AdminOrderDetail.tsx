@@ -300,7 +300,7 @@ export function AdminOrderDetail({
                     <div>
                       <p className="font-medium">{item.strainName}</p>
                       <p className="text-xs text-muted-foreground">
-                        Qty: {item.quantity} × {formatPrice(item.unitPrice ?? 0, order.country_code || 'ZA')}
+                        {item.quantity} {item.quantity === 1 ? 'pack' : 'packs'} × {formatPrice(item.unitPrice ?? 0, order.country_code || 'ZA')}
                       </p>
                     </div>
                     <p className="font-medium">{formatPrice(item.totalPrice ?? 0, order.country_code || 'ZA')}</p>

@@ -190,10 +190,13 @@ export function AdminClientManager() {
         const responseData = clientsResult.data as unknown as { data?: { clients?: DrGreenClient[] } };
         const clientsList = responseData?.data?.clients || (clientsResult.data as { clients?: DrGreenClient[] })?.clients;
         if (clientsList) {
-          setClients(clientsList);
+          // Filter out admin accounts — admins are not customers
+          const adminEmails = new Set(['healingbudsglobal@gmail.com']);
+          const filteredClients = clientsList.filter(c => !adminEmails.has(c.email?.toLowerCase()));
+          setClients(filteredClients);
           
           // Background sync: upsert fetched clients into local drgreen_clients table
-          syncClientsToLocalDb(clientsList);
+          syncClientsToLocalDb(filteredClients);
         }
       }
 

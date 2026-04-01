@@ -92,7 +92,7 @@ export function OrdersTable({ orders, onReorder, isReordering }: OrdersTableProp
             <TableHead className="font-semibold hidden md:table-cell">Invoice</TableHead>
             <TableHead className="font-semibold hidden md:table-cell">Payment</TableHead>
             <TableHead className="font-semibold hidden md:table-cell">Status</TableHead>
-            <TableHead className="font-semibold hidden md:table-cell text-center">Qty (g)</TableHead>
+            <TableHead className="font-semibold hidden md:table-cell text-center">Qty</TableHead>
             <TableHead className="font-semibold text-right">Total</TableHead>
             <TableHead className="font-semibold text-right">Actions</TableHead>
           </TableRow>

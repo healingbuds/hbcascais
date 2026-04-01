@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingBag, CreditCard, CheckCircle2, AlertCircle, Loader2, MapPin, Home, Building2, Clock, Info } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, CheckCircle2, AlertCircle, Loader2, MapPin, Home, Building2, Clock, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -25,7 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 async function retryOperation<T>(
   operation: () => Promise<{ data: T | null; error: string | null }>,
   operationName: string,
-  maxRetries: number = 3
+  maxRetries: number = 2
 ): Promise<{ data: T | null; error: string | null }> {
   let lastError: string | null = null;
   
@@ -119,7 +119,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('shop');
   const { toast } = useToast();
-  const { createPayment, getPayment, createOrder, getClientDetails, getOrder } = useDrGreenApi();
+  const { createOrder, getClientDetails } = useDrGreenApi();
   const { saveOrder } = useOrderTracking();
   const { isAdmin } = useUserRole();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -305,70 +305,18 @@ const Checkout = () => {
       const createdOrderId = orderResult.data.orderId;
       console.log('[Checkout] Order created:', createdOrderId);
 
-      setPaymentStatus('Initiating payment...');
+      // Dr. Green handles payment manually — they approve the order
+      // and send a payment link to the customer directly.
+      // We save immediately with PENDING status so items are never lost.
+      setPaymentStatus('Saving order...');
 
-      // Create payment via Dr Green API
-      const clientCountry = drGreenClient.country_code || countryCode || 'PT';
-      const paymentResult = await retryOperation(
-        () => createPayment({
-          orderId: createdOrderId,
-          amount: cartTotal,
-          currency: 'USD',
-          clientId: drGreenClient.drgreen_client_id,
-        }),
-        'Create payment'
-      );
+      const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
+      const confirmedTotal = orderResult.data.totalAmount || cartTotal;
 
-      if (paymentResult.error || !paymentResult.data) {
-        throw new Error(paymentResult.error || 'Failed to initiate payment');
-      }
-
-      const paymentId = paymentResult.data.paymentId;
-      setPaymentStatus('Processing payment...');
-
-      // Poll for payment status (simplified - in production would use webhooks)
-      let attempts = 0;
-      const maxAttempts = 10;
-      let finalStatus = 'PENDING';
-      let finalPaymentStatus = 'PENDING';
-      
-      while (attempts < maxAttempts) {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        
-        const statusResult = await getPayment(paymentId);
-        
-        if (statusResult.data?.status === 'PAID') {
-          finalStatus = 'CONFIRMED';
-          finalPaymentStatus = 'PAID';
-          break;
-        } else if (statusResult.data?.status === 'FAILED' || statusResult.data?.status === 'CANCELLED') {
-          throw new Error('Payment was not successful');
-        }
-        
-        attempts++;
-      }
-
-      // POST-ORDER CONFIRMATION: Fetch confirmed order from API (Step 6)
-      setPaymentStatus('Confirming order details...');
-      let confirmedTotal = cartTotal;
-      const orderConfirmation = await getOrder(createdOrderId);
-      if (orderConfirmation.data) {
-        const apiTotal = orderConfirmation.data.totalAmount;
-        if (apiTotal != null && apiTotal !== cartTotal) {
-          console.warn(`[Checkout] Total mismatch — client: ${cartTotal}, API: ${apiTotal}. Using API value.`);
-        }
-        confirmedTotal = apiTotal ?? cartTotal;
-        finalStatus = orderConfirmation.data.status || finalStatus;
-      } else {
-        console.warn('[Checkout] Could not fetch order confirmation, using client-side values:', orderConfirmation.error);
-      }
-
-      // Save order locally with complete context snapshot for reliable admin sync
-const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
       await saveOrder({
         drgreen_order_id: createdOrderId,
-        status: finalStatus,
-        payment_status: finalPaymentStatus,
+        status: 'PENDING',
+        payment_status: 'PENDING',
         total_amount: confirmedTotal,
         items: cart.map(item => ({
           strain_id: item.strain_id,
@@ -376,7 +324,6 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
           quantity: item.quantity,
           unit_price: item.unit_price,
         })),
-        // Capture order context at checkout time
         client_id: drGreenClient.drgreen_client_id,
         shipping_address: {
           address1: shippingAddress.address1,
@@ -395,9 +342,9 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
 
       setOrderId(createdOrderId);
       setOrderComplete(true);
-      clearCart();
+      await clearCart();
 
-      // Send confirmation email (fire-and-forget)
+      // Send "order received / queued" email (fire-and-forget)
       sendOrderConfirmationEmail({
         email: drGreenClient.email || '',
         customerName: drGreenClient.full_name || '',
@@ -406,13 +353,13 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
         totalAmount: confirmedTotal,
         currency: getCurrencyForCountry(clientCountryCode),
         shippingAddress,
-        isLocalOrder: false,
+        isLocalOrder: true, // Order is queued — Dr. Green will approve + send payment link
         region: clientCountryCode,
       });
       
       toast({
-        title: finalPaymentStatus === 'PAID' ? 'Order Placed Successfully' : 'Order Submitted',
-        description: `Your order ${createdOrderId} has been ${finalPaymentStatus === 'PAID' ? 'confirmed' : 'submitted for processing'}.`,
+        title: 'Order Submitted',
+        description: `Your order ${createdOrderId} has been submitted. Our team will review and send you a payment link.`,
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -450,17 +397,21 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
                         <CheckCircle2 className="w-10 h-10 text-primary" />
                       </div>
                       <h1 className="text-3xl font-bold text-foreground mb-4">
-                        Order Confirmed!
+                        Order Received!
                       </h1>
                       <p className="text-muted-foreground mb-2">
-                        Thank you for your order. Your order ID is:
+                        Thank you for your order. Your order reference is:
                       </p>
-                      <p className="text-xl font-mono text-primary mb-8">
+                      <p className="text-xl font-mono text-primary mb-4">
                         {orderId}
                       </p>
-                      <p className="text-sm text-muted-foreground mb-8">
-                        You will receive an email confirmation shortly with tracking information.
-                      </p>
+                      <Alert className="text-left mb-8">
+                        <Clock className="h-4 w-4" />
+                        <AlertTitle>What happens next?</AlertTitle>
+                        <AlertDescription>
+                          Our team will review your order and send you a secure payment link via email once approved.
+                        </AlertDescription>
+                      </Alert>
                     </>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button variant="outline" onClick={() => navigate('/shop')}>
@@ -687,12 +638,12 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
                         </CardContent>
                       </Card>
 
-                      {/* Payment Card */}
+                      {/* Order Submission Card */}
                       <Card className="bg-card/50 backdrop-blur-sm border-border/50">
                         <CardHeader>
                           <CardTitle className="flex items-center gap-2">
-                            <CreditCard className="h-5 w-5" />
-                            Payment
+                            <ShoppingBag className="h-5 w-5" />
+                            Submit Order
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -709,9 +660,9 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
 
                           {/* Notice */}
                           <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/10 border border-primary/20">
-                            <AlertCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                            <Clock className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                             <p className="text-sm text-muted-foreground">
-                              Payment will be processed securely through our payment provider.
+                              Your order will be reviewed by our team. Once approved, a secure payment link will be sent to your email.
                             </p>
                           </div>
 
@@ -728,14 +679,14 @@ const clientCountryCode = drGreenClient.country_code || countryCode || 'ZA';
                               </>
                             ) : (
                               <>
-                                <CreditCard className="mr-2 h-4 w-4" />
-                                Place Order - {formatPrice(cartTotalConverted, countryCode)}
+                                <ShoppingBag className="mr-2 h-4 w-4" />
+                                Submit Order — {formatPrice(cartTotalConverted, countryCode)}
                               </>
                             )}
                           </Button>
 
                           <p className="text-xs text-center text-muted-foreground">
-                            By placing this order, you agree to our terms of service and confirm that you are a verified medical patient.
+                            By submitting this order, you agree to our terms of service and confirm that you are a verified medical patient.
                           </p>
                         </CardContent>
                       </Card>

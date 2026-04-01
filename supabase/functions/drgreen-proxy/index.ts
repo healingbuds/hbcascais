@@ -115,7 +115,7 @@ const PUBLIC_ACTIONS: string[] = [];
 
 // Country-gated actions: open countries (ZA, TH) don't require auth, restricted (GB, PT) do
 const COUNTRY_GATED_ACTIONS = [
-  'get-strains', 'get-all-strains', 'get-strains-legacy', 'get-strain'
+  'get-strains', 'get-all-strains', 'get-strains-legacy', 'get-strain', 'dapp-strain-detail'
 ];
 
 // Open countries where unauthenticated users can browse products
@@ -2863,6 +2863,16 @@ serve(async (req) => {
         response = await drGreenRequestBody(`/strains/${body.strainId}`, "GET", signBody, false, envConfig);
         break;
       }
+
+      // GET /dapp/strains/{strainId} — returns strainLocations with local pricing
+      case "dapp-strain-detail": {
+        if (!validateStringLength(body.strainId, 100)) {
+          throw new Error("Invalid strain ID format");
+        }
+        logInfo(`Fetching dapp strain detail ${body.strainId}, env: ${envConfig.name}`);
+        response = await drGreenRequestQuery(`/dapp/strains/${body.strainId}`, {}, false, envConfig);
+        break;
+      }
       
       case "create-cart": {
         response = await drGreenRequest("/dapp/carts", "POST", body.data);
@@ -3353,19 +3363,7 @@ serve(async (req) => {
         break;
       }
       
-      case "create-payment": {
-        response = await drGreenRequest("/dapp/payments", "POST", body.data);
-        break;
-      }
-      
-      case "get-payment": {
-        if (!validateStringLength(body.paymentId, 100)) {
-          throw new Error("Invalid payment ID format");
-        }
-        // Per API guide: GET /dapp/payments/{id} signs {"paymentId": "..."} as signBody
-        response = await drGreenRequestBody(`/dapp/payments/${body.paymentId}`, "GET", { paymentId: body.paymentId });
-        break;
-      }
+      // create-payment and get-payment removed — Dr. Green handles payments manually
       
       // ==========================================
       // NEW ENDPOINTS FROM POSTMAN COLLECTION
