@@ -199,7 +199,7 @@ const Header = ({ onMenuStateChange }: HeaderProps) => {
               <NavigationMenu scrolled={scrolled} isDark={isDark} />
               
               {/* Right Actions - Desktop */}
-              <div className="hidden xl:flex items-center gap-2 flex-shrink-0">
+              <div className="hidden xl:flex items-center gap-1.5 flex-shrink-0">
                 {isShopRoute && <CartButton />}
                 <LanguageSwitcher scrolled={scrolled} />
                 <ThemeToggle isDark={isDark} />
