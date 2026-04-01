@@ -2863,6 +2863,16 @@ serve(async (req) => {
         response = await drGreenRequestBody(`/strains/${body.strainId}`, "GET", signBody, false, envConfig);
         break;
       }
+
+      // GET /dapp/strains/{strainId} — returns strainLocations with local pricing
+      case "dapp-strain-detail": {
+        if (!validateStringLength(body.strainId, 100)) {
+          throw new Error("Invalid strain ID format");
+        }
+        logInfo(`Fetching dapp strain detail ${body.strainId}, env: ${envConfig.name}`);
+        response = await drGreenRequestQuery(`/dapp/strains/${body.strainId}`, {}, false, envConfig);
+        break;
+      }
       
       case "create-cart": {
         response = await drGreenRequest("/dapp/carts", "POST", body.data);

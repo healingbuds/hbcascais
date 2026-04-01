@@ -19,7 +19,7 @@ export interface Product {
   description: string;
   thcContent: number;
   cbdContent: number;
-  retailPrice: number;
+  retailPrice: number; // Always USD from API
   availability: boolean;
   stock: number;
   imageUrl: string;
@@ -28,6 +28,10 @@ export interface Product {
   terpenes: string[];
   category: string;
   dataSource: DataSource;
+  /** Native local price from strainLocations (if available) */
+  localRetailPrice?: number;
+  /** Currency code for localRetailPrice (e.g. 'ZAR', 'EUR') */
+  localCurrency?: string;
 }
 
 // Strain name to branded jar image mapping (case-insensitive keys normalized below)
