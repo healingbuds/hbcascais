@@ -226,12 +226,19 @@ serve(async (req) => {
       const details = orderDetail?.orderDetails || orderDetail;
       const orderLines = details?.orderLines || details?.order_lines || [];
       if (!Array.isArray(orderLines) || orderLines.length === 0) return [];
-      return orderLines.map((line: any) => ({
-        strain_id: line.strain?.id || line.strainId || line.strain_id || '',
-        strain_name: line.strain?.name || line.strainName || line.strain_name || '',
-        quantity: line.quantity || line.grams || 0,
-        unit_price: line.unitPrice || line.unit_price || line.price || 0,
-      }));
+      const totalAmount = details?.totalAmount || 0;
+      const totalQty = orderLines.reduce((sum: number, l: any) => sum + (l.quantity || l.grams || 0), 0);
+      return orderLines.map((line: any) => {
+        const qty = line.quantity || line.grams || 0;
+        const linePrice = line.unitPrice || line.unit_price || line.price || 0;
+        const derivedPrice = linePrice > 0 ? linePrice : (totalQty > 0 ? (totalAmount / totalQty) * qty : 0);
+        return {
+          strain_id: line.strain?.id || line.strainId || line.strain_id || '',
+          strain_name: line.strain?.name || line.strainName || line.strain_name || '',
+          quantity: qty,
+          unit_price: derivedPrice,
+        };
+      });
     }
 
     // Build lookup map from local drgreen_clients for enrichment
