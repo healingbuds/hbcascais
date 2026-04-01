@@ -285,7 +285,8 @@ serve(async (req) => {
           const itemCount = order._count?.orderLines || 0;
           items = itemCount > 0
             ? [{ quantity: order.totalQuantity || itemCount, totalPrice: order.totalPrice || 0 }]
-          : [];
+            : [];
+        }
 
         // Use localPrice for proper currency amount, fallback to totalAmount
         const rawTotal = order.localPrice?.totalAmount ?? order.totalAmount ?? 0;
