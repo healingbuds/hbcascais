@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import InvoicePrintView from "@/components/shop/InvoicePrintView";
 
 interface OrderItem {
   strain_id: string;
