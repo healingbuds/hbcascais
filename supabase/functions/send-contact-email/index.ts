@@ -97,6 +97,7 @@ function buildContactEmailHtml(name: string, subject: string, message: string): 
           <hr style="border:none;border-top:1px solid #e5e7eb;margin:0;" />
         </td></tr>
         <tr><td style="padding:28px 48px 36px;text-align:center;">
+          <img src="${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/email-assets/hb-logo-teal.png" alt="Healing Buds" height="32" style="height:32px;width:auto;display:inline-block;margin:0 0 16px;" />
           <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#1a1a1a;">Healing Buds</p>
           <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;">Your trusted partner in medical cannabis wellness.</p>
           <p style="margin:0;font-size:11px;color:#d1d5db;">© ${new Date().getFullYear()} Healing Buds. All rights reserved.</p>

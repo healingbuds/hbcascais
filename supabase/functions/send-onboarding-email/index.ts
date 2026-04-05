@@ -52,10 +52,12 @@ function emailHeader(brandName: string): string {
 }
 
 function emailFooter(config: { brandName: string; supportEmail: string }): string {
+  const tealLogoUrl = `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/email-assets/hb-logo-teal.png`;
   return `<tr><td style="padding:0 48px;">
     <hr style="border:none;border-top:1px solid #e5e7eb;margin:0;" />
   </td></tr>
   <tr><td style="padding:28px 48px 36px;text-align:center;">
+    <img src="${tealLogoUrl}" alt="${config.brandName}" height="32" style="height:32px;width:auto;display:inline-block;margin:0 0 16px;" />
     <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#1a1a1a;">${config.brandName}</p>
     <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;">Your trusted partner in medical cannabis wellness.</p>
     <p style="margin:0 0 12px;font-size:12px;color:#9ca3af;">
